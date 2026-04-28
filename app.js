@@ -8,8 +8,6 @@
 
 'use strict';
 
-console.log("app.js 已成功載入");
-
 const girlRoster = [
     { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" },
     { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" },
