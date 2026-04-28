@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中華職棒啦啦隊</title>
+    <title>台灣啦啦隊 - 2026 數據庫</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -14,13 +14,28 @@
         .tab-active { border-bottom: 4px solid #bf0845; color: #bf0845; font-weight: bold; }
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
-        .number-badge { background: #eee; color: #666; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-right: 8px; }
+        
+        /* 改良後的號碼設計 */
+        .number-badge { 
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #bf0845; 
+            color: white; 
+            width: 28px;
+            height: 28px;
+            border-radius: 50%; 
+            font-size: 0.75rem; 
+            font-weight: bold;
+            margin-right: 12px;
+            box-shadow: 0 2px 4px rgba(191, 8, 69, 0.2);
+        }
     </style>
 </head>
 <body class="pb-10">
 
     <header class="pink-gradient text-white py-6 text-center shadow-lg mb-4">
-        <h1 class="text-3xl font-bold tracking-wider">📣 中華職棒</h1>
+        <h1 class="text-3xl font-bold tracking-wider">📣 台灣啦啦隊 2026</h1>
         <p class="mt-1 opacity-90 text-sm">官方戰報與數據統計系統</p>
     </header>
 
@@ -45,20 +60,20 @@
 
         <div id="statsSection">
             <div id="statsDashboard" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div class="card p-4 text-center">
-                    <p class="text-gray-500 text-xs">有效應援場次</p>
+                <div class="card p-4 text-center border-b-4 border-pink-100">
+                    <p class="text-gray-500 text-xs">應援場次</p>
                     <p id="totalGames" class="text-2xl font-bold text-gray-800">-</p>
                 </div>
-                <div class="card p-4 text-center">
+                <div class="card p-4 text-center border-b-4 border-green-100">
                     <p class="text-gray-500 text-xs">團隊勝場 (W)</p>
                     <p id="teamWins" class="text-2xl font-bold text-green-500">-</p>
                 </div>
-                <div class="card p-4 text-center">
+                <div class="card p-4 text-center border-b-4 border-red-100">
                     <p class="text-gray-500 text-xs">團隊敗場 (L)</p>
                     <p id="teamLosses" class="text-2xl font-bold text-red-400">-</p>
                 </div>
                 <div class="card p-4 text-center border-l-4 border-pink-500">
-                    <p class="text-gray-500 text-xs">當前統計</p>
+                    <p class="text-gray-500 text-xs">統計期間</p>
                     <p id="currentMonthLabel" class="text-2xl font-bold text-pink-600">三月</p>
                 </div>
             </div>
@@ -69,7 +84,7 @@
                         <thead>
                             <tr class="bg-pink-50 text-pink-700 text-sm">
                                 <th class="p-4"># 姓名</th>
-                                <th class="p-4">有效出場數</th>
+                                <th class="p-4">應援場次</th>
                                 <th class="p-4">戰績</th>
                                 <th class="p-4">勝率</th>
                             </tr>
@@ -84,7 +99,7 @@
             <div class="card p-10 text-center">
                 <div class="text-5xl mb-4">🌸</div>
                 <h2 class="text-2xl font-bold text-pink-600 mb-2">女孩詳細介紹</h2>
-                <p class="text-gray-500">此頁面為預留空間，將於後續更新女孩個人簡介與相片。</p>
+                <p class="text-gray-500 text-sm">此頁面為預留空間，未來將展示女孩個人特寫、應援心得與相關簡介。</p>
             </div>
         </div>
 
@@ -99,23 +114,23 @@
                     <div class="cursor-pointer text-gray-400 text-xl" onclick="closeModal()">✕</div>
                 </div>
                 <div id="modalContent" class="space-y-3"></div>
-                <div class="mt-6 text-center text-xs text-gray-400">※ 延賽場次不計入勝率計算</div>
+                <div class="mt-6 text-center text-[10px] text-gray-400 uppercase tracking-widest">Postponed games are excluded from calculation</div>
             </div>
         </div>
     </div>
 
     <script>
-        // 女孩名單與編號
+        // 按照官網背號順序重新排列名單 (00-92)
         const girlRoster = [
-            { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, { id: "7", name: "筠熹" },
-            { id: "8", name: "貝佳頤" }, { id: "10", name: "高橋佳帆" }, { id: "11", name: "卉妮" },
-            { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" }, { id: "16", name: "笑笑" },
-            { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" }, { id: "21", name: "MIKA" },
-            { id: "22", name: "河智媛" }, { id: "23", name: "廉世彬" }, { id: "25", name: "禹洙漢" },
-            { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" }, { id: "28", name: "言梓璇" },
-            { id: "29", name: "金佳垠" }, { id: "30", name: "禹菡" }, { id: "36", name: "岱縈" },
-            { id: "37", name: "崔荷潾" }, { id: "66", name: "曲曲" }, { id: "77", name: "彭彭" },
-            { id: "88", name: "沈珈妤" }, { id: "92", name: "溫妮" }, { id: "00", name: "琳妲" }
+            { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
+            { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "10", name: "高橋佳帆" }, 
+            { id: "11", name: "卉妮" }, { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" }, 
+            { id: "16", name: "笑笑" }, { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" }, 
+            { id: "21", name: "MIKA" }, { id: "22", name: "河智媛" }, { id: "23", name: "廉世彬" }, 
+            { id: "25", name: "禹洙漢" }, { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" }, 
+            { id: "28", name: "言梓璇" }, { id: "29", name: "金佳垠" }, { id: "30", name: "禹菡" }, 
+            { id: "36", name: "岱縈" }, { id: "37", name: "崔荷潾" }, { id: "66", name: "曲曲" }, 
+            { id: "77", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "92", name: "溫妮" }
         ];
 
         const games_mar = [
@@ -154,7 +169,7 @@
         let currentTabIdx = 0;
         const allMonths = [games_mar, games_apr, games_may];
 
-        // 模擬出席函數
+        // 模擬出席函數 (之後你可以依照真實班表改寫)
         function getAttendance(name, monthIdx) {
             const games = allMonths[monthIdx];
             return games.map(g => g.date).filter(() => Math.random() > 0.4);
@@ -164,7 +179,6 @@
             const tbody = document.getElementById('girlTableBody');
             tbody.innerHTML = '';
             
-            // 切換顯示區塊
             if (currentTabIdx === 4) {
                 document.getElementById('statsSection').classList.add('hidden');
                 document.getElementById('introSection').classList.remove('hidden');
@@ -178,7 +192,6 @@
             let dashboard = { total: 0, wins: 0, losses: 0, label: "" };
 
             if (currentTabIdx < 3) {
-                // 月份邏輯
                 const mGames = allMonths[currentTabIdx];
                 const validGames = mGames.filter(g => g.res !== "延賽");
                 dashboard.total = validGames.length;
@@ -200,8 +213,7 @@
                     displayData.push({ ...girl, count, w, l, att });
                 });
             } else {
-                // 總表邏輯
-                dashboard.label = "2026 總累計";
+                dashboard.label = "2026 總表統計";
                 let allValid = [...games_mar, ...games_apr].filter(g => g.res !== "延賽");
                 dashboard.total = allValid.length;
                 dashboard.wins = allValid.filter(g => g.res === 'W').length;
@@ -230,14 +242,15 @@
             document.getElementById('teamLosses').innerText = dashboard.losses;
             document.getElementById('currentMonthLabel').innerText = dashboard.label;
 
-            displayData.sort((a, b) => b.count - a.count).forEach(item => {
+            // 嚴格按照背號渲染
+            displayData.forEach(item => {
                 const rate = item.count > 0 ? ((item.w / item.count) * 100).toFixed(1) : "0.0";
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-pink-50 transition cursor-pointer";
                 tr.onclick = () => showDetail(item);
                 tr.innerHTML = `
-                    <td class="p-4"><span class="number-badge">${item.id}</span><b>${item.name}</b></td>
-                    <td class="p-4 text-sm">${item.count} 場</td>
+                    <td class="p-4 flex items-center"><span class="number-badge">${item.id}</span><b class="text-gray-700">${item.name}</b></td>
+                    <td class="p-4 text-sm text-gray-600">${item.count} 場</td>
                     <td class="p-4 text-sm">${currentTabIdx === 2 ? '-' : item.w+'W-'+item.l+'L'}</td>
                     <td class="p-4 font-bold text-pink-600">${currentTabIdx === 2 ? '-' : rate + '%'}</td>
                 `;
@@ -260,20 +273,22 @@
                     const div = document.createElement('div');
                     let border = "border-gray-200";
                     let resTag = g.res;
-                    if(g.res === 'W') { border = "border-green-400"; }
-                    else if(g.res === 'L') { border = "border-red-300"; }
-                    else if(g.res === '延賽') { border = "border-blue-300"; resTag = "延賽"; }
+                    let resClass = "text-gray-400";
+
+                    if(g.res === 'W') { border = "border-green-400"; resClass = "text-green-500"; }
+                    else if(g.res === 'L') { border = "border-red-300"; resClass = "text-red-400"; }
+                    else if(g.res === '延賽') { border = "border-blue-300"; resTag = "⛈️ 延賽"; resClass = "text-blue-500"; }
 
                     div.className = `p-3 bg-white rounded-lg border-l-4 shadow-sm ${border}`;
                     div.innerHTML = `
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-xs text-gray-400">${date}</p>
+                                <p class="text-[10px] text-gray-400 font-mono">${date}</p>
                                 <p class="font-bold text-gray-700">vs ${g.opp}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-sm font-bold text-gray-600">${g.score || '-'}</p>
-                                <p class="text-xs font-bold ${g.res==='W'?'text-green-500':'text-gray-400'}">${resTag}</p>
+                                <p class="text-xs font-bold ${resClass}">${resTag}</p>
                             </div>
                         </div>`;
                     content.appendChild(div);
@@ -294,5 +309,7 @@
 
         render();
     </script>
+</body>
+</html>
 </body>
 </html>
