@@ -3,56 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.tailwindcss.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>中華職棒啦啦隊</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #fff5f7; }
-        .rakuten-pink { background-color: #bf0845; }
         .pink-gradient { background: linear-gradient(135deg, #bf0845 0%, #e63946 100%); }
         .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .tab-active { border-bottom: 4px solid #bf0845; color: #bf0845; font-weight: bold; }
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
-        
-        /* 圓形號碼 */
-        .number-badge { 
-            display: inline-flex; align-items: center; justify-content: center;
-            background: #bf0845; color: white; width: 24px; height: 24px;
-            border-radius: 50%; font-size: 0.65rem; font-weight: bold;
-            margin-right: 8px; flex-shrink: 0;
-        }
-
-        /* 表格固定比例 */
+        .number-badge { display: inline-flex; align-items: center; justify-content: center; background: #bf0845; color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.65rem; font-weight: bold; margin-right: 8px; flex-shrink: 0; }
         .col-name { width: 40%; }
         .col-count { width: 20%; }
         .col-record { width: 20%; }
         .col-rate { width: 20%; }
-
         @media (max-width: 640px) {
             td, th { padding: 12px 2px !important; font-size: 0.85rem; }
             .col-name { width: 45%; }
-            .name-text { white-space: nowrap; } 
+            .name-text { white-space: nowrap; }
             .number-badge { width: 18px; height: 18px; font-size: 0.6rem; margin-right: 4px; }
             .dashboard-text { font-size: 1.1rem !important; }
         }
     </style>
 </head>
 <body class="pb-10">
-
     <header class="pink-gradient text-white py-6 text-center shadow-lg mb-4">
         <h1 class="text-2xl md:text-3xl font-bold tracking-wider">📣 中華職棒啦啦隊</h1>
         <p class="mt-1 opacity-90 text-xs">應援戰報與女孩表現數據統計</p>
     </header>
 
     <main class="max-w-6xl mx-auto px-2 md:px-4">
-        
-        <div class="flex flex-wrap border-b border-gray-200 mb-6 bg-white rounded-t-lg overflow-hidden text-sm">
-            <button onclick="switchTab(0)" id="tab0" class="flex-1 py-4 text-center hover:bg-pink-50 transition tab-active">三月</button>
-            <button onclick="switchTab(1)" id="tab1" class="flex-1 py-4 text-center hover:bg-pink-50 transition">四月</button>
-            <button onclick="switchTab(2)" id="tab2" class="flex-1 py-4 text-center hover:bg-pink-50 transition">五月</button>
-            <button onclick="switchTab(3)" id="tab3" class="flex-1 py-4 text-center hover:bg-pink-50 transition">總表</button>
-            <button onclick="switchTab(4)" id="tab4" class="flex-1 py-4 text-center hover:bg-pink-50 transition font-bold text-pink-600">女孩介紹</button>
+        <div class="flex flex-wrap border-b border-gray-200 mb-6 bg-white rounded-t-lg overflow-hidden text-sm" id="tabList">
+            <button type="button" data-tab="0" id="tab0" class="flex-1 py-4 text-center hover:bg-pink-50 transition tab-active">三月</button>
+            <button type="button" data-tab="1" id="tab1" class="flex-1 py-4 text-center hover:bg-pink-50 transition">四月</button>
+            <button type="button" data-tab="2" id="tab2" class="flex-1 py-4 text-center hover:bg-pink-50 transition">五月</button>
+            <button type="button" data-tab="3" id="tab3" class="flex-1 py-4 text-center hover:bg-pink-50 transition">總表</button>
+            <button type="button" data-tab="4" id="tab4" class="flex-1 py-4 text-center hover:bg-pink-50 transition font-bold text-pink-600">女孩介紹</button>
         </div>
 
         <div id="statsSection">
@@ -89,13 +80,13 @@
         </div>
     </main>
 
-    <div id="girlModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0 pointer-events-none z-50">
-        <div class="modal-overlay absolute w-full h-full bg-black opacity-50" onclick="closeModal()"></div>
+    <div id="girlModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0 pointer-events-none z-50" role="dialog" aria-modal="true" aria-labelledby="modalGirlName">
+        <button type="button" class="modal-overlay absolute w-full h-full bg-black opacity-50" id="modalOverlay" aria-label="關閉視窗"></button>
         <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[90vh]">
             <div class="modal-content py-4 px-4 md:px-6">
                 <div class="flex justify-between items-center pb-3 border-b mb-4">
                     <p class="text-xl md:text-2xl font-bold text-pink-600 name-text" id="modalGirlName"></p>
-                    <div class="cursor-pointer text-gray-400 text-xl px-2" onclick="closeModal()">✕</div>
+                    <button type="button" class="cursor-pointer text-gray-400 text-xl px-2" id="modalClose" aria-label="關閉視窗">✕</button>
                 </div>
                 <div id="modalContent" class="space-y-4"></div>
             </div>
@@ -103,24 +94,20 @@
     </div>
 
     <script>
-        /*************************************************
-         * 數據管理中心：方便日後修改
-         *************************************************/
-        
-        // 女孩清單
+        'use strict';
+
         const girlRoster = [
-            { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
-            { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, 
-            { id: "10", name: "卉妮" }, { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" }, 
-            { id: "17", name: "笑笑" }, { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" }, 
-            { id: "20", name: "MIKA" }, { id: "22", name: "河智媛" }, { id: "24", name: "廉世彬" }, 
-            { id: "25", name: "禹洙漢" }, { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" }, 
-            { id: "33", name: "言梓璇" }, { id: "34", name: "金佳垠" }, { id: "36", name: "禹菡" }, 
-            { id: "66", name: "岱縈" }, { id: "67", name: "崔荷潾" }, { id: "77", name: "曲曲" }, 
+            { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" },
+            { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" },
+            { id: "10", name: "卉妮" }, { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" },
+            { id: "17", name: "笑笑" }, { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" },
+            { id: "20", name: "MIKA" }, { id: "22", name: "河智媛" }, { id: "24", name: "廉世彬" },
+            { id: "25", name: "禹洙漢" }, { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" },
+            { id: "33", name: "言梓璇" }, { id: "34", name: "金佳垠" }, { id: "36", name: "禹菡" },
+            { id: "66", name: "岱縈" }, { id: "67", name: "崔荷潾" }, { id: "77", name: "曲曲" },
             { id: "87", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "97", name: "溫妮" }
         ];
 
-        // 賽事紀錄
         const games = [
             { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", info: { no: "001", location: "台北大巨蛋", time: "2H56M", audience: "40,000", wp: "陳冠宇", lp: "江忠誠", mvp: "陳晨威" } },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2", info: { no: "003", location: "台北大巨蛋", time: "2H49M", audience: "17,329", wp: "梅賽鍶", lp: "艾菩樂", sv: "林凱威", mvp: "曾聖安" } },
@@ -148,13 +135,11 @@
             { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
         ];
 
-        // 站位紀錄 (1-3局, 中場, 7-8局)
         const stationData = {
             "3/28": { "琳妲":"一 三 三", "穆又甯":"三 一 一", "宋宋":"三 二 二", "筠熹":"二 三 三", "貝佳頤":"二 一 一", "高橋佳帆":"一 二 二", "卉妮":"二 三 三", "穎樂":"後 後 後", "孟潔":"一 二 二", "KIRA":"二 三 三", "廉世彬":"後 後 後", "高佳彬":"一 二 二", "若潼":"三 二 二", "言梓璇":"二 三 三", "金佳垠":"一 二 二", "禹菡":"二 三 三", "岱縈":"後 後 後", "崔荷潾":"三 二 二", "曲曲":"一 二 二", "彭彭":"三 二 二", "沈珈妤":"二 三 三", "溫妮":"一 二 二", "MIKA":"後 後 後", "熊霓":"三 二 二" },
             "3/29": { "琳妲":"三 一 一", "穆又甯":"一 三 三", "宋宋":"一 二 二", "筠熹":"二 一 一", "貝佳頤":"三 二 二", "高橋佳帆":"一 二 二", "卉妮":"二 一 一", "穎樂":"三 二 二", "孟潔":"二 一 一", "笑笑":"後 後 後", "熊霓":"一 二 二", "KIRA":"二 一 一", "廉世彬":"三 二 二", "高佳彬":"二 一 一", "若潼":"一 二 二", "言梓璇":"後 後 後", "金佳垠":"三 二 二", "禹菡":"一 二 二", "岱縈":"二 一 一", "崔荷潾":"三 二 二", "曲曲":"後 後 後", "彭彭":"一 二 二", "沈珈妤":"二 一 一", "溫妮":"三 二 二" }
         };
 
-        // 上班考勤數據 (Key 為女孩名)
         const attendanceData = {
             "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
             "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
@@ -185,39 +170,85 @@
             "溫妮": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"]
         };
 
-        /*************************************************
-         * 程式功能邏輯
-         *************************************************/
         let currentTabIdx = 0;
+
+        const safeText = value => String(value ?? '');
+
+        function appendText(parent, tag, text, className = '') {
+            const el = document.createElement(tag);
+            if (className) el.className = className;
+            el.textContent = safeText(text);
+            parent.appendChild(el);
+            return el;
+        }
 
         function render() {
             const tbody = document.getElementById('girlTableBody');
-            tbody.innerHTML = '';
-            if (currentTabIdx === 4) { document.getElementById('statsSection').classList.add('hidden'); document.getElementById('introSection').classList.remove('hidden'); return; }
-            document.getElementById('statsSection').classList.remove('hidden'); document.getElementById('introSection').classList.add('hidden');
-            
-            const monthNames = ["三月", "四月", "五月", "總表統計"];
-            document.getElementById('currentMonthLabel').innerText = monthNames[currentTabIdx];
+            tbody.replaceChildren();
 
-            let activeGames = getGamesInPeriod(currentTabIdx);
+            if (currentTabIdx === 4) {
+                document.getElementById('statsSection').classList.add('hidden');
+                document.getElementById('introSection').classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('statsSection').classList.remove('hidden');
+            document.getElementById('introSection').classList.add('hidden');
+
+            const monthNames = ["三月", "四月", "五月", "總表統計"];
+            document.getElementById('currentMonthLabel').textContent = monthNames[currentTabIdx] || '總表統計';
+
+            const activeGames = getGamesInPeriod(currentTabIdx);
             const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
-            document.getElementById('totalGames').innerText = validGames.length;
-            document.getElementById('teamWins').innerText = validGames.filter(g => g.res === 'W').length;
-            document.getElementById('teamLosses').innerText = validGames.filter(g => g.res === 'L').length;
+            document.getElementById('totalGames').textContent = validGames.length;
+            document.getElementById('teamWins').textContent = validGames.filter(g => g.res === 'W').length;
+            document.getElementById('teamLosses').textContent = validGames.filter(g => g.res === 'L').length;
 
             girlRoster.forEach(girl => {
                 const allDates = attendanceData[girl.name] || [];
                 const periodDates = allDates.filter(d => activeGames.some(g => g.date === d));
-                let w = 0, l = 0, validCount = 0;
+                let w = 0;
+                let l = 0;
+                let validCount = 0;
+
                 periodDates.forEach(d => {
-                    const g = activeGames.find(x => x.date === d);
-                    if (g && g.res !== "延賽" && g.res !== "-") { validCount++; if (g.res === 'W') w++; if (g.res === 'L') l++; }
+                    const game = activeGames.find(x => x.date === d);
+                    if (game && game.res !== "延賽" && game.res !== "-") {
+                        validCount += 1;
+                        if (game.res === 'W') w += 1;
+                        if (game.res === 'L') l += 1;
+                    }
                 });
+
                 const rate = validCount > 0 ? ((w / validCount) * 100).toFixed(1) : "0.0";
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-pink-50 transition cursor-pointer";
-                tr.onclick = () => showDetail(girl.name);
-                tr.innerHTML = `<td class="p-4 flex items-center col-name"><span class="number-badge">${girl.id}</span><b class="text-gray-700 name-text">${girl.name}</b></td><td class="p-4 text-sm text-center col-count text-gray-600">${periodDates.length} </td><td class="p-4 text-sm text-center col-record text-gray-500">${currentTabIdx === 2 ? '-' : w+'W-'+l+'L'}</td><td class="p-4 font-bold text-center col-rate text-pink-600">${currentTabIdx === 2 ? '-' : rate+'%'}</td>`;
+                tr.tabIndex = 0;
+                tr.setAttribute('role', 'button');
+                tr.setAttribute('aria-label', `查看${girl.name}詳細資料`);
+                tr.addEventListener('click', () => showDetail(girl.name));
+                tr.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        showDetail(girl.name);
+                    }
+                });
+
+                const nameTd = document.createElement('td');
+                nameTd.className = "p-4 flex items-center col-name";
+                appendText(nameTd, 'span', girl.id, 'number-badge');
+                appendText(nameTd, 'b', girl.name, 'text-gray-700 name-text');
+
+                const countTd = appendText(document.createElement('td'), 'span', periodDates.length, '');
+                countTd.className = "p-4 text-sm text-center col-count text-gray-600";
+
+                const recordTd = appendText(document.createElement('td'), 'span', currentTabIdx === 2 ? '-' : `${w}W-${l}L`, '');
+                recordTd.className = "p-4 text-sm text-center col-record text-gray-500";
+
+                const rateTd = appendText(document.createElement('td'), 'span', currentTabIdx === 2 ? '-' : `${rate}%`, '');
+                rateTd.className = "p-4 font-bold text-center col-rate text-pink-600";
+
+                tr.append(nameTd, countTd, recordTd, rateTd);
                 tbody.appendChild(tr);
             });
         }
@@ -226,61 +257,118 @@
             if (idx === 0) return games.slice(0, 3);
             if (idx === 1) return games.slice(3, 14);
             if (idx === 2) return games.slice(14, 24);
-            return games.slice(0, 14); 
+            return games.slice(0, 14);
         }
 
         function showDetail(name) {
             const girl = girlRoster.find(g => g.name === name);
+            if (!girl) return;
+
             const allDates = attendanceData[name] || [];
-            let activeGames = getGamesInPeriod(currentTabIdx);
+            const activeGames = getGamesInPeriod(currentTabIdx);
             const displayDates = allDates.filter(d => activeGames.some(g => g.date === d));
-            document.getElementById('modalGirlName').innerText = `${girl.id} ${name}`;
+
+            document.getElementById('modalGirlName').textContent = `${girl.id} ${name}`;
             const content = document.getElementById('modalContent');
-            content.innerHTML = '';
+            content.replaceChildren();
+
             displayDates.slice().reverse().forEach(d => {
-                const g = games.find(x => x.date === d);
-                if (!g) return;
+                const game = games.find(x => x.date === d);
+                if (!game) return;
+
                 const div = document.createElement('div');
-                let color = "border-gray-200", tag = g.res, text = "text-gray-400";
-                if (g.res === 'W') { color = "border-green-400"; text = "text-green-500"; }
-                else if (g.res === 'L') { color = "border-red-300"; text = "text-red-400"; }
-                else if (g.res === '延賽') { color = "border-blue-300"; tag = "⛈️ 延賽"; text = "text-blue-500"; }
-                div.className = `p-3 bg-white rounded-lg border-l-4 shadow-sm ${color}`;
-                div.innerHTML = `<div class="flex justify-between items-center mb-1"><div><p class="text-[10px] text-gray-400">${d}</p><p class="font-bold text-sm">vs ${g.opp}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-600">${g.score || '-'}</p><p class="text-xs font-bold ${text}">${tag}</p></div></div>`;
-                
-                const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, ''); 
-                if (stationData[simpleDate] && stationData[simpleDate][name]) {
-                    div.innerHTML += `<div class="text-[11px] text-pink-500 font-bold bg-pink-50 px-2 py-1 rounded inline-block mt-1">📍 站位：${stationData[simpleDate][name]}</div>`;
+                let color = "border-gray-200";
+                let tag = game.res;
+                let text = "text-gray-400";
+
+                if (game.res === 'W') {
+                    color = "border-green-400";
+                    text = "text-green-500";
+                } else if (game.res === 'L') {
+                    color = "border-red-300";
+                    text = "text-red-400";
+                } else if (game.res === '延賽') {
+                    color = "border-blue-300";
+                    tag = "⛈️ 延賽";
+                    text = "text-blue-500";
                 }
 
-                if (g.info) {
-                    const infoBox = document.createElement('div');
-                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100";
-                    // 網格排版：Col 1: 125px, Col 2: 110px, Col 3: Auto
-                    infoBox.innerHTML = `
-                        <div class="font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1 text-center text-[10px]">場次: ${g.info.no} | ${g.info.location}</div>
-                        <div class="grid grid-cols-[125px_110px_auto] gap-y-1">
-                            <div class="truncate">⏱️ 時間: ${g.info.time}</div>
-                            <div class="truncate">👥 觀眾: ${g.info.audience}</div>
-                            <div></div>
-                            
-                            <div class="truncate">勝投: ${g.info.wp}</div>
-                            <div class="truncate">敗投: ${g.info.lp}</div>
-                            <div class="truncate font-bold">${g.info.sv ? '救援成功: ' + g.info.sv : ''}</div>
-                            
-                            <div class="col-span-3 text-pink-600 font-bold mt-1 border-t border-pink-100 pt-1">🏆 MVP: ${g.info.mvp}</div>
-                        </div>
-                    `;
-                    div.appendChild(infoBox);
+                div.className = `p-3 bg-white rounded-lg border-l-4 shadow-sm ${color}`;
+
+                const top = document.createElement('div');
+                top.className = "flex justify-between items-center mb-1";
+
+                const left = document.createElement('div');
+                appendText(left, 'p', d, 'text-[10px] text-gray-400');
+                appendText(left, 'p', `vs ${game.opp}`, 'font-bold text-sm');
+
+                const right = document.createElement('div');
+                right.className = "text-right";
+                appendText(right, 'p', game.score || '-', 'text-sm font-bold text-gray-600');
+                appendText(right, 'p', tag, `text-xs font-bold ${text}`);
+                top.append(left, right);
+                div.appendChild(top);
+
+                const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, '');
+                if (stationData[simpleDate] && stationData[simpleDate][name]) {
+                    appendText(div, 'div', `📍 站位：${stationData[simpleDate][name]}`, 'text-[11px] text-pink-500 font-bold bg-pink-50 px-2 py-1 rounded inline-block mt-1');
                 }
+
+                if (game.info) {
+                    div.appendChild(createInfoBox(game.info));
+                }
+
                 content.appendChild(div);
             });
+
             document.getElementById('girlModal').classList.remove('opacity-0', 'pointer-events-none');
             document.body.classList.add('modal-active');
         }
 
-        function closeModal() { document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('modal-active'); }
-        function switchTab(i) { currentTabIdx = i; [0,1,2,3,4].forEach(idx => document.getElementById('tab'+idx).classList.remove('tab-active')); document.getElementById('tab'+i).classList.add('tab-active'); render(); }
+        function createInfoBox(info) {
+            const infoBox = document.createElement('div');
+            infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100";
+
+            appendText(infoBox, 'div', `場次: ${info.no || '-'} | ${info.location || '-'}`, 'font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1 text-center text-[10px]');
+
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-[125px_110px_auto] gap-y-1";
+            appendText(grid, 'div', `⏱️ 時間: ${info.time || '-'}`, 'truncate');
+            appendText(grid, 'div', `👥 觀眾: ${info.audience || '-'}`, 'truncate');
+            appendText(grid, 'div', '', '');
+            appendText(grid, 'div', `勝投: ${info.wp || '-'}`, 'truncate');
+            appendText(grid, 'div', `敗投: ${info.lp || '-'}`, 'truncate');
+            appendText(grid, 'div', info.sv ? `救援成功: ${info.sv}` : '', 'truncate font-bold');
+            appendText(grid, 'div', `🏆 MVP: ${info.mvp || '-'}`, 'col-span-3 text-pink-600 font-bold mt-1 border-t border-pink-100 pt-1');
+
+            infoBox.appendChild(grid);
+            return infoBox;
+        }
+
+        function closeModal() {
+            document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('modal-active');
+        }
+
+        function switchTab(i) {
+            currentTabIdx = Number(i);
+            [0, 1, 2, 3, 4].forEach(idx => document.getElementById(`tab${idx}`).classList.remove('tab-active'));
+            document.getElementById(`tab${currentTabIdx}`).classList.add('tab-active');
+            render();
+        }
+
+        document.getElementById('tabList').addEventListener('click', event => {
+            const button = event.target.closest('button[data-tab]');
+            if (!button) return;
+            switchTab(button.dataset.tab);
+        });
+
+        document.getElementById('modalOverlay').addEventListener('click', closeModal);
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') closeModal();
+        });
+
         render();
     </script>
 </body>
