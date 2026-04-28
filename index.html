@@ -15,7 +15,6 @@
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
         
-        /* 號碼徽章 */
         .number-badge { 
             display: inline-flex; align-items: center; justify-content: center;
             background: #bf0845; color: white; width: 26px; height: 26px;
@@ -23,7 +22,6 @@
             margin-right: 6px; flex-shrink: 0;
         }
 
-        /* 表格欄位固定比例 */
         .col-name { width: 40%; }
         .col-count { width: 20%; }
         .col-record { width: 20%; }
@@ -95,7 +93,7 @@
             <div class="card p-10 md:p-16 text-center">
                 <div class="text-5xl md:text-6xl mb-6">🌸</div>
                 <h2 class="text-2xl md:text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2>
-                <p class="text-gray-500 text-sm md:text-base">此頁面為預留空間。</p>
+                <p class="text-gray-500 text-sm md:text-base">預留空間。</p>
             </div>
         </div>
     </main>
@@ -115,8 +113,7 @@
 
     <script>
         /*************************************************
-         * 1. 數據設定區 (Data Section)
-         * 未來要修改背號或姓名，只要改這裡就好
+         * 1. 數據設定區
          *************************************************/
         const girlRoster = [
             { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
@@ -133,7 +130,7 @@
         const games = [
             { 
                 date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", 
-                info: { no: "001", location: "台北大巨蛋", time: "2:56", audience: "40,000", wp: "陳冠宇", lp: "江忠城", mvp: "陳晨威" } 
+                info: { no: "001", location: "台北大巨蛋", time: "2H56M", audience: "40,000", wp: "陳冠宇", lp: "江忠城", mvp: "陳晨威" } 
             },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2" },
             { date: "2026-03-31", opp: "台鋼雄鷹", res: "L", score: "3:1" },
@@ -160,7 +157,6 @@
             { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
         ];
 
-        // 上班數據彙整 (Key 為女孩姓名)
         const attendanceData = {
             "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
             "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
@@ -192,16 +188,14 @@
         };
 
         /*************************************************
-         * 2. 功能邏輯區 (Logic Section)
+         * 2. 功能邏輯區
          *************************************************/
         let currentTabIdx = 0;
 
-        // 渲染主畫面
         function render() {
             const tbody = document.getElementById('girlTableBody');
             tbody.innerHTML = '';
             
-            // 女孩介紹頁面切換
             if (currentTabIdx === 4) {
                 document.getElementById('statsSection').classList.add('hidden');
                 document.getElementById('introSection').classList.remove('hidden');
@@ -210,19 +204,16 @@
             document.getElementById('statsSection').classList.remove('hidden');
             document.getElementById('introSection').classList.add('hidden');
 
-            const monthNames = ["三月", "四月", "五月", "總表"];
+            const monthNames = ["三月", "四月", "五月", "總表統計"];
             document.getElementById('currentMonthLabel').innerText = monthNames[currentTabIdx];
 
-            // 取得該頁面範圍內的賽事
             let activeGames = getGamesInPeriod(currentTabIdx);
             const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
 
-            // 更新儀表板
             document.getElementById('totalGames').innerText = validGames.length;
             document.getElementById('teamWins').innerText = validGames.filter(g => g.res === 'W').length;
             document.getElementById('teamLosses').innerText = validGames.filter(g => g.res === 'L').length;
 
-            // 渲染女孩列表
             girlRoster.forEach(girl => {
                 const allDates = attendanceData[girl.name] || [];
                 const periodDates = allDates.filter(d => activeGames.some(g => g.date === d));
@@ -254,20 +245,16 @@
             });
         }
 
-        // 根據索引取得對應期間的賽事清單
         function getGamesInPeriod(idx) {
-            if (idx === 0) return games.slice(0, 3);   // 三月
-            if (idx === 1) return games.slice(3, 14);  // 四月
-            if (idx === 2) return games.slice(14, 24); // 五月
-            return games.slice(0, 14);                 // 總表 (3-4月)
+            if (idx === 0) return games.slice(0, 3);
+            if (idx === 1) return games.slice(3, 14);
+            if (idx === 2) return games.slice(14, 24);
+            return games.slice(0, 14); 
         }
 
-        // 顯示彈窗明細
         function showDetail(name) {
             const girl = girlRoster.find(g => g.name === name);
             const allDates = attendanceData[name] || [];
-            
-            // 關鍵修改：如果是月份頁面，只顯示該月的日期；如果是總表，顯示全部
             let activeGames = getGamesInPeriod(currentTabIdx);
             const displayDates = allDates.filter(d => activeGames.some(g => g.date === d));
 
@@ -275,7 +262,6 @@
             const content = document.getElementById('modalContent');
             content.innerHTML = '';
             
-            // 倒序顯示 (最新的在上面)
             displayDates.slice().reverse().forEach(d => {
                 const g = games.find(x => x.date === d);
                 if (!g) return;
@@ -295,16 +281,18 @@
 
                 if (g.info) {
                     const infoBox = document.createElement('div');
-                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100";
+                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100 space-y-1";
                     infoBox.innerHTML = `
-                        <div class="font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1">場次: ${g.info.no} | ${g.info.location}</div>
-                        <div class="grid grid-cols-[60px_1fr] gap-y-1">
-                            <span>⏱️ 時間:</span> <span>${g.info.time}</span>
-                            <span>👥 觀眾:</span> <span>${g.info.audience}</span>
-                            <span>⚾ 勝投:</span> <span>${g.info.wp}</span>
-                            <span>敗投:</span> <span>${g.info.lp}</span>
-                            <span class="text-pink-600 font-bold">🏆 MVP:</span> <span class="text-pink-600 font-bold">${g.info.mvp}</span>
+                        <div class="font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1 text-center">場次: ${g.info.no} | ${g.info.location}</div>
+                        <div class="flex justify-between">
+                            <span>⏱️ 時間: ${g.info.time}</span>
+                            <span>👥 觀眾: ${g.info.audience}</span>
                         </div>
+                        <div class="flex justify-between">
+                            <span>勝投: ${g.info.wp}</span>
+                            <span>敗投: ${g.info.lp}</span>
+                        </div>
+                        <div class="text-pink-600 font-bold text-center border-t border-pink-100 pt-1 mt-1">🏆 MVP: ${g.info.mvp}</div>
                     `;
                     div.appendChild(infoBox);
                 }
@@ -314,7 +302,6 @@
             document.body.classList.add('modal-active');
         }
 
-        // 基礎切換與彈窗控制
         function closeModal() { 
             document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none'); 
             document.body.classList.remove('modal-active');
@@ -326,7 +313,6 @@
             render();
         }
 
-        // 初始化啟動
         render();
     </script>
 </body>
