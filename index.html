@@ -15,13 +15,15 @@
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
         
+        /* 圓形號碼 */
         .number-badge { 
             display: inline-flex; align-items: center; justify-content: center;
-            background: #bf0845; color: white; width: 26px; height: 26px;
-            border-radius: 50%; font-size: 0.7rem; font-weight: bold;
-            margin-right: 6px; flex-shrink: 0;
+            background: #bf0845; color: white; width: 24px; height: 24px;
+            border-radius: 50%; font-size: 0.65rem; font-weight: bold;
+            margin-right: 8px; flex-shrink: 0;
         }
 
+        /* 表格固定比例 */
         .col-name { width: 40%; }
         .col-count { width: 20%; }
         .col-record { width: 20%; }
@@ -30,8 +32,9 @@
         @media (max-width: 640px) {
             td, th { padding: 12px 2px !important; font-size: 0.85rem; }
             .col-name { width: 45%; }
-            .number-badge { width: 20px; height: 20px; font-size: 0.6rem; margin-right: 4px; }
-            .dashboard-text { font-size: 1.2rem !important; }
+            .name-text { white-space: nowrap; } 
+            .number-badge { width: 18px; height: 18px; font-size: 0.6rem; margin-right: 4px; }
+            .dashboard-text { font-size: 1.1rem !important; }
         }
     </style>
 </head>
@@ -54,15 +57,15 @@
 
         <div id="statsSection">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 text-center px-1">
-                <div class="card p-3 border-b-4 border-pink-100"><p class="text-gray-500 text-[10px] md:text-xs">應援場次</p><p id="totalGames" class="dashboard-text text-xl md:text-2xl font-bold text-gray-800">-</p></div>
-                <div class="card p-3 border-b-4 border-green-100"><p class="text-gray-500 text-[10px] md:text-xs">團隊勝場</p><p id="teamWins" class="dashboard-text text-xl md:text-2xl font-bold text-green-500">-</p></div>
-                <div class="card p-3 border-b-4 border-red-100"><p class="text-gray-500 text-[10px] md:text-xs">團隊敗場</p><p id="teamLosses" class="dashboard-text text-xl md:text-2xl font-bold text-red-400">-</p></div>
-                <div class="card p-3 border-l-4 border-pink-500"><p class="text-gray-500 text-[10px] md:text-xs">統計期間</p><p id="currentMonthLabel" class="dashboard-text text-xl md:text-2xl font-bold text-pink-600">-</p></div>
+                <div class="card p-3 border-b-4 border-pink-100"><p class="text-gray-500 text-[10px] md:text-xs">應援場次</p><p id="totalGames" class="dashboard-text text-lg md:text-2xl font-bold text-gray-800">-</p></div>
+                <div class="card p-3 border-b-4 border-green-100"><p class="text-gray-500 text-[10px] md:text-xs">團隊勝場</p><p id="teamWins" class="dashboard-text text-lg md:text-2xl font-bold text-green-500">-</p></div>
+                <div class="card p-3 border-b-4 border-red-100"><p class="text-gray-500 text-[10px] md:text-xs">團隊敗場</p><p id="teamLosses" class="dashboard-text text-lg md:text-2xl font-bold text-red-400">-</p></div>
+                <div class="card p-3 border-l-4 border-pink-500"><p class="text-gray-500 text-[10px] md:text-xs">統計期間</p><p id="currentMonthLabel" class="dashboard-text text-lg md:text-2xl font-bold text-pink-600">-</p></div>
             </div>
 
             <section class="card overflow-hidden mb-8">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left table-fixed">
+                    <table class="w-full text-left table-fixed border-collapse">
                         <thead>
                             <tr class="bg-pink-50 text-pink-700 text-xs md:text-sm">
                                 <th class="p-3 md:p-4 col-name"># 姓名</th>
@@ -77,15 +80,21 @@
             </section>
         </div>
 
-        <div id="introSection" class="hidden"><div class="card p-10 md:p-16 text-center"><div class="text-5xl md:text-6xl mb-6">🌸</div><h2 class="text-2xl md:text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2><p class="text-gray-500">預留空間。</p></div></div>
+        <div id="introSection" class="hidden">
+            <div class="card p-16 text-center">
+                <div class="text-5xl md:text-6xl mb-6">🌸</div>
+                <h2 class="text-2xl md:text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2>
+                <p class="text-gray-500">此頁面為預留空間。</p>
+            </div>
+        </div>
     </main>
 
     <div id="girlModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0 pointer-events-none z-50">
         <div class="modal-overlay absolute w-full h-full bg-black opacity-50" onclick="closeModal()"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[90vh]">
+        <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[90vh]">
             <div class="modal-content py-4 px-4 md:px-6">
                 <div class="flex justify-between items-center pb-3 border-b mb-4">
-                    <p class="text-xl md:text-2xl font-bold text-pink-600 whitespace-nowrap" id="modalGirlName"></p>
+                    <p class="text-xl md:text-2xl font-bold text-pink-600 name-text" id="modalGirlName"></p>
                     <div class="cursor-pointer text-gray-400 text-xl px-2" onclick="closeModal()">✕</div>
                 </div>
                 <div id="modalContent" class="space-y-4"></div>
@@ -94,13 +103,26 @@
     </div>
 
     <script>
-        // 1. 數據設定
+        /*************************************************
+         * 數據管理中心：方便日後修改
+         *************************************************/
+        
+        // 女孩清單
         const girlRoster = [
-            { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, { id: "10", name: "卉妮" }, { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" }, { id: "17", name: "笑笑" }, { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" }, { id: "20", name: "MIKA" }, { id: "22", name: "河智媛" }, { id: "24", name: "廉世彬" }, { id: "25", name: "禹洙漢" }, { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" }, { id: "33", name: "言梓璇" }, { id: "34", name: "金佳垠" }, { id: "36", name: "禹菡" }, { id: "66", name: "岱縈" }, { id: "67", name: "崔荷潾" }, { id: "77", name: "曲曲" }, { id: "87", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "97", name: "溫妮" }
+            { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
+            { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, 
+            { id: "10", name: "卉妮" }, { id: "12", name: "穎樂" }, { id: "15", name: "孟潔" }, 
+            { id: "17", name: "笑笑" }, { id: "18", name: "熊霓" }, { id: "19", name: "KIRA" }, 
+            { id: "20", name: "MIKA" }, { id: "22", name: "河智媛" }, { id: "24", name: "廉世彬" }, 
+            { id: "25", name: "禹洙漢" }, { id: "26", name: "高佳彬" }, { id: "27", name: "若潼" }, 
+            { id: "33", name: "言梓璇" }, { id: "34", name: "金佳垠" }, { id: "36", name: "禹菡" }, 
+            { id: "66", name: "岱縈" }, { id: "67", name: "崔荷潾" }, { id: "77", name: "曲曲" }, 
+            { id: "87", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "97", name: "溫妮" }
         ];
 
+        // 賽事紀錄
         const games = [
-            { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", info: { no: "001", location: "台北大巨蛋", time: "2H56M", audience: "40,000", wp: "陳冠宇", lp: "江忠城", mvp: "陳晨威" } },
+            { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", info: { no: "001", location: "台北大巨蛋", time: "2H56M", audience: "40,000", wp: "陳冠宇", lp: "江忠誠", mvp: "陳晨威" } },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2", info: { no: "003", location: "台北大巨蛋", time: "2H49M", audience: "17,329", wp: "梅賽鍶", lp: "艾菩樂", sv: "林凱威", mvp: "曾聖安" } },
             { date: "2026-03-31", opp: "台鋼雄鷹", res: "L", score: "3:1" },
             { date: "2026-04-01", opp: "台鋼雄鷹", res: "L", score: "6:1" },
@@ -126,12 +148,13 @@
             { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
         ];
 
-        // 站位數據 (依女孩姓名索引)
+        // 站位紀錄 (1-3局, 中場, 7-8局)
         const stationData = {
-            "3/28": { "穆又甯":"左", "宋宋":"中", "筠熹":"右", "貝佳頤":"左", "高橋佳帆":"中", "卉妮":"右", "穎樂":"後", "孟潔":"左", "KIRA":"右", "廉世彬":"後", "高佳彬":"左", "若潼":"中", "言梓璇":"右", "金佳垠":"左", "禹菡":"右", "岱縈":"後", "崔荷潾":"中", "曲曲":"左", "彭彭":"中", "沈珈妤":"右", "溫妮":"左", "琳妲":"右", "MIKA":"後", "熊霓":"中" },
-            "3/29": { "穆又甯":"右", "宋宋":"左", "筠熹":"中", "貝佳頤":"右", "高橋佳帆":"左", "卉妮":"中", "穎樂":"右", "孟潔":"中", "笑笑":"後", "熊霓":"左", "KIRA":"中", "廉世彬":"右", "高佳彬":"中", "若潼":"左", "言梓璇":"後", "金佳垠":"右", "禹菡":"左", "岱縈":"中", "崔荷潾":"右", "曲曲":"後", "彭彭":"左", "沈珈妤":"中", "溫妮":"右", "琳妲":"左" }
+            "3/28": { "琳妲":"一 三 三", "穆又甯":"三 一 一", "宋宋":"三 二 二", "筠熹":"二 三 三", "貝佳頤":"二 一 一", "高橋佳帆":"一 二 二", "卉妮":"二 三 三", "穎樂":"後 後 後", "孟潔":"一 二 二", "KIRA":"二 三 三", "廉世彬":"後 後 後", "高佳彬":"一 二 二", "若潼":"三 二 二", "言梓璇":"二 三 三", "金佳垠":"一 二 二", "禹菡":"二 三 三", "岱縈":"後 後 後", "崔荷潾":"三 二 二", "曲曲":"一 二 二", "彭彭":"三 二 二", "沈珈妤":"二 三 三", "溫妮":"一 二 二", "MIKA":"後 後 後", "熊霓":"三 二 二" },
+            "3/29": { "琳妲":"三 一 一", "穆又甯":"一 三 三", "宋宋":"一 二 二", "筠熹":"二 一 一", "貝佳頤":"三 二 二", "高橋佳帆":"一 二 二", "卉妮":"二 一 一", "穎樂":"三 二 二", "孟潔":"二 一 一", "笑笑":"後 後 後", "熊霓":"一 二 二", "KIRA":"二 一 一", "廉世彬":"三 二 二", "高佳彬":"二 一 一", "若潼":"一 二 二", "言梓璇":"後 後 後", "金佳垠":"三 二 二", "禹菡":"一 二 二", "岱縈":"二 一 一", "崔荷潾":"三 二 二", "曲曲":"後 後 後", "彭彭":"一 二 二", "沈珈妤":"二 一 一", "溫妮":"三 二 二" }
         };
 
+        // 上班考勤數據 (Key 為女孩名)
         const attendanceData = {
             "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
             "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
@@ -162,7 +185,9 @@
             "溫妮": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"]
         };
 
-        // 2. 邏輯區
+        /*************************************************
+         * 程式功能邏輯
+         *************************************************/
         let currentTabIdx = 0;
 
         function render() {
@@ -170,8 +195,10 @@
             tbody.innerHTML = '';
             if (currentTabIdx === 4) { document.getElementById('statsSection').classList.add('hidden'); document.getElementById('introSection').classList.remove('hidden'); return; }
             document.getElementById('statsSection').classList.remove('hidden'); document.getElementById('introSection').classList.add('hidden');
+            
             const monthNames = ["三月", "四月", "五月", "總表統計"];
             document.getElementById('currentMonthLabel').innerText = monthNames[currentTabIdx];
+
             let activeGames = getGamesInPeriod(currentTabIdx);
             const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
             document.getElementById('totalGames').innerText = validGames.length;
@@ -190,7 +217,7 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-pink-50 transition cursor-pointer";
                 tr.onclick = () => showDetail(girl.name);
-                tr.innerHTML = `<td class="p-4 flex items-center col-name whitespace-nowrap"><span class="number-badge">${girl.id}</span><b class="text-gray-700">${girl.name}</b></td><td class="p-4 text-sm text-center col-count text-gray-600">${periodDates.length} 場</td><td class="p-4 text-sm text-center col-record text-gray-500">${currentTabIdx === 2 ? '-' : w+'W-'+l+'L'}</td><td class="p-4 font-bold text-center col-rate text-pink-600">${currentTabIdx === 2 ? '-' : rate+'%'}</td>`;
+                tr.innerHTML = `<td class="p-4 flex items-center col-name"><span class="number-badge">${girl.id}</span><b class="text-gray-700 name-text">${girl.name}</b></td><td class="p-4 text-sm text-center col-count text-gray-600">${periodDates.length} </td><td class="p-4 text-sm text-center col-record text-gray-500">${currentTabIdx === 2 ? '-' : w+'W-'+l+'L'}</td><td class="p-4 font-bold text-center col-rate text-pink-600">${currentTabIdx === 2 ? '-' : rate+'%'}</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -221,22 +248,28 @@
                 div.className = `p-3 bg-white rounded-lg border-l-4 shadow-sm ${color}`;
                 div.innerHTML = `<div class="flex justify-between items-center mb-1"><div><p class="text-[10px] text-gray-400">${d}</p><p class="font-bold text-sm">vs ${g.opp}</p></div><div class="text-right"><p class="text-sm font-bold text-gray-600">${g.score || '-'}</p><p class="text-xs font-bold ${text}">${tag}</p></div></div>`;
                 
-                // 加入站位資訊 (僅針對有提供資料的 3/28, 3/29)
-                const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, ''); // 轉換成 3/28
+                const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, ''); 
                 if (stationData[simpleDate] && stationData[simpleDate][name]) {
-                    const pos = stationData[simpleDate][name];
-                    div.innerHTML += `<div class="text-[11px] text-pink-500 font-bold bg-pink-50 px-2 py-1 rounded inline-block mt-1">📍 站位：${pos}</div>`;
+                    div.innerHTML += `<div class="text-[11px] text-pink-500 font-bold bg-pink-50 px-2 py-1 rounded inline-block mt-1">📍 站位：${stationData[simpleDate][name]}</div>`;
                 }
 
                 if (g.info) {
                     const infoBox = document.createElement('div');
-                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100 space-y-1";
+                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 border border-pink-100";
+                    // 網格排版：Col 1: 125px, Col 2: 110px, Col 3: Auto
                     infoBox.innerHTML = `
-                        <div class="font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1 text-center">場次: ${g.info.no} | ${g.info.location}</div>
-                        <div class="flex justify-between"><span>⏱️ 時間: ${g.info.time}</span><span>👥 觀眾: ${g.info.audience}</span></div>
-                        <div class="flex justify-between"><span>勝投: ${g.info.wp}</span><span>敗投: ${g.info.lp}</span></div>
-                        ${g.info.sv ? `<div class="text-center text-[10px]">救援成功: ${g.info.sv}</div>` : ''}
-                        <div class="text-pink-600 font-bold text-center border-t border-pink-100 pt-1 mt-1">🏆 MVP: ${g.info.mvp}</div>
+                        <div class="font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1 text-center text-[10px]">場次: ${g.info.no} | ${g.info.location}</div>
+                        <div class="grid grid-cols-[125px_110px_auto] gap-y-1">
+                            <div class="truncate">⏱️ 時間: ${g.info.time}</div>
+                            <div class="truncate">👥 觀眾: ${g.info.audience}</div>
+                            <div></div>
+                            
+                            <div class="truncate">勝投: ${g.info.wp}</div>
+                            <div class="truncate">敗投: ${g.info.lp}</div>
+                            <div class="truncate font-bold">${g.info.sv ? '救援成功: ' + g.info.sv : ''}</div>
+                            
+                            <div class="col-span-3 text-pink-600 font-bold mt-1 border-t border-pink-100 pt-1">🏆 MVP: ${g.info.mvp}</div>
+                        </div>
                     `;
                     div.appendChild(infoBox);
                 }
