@@ -1,0 +1,130 @@
+HTML
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RKG 2026 應援戰報</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #fff5f7; }
+        .pink-gradient { background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(255, 182, 193, 0.3); }
+    </style>
+</head>
+<body class="pb-10">
+
+    <header class="pink-gradient text-white py-8 text-center shadow-lg mb-8">
+        <h1 class="text-4xl font-bold tracking-wider">🌸 RKG 2026 應援戰報</h1>
+        <p class="mt-2 opacity-90">三月 - 五月 賽事與女孩勝率統計</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 space-y-8">
+
+        <section class="card p-6">
+            <h2 class="text-2xl font-bold text-pink-600 mb-4 flex items-center">
+                📊 女孩應援勝率排行 (3-4月)
+            </h2>
+            <div class="relative h-[400px]">
+                <canvas id="winRateChart"></canvas>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card p-4 border-t-4 border-pink-400">
+                <h3 class="font-bold text-lg mb-2 text-pink-500">三月賽事回顧</h3>
+                <ul class="text-sm space-y-1 text-gray-600">
+                    <li>03/28 vs 兄弟 <span class="text-green-500 font-bold">W</span></li>
+                    <li>03/29 vs 味全 <span class="text-red-500 font-bold">L</span></li>
+                    <li>03/31 vs 台鋼 <span class="text-red-500 font-bold">L</span></li>
+                </ul>
+            </div>
+            <div class="card p-4 border-t-4 border-pink-400 text-sm">
+                <h3 class="font-bold text-lg mb-2 text-pink-500">四月賽事回顧</h3>
+                <p>總計：5勝 5敗 1延賽</p>
+            </div>
+            <div class="card p-4 border-t-4 border-pink-400">
+                <h3 class="font-bold text-lg mb-2 text-pink-500">五月班表</h3>
+                <p class="text-sm text-gray-500">本月共計 10 場應援，數據計算中...</p>
+            </div>
+        </div>
+
+        <section class="card overflow-hidden">
+            <div class="bg-pink-100 p-4 border-b border-pink-200">
+                <h2 class="text-xl font-bold text-pink-700">📋 詳細班表與數據紀錄</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-center">
+                    <thead class="bg-pink-50 text-pink-600">
+                        <tr>
+                            <th class="p-3 border-b">女孩姓名</th>
+                            <th class="p-3 border-b">3月勝率</th>
+                            <th class="p-3 border-b">4月勝率</th>
+                            <th class="p-3 border-b">總場次</th>
+                            <th class="p-3 border-b">應援穩定度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="text-gray-700 divide-y divide-pink-50">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 從 Excel 整理出的數據
+        const girlData = [
+            { name: "孟潔", mar: 0.33, apr: 0.71, total: 10, trend: "🔥 上升" },
+            { name: "熊霓", mar: 0.5, apr: 1.0, total: 3, trend: "⭐ 高勝率" },
+            { name: "禹菡", mar: 0.33, apr: 0.66, total: 9, trend: "📈 進步" },
+            { name: "宋宋", mar: 0.33, apr: 0.6, total: 8, trend: "穩定" },
+            { name: "穆又甯", mar: 0.33, apr: 0.57, total: 10, trend: "穩定" },
+            { name: "琳妲", mar: 0.5, apr: 0.5, total: 8, trend: "持平" },
+            { name: "筠熹", mar: 0.33, apr: 0.37, total: 11, trend: "加油" }
+        ];
+
+        // 渲染表格
+        const tableBody = document.getElementById('tableBody');
+        girlData.forEach(girl => {
+            const row = `<tr>
+                <td class="p-3 font-bold">${girl.name}</td>
+                <td class="p-3">${(girl.mar * 100).toFixed(0)}%</td>
+                <td class="p-3 text-pink-600 font-bold">${(girl.apr * 100).toFixed(0)}%</td>
+                <td class="p-3">${girl.total}</td>
+                <td class="p-3"><span class="bg-pink-100 text-pink-600 px-2 py-1 rounded text-xs">${girl.trend}</span></td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        // 渲染圖表
+        const ctx = document.getElementById('winRateChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: girlData.map(g => g.name),
+                datasets: [{
+                    label: '四月勝率 (%)',
+                    data: girlData.map(g => g.apr * 100),
+                    backgroundColor: 'rgba(255, 105, 180, 0.6)',
+                    borderColor: 'rgba(255, 20, 147, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
