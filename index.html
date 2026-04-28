@@ -21,6 +21,12 @@
             border-radius: 50%; font-size: 0.75rem; font-weight: bold;
             margin-right: 12px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(191, 8, 69, 0.2);
         }
+
+        /* 強制表格欄位固定寬度 */
+        .col-name { width: 35%; }
+        .col-count { width: 20%; }
+        .col-record { width: 25%; }
+        .col-rate { width: 20%; }
     </style>
 </head>
 <body class="pb-10">
@@ -62,13 +68,13 @@
 
             <section class="card overflow-hidden mb-8">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
+                    <table class="w-full text-left table-fixed">
                         <thead>
                             <tr class="bg-pink-50 text-pink-700 text-sm">
-                                <th class="p-4"># 姓名</th>
-                                <th class="p-4">應援場次</th>
-                                <th class="p-4">戰績</th>
-                                <th class="p-4">勝率</th>
+                                <th class="p-4 col-name"># 姓名</th>
+                                <th class="p-4 col-count text-center">應援場次</th>
+                                <th class="p-4 col-record text-center">戰績</th>
+                                <th class="p-4 col-rate text-center">勝率</th>
                             </tr>
                         </thead>
                         <tbody id="girlTableBody" class="divide-y divide-gray-100"></tbody>
@@ -100,7 +106,7 @@
     </div>
 
     <script>
-        // 女孩與背號 (已依號碼排序)
+        // ... (保持原本的 girlRoster, games, attendanceData 數據不變)
         const girlRoster = [
             { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
             { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, 
@@ -113,18 +119,8 @@
             { id: "87", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "97", name: "溫妮" }
         ];
 
-        // 賽事數據 (已導入 3/28 詳細資訊)
         const games = [
-            { 
-                date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3",
-                info: {
-                    time: "2:56 (2小時56分)",
-                    audience: "40,000",
-                    wp: "陳冠宇",
-                    rbi: "林政華",
-                    mvp: "陳晨威"
-                }
-            },
+            { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", info: { time: "2:56 (2小時56分)", audience: "40,000", wp: "陳冠宇", rbi: "林政華", mvp: "陳晨威" } },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2" },
             { date: "2026-03-31", opp: "台鋼雄鷹", res: "L", score: "3:1" },
             { date: "2026-04-01", opp: "台鋼雄鷹", res: "L", score: "6:1" },
@@ -150,7 +146,6 @@
             { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
         ];
 
-        // 上班資料 (根據 ❤️ 解析)
         const attendanceData = {
             "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
             "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
@@ -181,13 +176,13 @@
             "溫妮": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"]
         };
 
-        let currentTab = 0;
+        let currentTabIdx = 0;
 
         function render() {
             const tbody = document.getElementById('girlTableBody');
             tbody.innerHTML = '';
             
-            if (currentTab === 4) {
+            if (currentTabIdx === 4) {
                 document.getElementById('statsSection').classList.add('hidden');
                 document.getElementById('introSection').classList.remove('hidden');
                 return;
@@ -195,13 +190,13 @@
             document.getElementById('statsSection').classList.remove('hidden');
             document.getElementById('introSection').classList.add('hidden');
 
-            const monthNames = ["三月", "四月", "五月", "總表"];
-            document.getElementById('currentMonthLabel').innerText = monthNames[currentTab];
+            const monthNames = ["三月", "四月", "五月", "總表統計"];
+            document.getElementById('currentMonthLabel').innerText = monthNames[currentTabIdx];
 
             let activeGames = [];
-            if (currentTab === 0) activeGames = games.slice(0, 3);
-            else if (currentTab === 1) activeGames = games.slice(3, 14);
-            else if (currentTab === 2) activeGames = games.slice(14, 24);
+            if (currentTabIdx === 0) activeGames = games.slice(0, 3);
+            else if (currentTabIdx === 1) activeGames = games.slice(3, 14);
+            else if (currentTabIdx === 2) activeGames = games.slice(14, 24);
             else activeGames = games.slice(0, 14); 
 
             const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
@@ -229,10 +224,10 @@
                 tr.className = "hover:bg-pink-50 transition cursor-pointer";
                 tr.onclick = () => showDetail(girl.name, dates);
                 tr.innerHTML = `
-                    <td class="p-4 flex items-center"><span class="number-badge">${girl.id}</span><b>${girl.name}</b></td>
-                    <td class="p-4 text-sm">${displayCount} 場</td>
-                    <td class="p-4 text-sm">${currentTab === 2 ? '-' : w+'W-'+l+'L'}</td>
-                    <td class="p-4 font-bold text-pink-600">${currentTab === 2 ? '-' : rate+'%'}</td>
+                    <td class="p-4 flex items-center col-name"><span class="number-badge">${girl.id}</span><b class="text-gray-700">${girl.name}</b></td>
+                    <td class="p-4 text-sm text-center col-count text-gray-600">${displayCount} 場</td>
+                    <td class="p-4 text-sm text-center col-record text-gray-500">${currentTabIdx === 2 ? '-' : w+'W-'+l+'L'}</td>
+                    <td class="p-4 font-bold text-center col-rate text-pink-600">${currentTabIdx === 2 ? '-' : rate+'%'}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -260,7 +255,6 @@
                         <div class="text-right"><p class="text-sm font-bold text-gray-600">${g.score || '-'}</p><p class="text-xs font-bold ${text}">${tag}</p></div>
                     </div>`;
 
-                // 插入 3/28 詳細戰報
                 if (g.info) {
                     const infoBox = document.createElement('div');
                     infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-xs text-gray-600 grid grid-cols-2 gap-y-1 border border-pink-100";
@@ -268,12 +262,11 @@
                         <div>⏱️ 時間: ${g.info.time}</div>
                         <div>👥 觀眾: ${g.info.audience}</div>
                         <div>🥎 勝投: ${g.info.wp}</div>
-                        <div>打點: ${g.info.rbi}</div>
+                        <div>勝利打點: ${g.info.rbi}</div>
                         <div class="col-span-2 text-pink-600 font-bold">🏆 MVP: ${g.info.mvp}</div>
                     `;
                     div.appendChild(infoBox);
                 }
-
                 content.appendChild(div);
             });
             document.getElementById('girlModal').classList.remove('opacity-0', 'pointer-events-none');
@@ -281,7 +274,7 @@
 
         function closeModal() { document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none'); }
         function switchTab(i) {
-            currentTab = i;
+            currentTabIdx = i;
             [0,1,2,3,4].forEach(idx => document.getElementById('tab'+idx).classList.remove('tab-active'));
             document.getElementById('tab'+i).classList.add('tab-active');
             render();
