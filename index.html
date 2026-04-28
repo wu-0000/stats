@@ -14,6 +14,7 @@
         .tab-active { border-bottom: 4px solid #bf0845; color: #bf0845; font-weight: bold; }
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow: hidden; }
+        
         .number-badge { 
             display: inline-flex; align-items: center; justify-content: center;
             background: #bf0845; color: white; width: 28px; height: 28px;
@@ -25,8 +26,8 @@
 <body class="pb-10">
 
     <header class="pink-gradient text-white py-6 text-center shadow-lg mb-4">
-        <h1 class="text-3xl font-bold tracking-wider">📣 中華職棒</h1>
-        <p class="mt-1 opacity-90 text-sm">樂天女孩應援數據統計系統</p>
+        <h1 class="text-3xl font-bold tracking-wider">📣 中華職棒啦啦隊</h1>
+        <p class="mt-1 opacity-90 text-sm">應援戰報與女孩表現數據統計</p>
     </header>
 
     <main class="max-w-6xl mx-auto px-4">
@@ -36,7 +37,7 @@
             <button onclick="switchTab(1)" id="tab1" class="flex-1 py-4 text-center hover:bg-pink-50 transition">四月</button>
             <button onclick="switchTab(2)" id="tab2" class="flex-1 py-4 text-center hover:bg-pink-50 transition">五月</button>
             <button onclick="switchTab(3)" id="tab3" class="flex-1 py-4 text-center hover:bg-pink-50 transition">總表</button>
-            <button onclick="switchTab(4)" id="tab4" class="flex-1 py-4 text-center hover:bg-pink-50 transition font-bold">女孩介紹</button>
+            <button onclick="switchTab(4)" id="tab4" class="flex-1 py-4 text-center hover:bg-pink-50 transition font-bold text-pink-600">女孩介紹</button>
         </div>
 
         <div id="statsSection">
@@ -54,7 +55,7 @@
                     <p id="teamLosses" class="text-2xl font-bold text-red-400">-</p>
                 </div>
                 <div class="card p-4 border-l-4 border-pink-500">
-                    <p class="text-gray-500 text-xs">目前區間</p>
+                    <p class="text-gray-500 text-xs">統計期間</p>
                     <p id="currentMonthLabel" class="text-2xl font-bold text-pink-600">-</p>
                 </div>
             </div>
@@ -78,9 +79,9 @@
 
         <div id="introSection" class="hidden">
             <div class="card p-16 text-center">
-                <div class="text-6xl mb-6">💃</div>
+                <div class="text-6xl mb-6">🌸</div>
                 <h2 class="text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2>
-                <p class="text-gray-500">此頁面為預留空間，未來將用來放置女孩的個人資料與美麗照片。</p>
+                <p class="text-gray-500">此頁面為預留空間，未來將用來放置女孩的個人資料、美照與應援故事。</p>
             </div>
         </div>
     </main>
@@ -93,13 +94,13 @@
                     <p class="text-2xl font-bold text-pink-600" id="modalGirlName"></p>
                     <div class="cursor-pointer text-gray-400 text-xl" onclick="closeModal()">✕</div>
                 </div>
-                <div id="modalContent" class="space-y-3"></div>
+                <div id="modalContent" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. 基礎女孩名單與背號
+        // 女孩與背號 (已依號碼排序)
         const girlRoster = [
             { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
             { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, 
@@ -112,160 +113,18 @@
             { id: "87", name: "彭彭" }, { id: "88", name: "沈珈妤" }, { id: "97", name: "溫妮" }
         ];
 
-        // 2. 賽事結果數據
+        // 賽事數據 (已導入 3/28 詳細資訊)
         const games = [
-            // 三月
-            { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3" },
+            { 
+                date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3",
+                info: {
+                    time: "2:56 (2小時56分)",
+                    audience: "40,000",
+                    wp: "陳冠宇",
+                    rbi: "林政華",
+                    mvp: "陳晨威"
+                }
+            },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2" },
             { date: "2026-03-31", opp: "台鋼雄鷹", res: "L", score: "3:1" },
-            // 四月
-            { date: "2026-04-01", opp: "台鋼雄鷹", res: "L", score: "6:1" },
-            { date: "2026-04-10", opp: "中信兄弟", res: "W", score: "2:4" },
-            { date: "2026-04-11", opp: "中信兄弟", res: "W", score: "1:2" },
-            { date: "2026-04-12", opp: "中信兄弟", res: "L", score: "14:4" },
-            { date: "2026-04-15", opp: "統一獅", res: "L", score: "5:1" },
-            { date: "2026-04-16", opp: "統一獅", res: "L", score: "7:3" },
-            { date: "2026-04-21", opp: "富邦悍將", res: "W", score: "1:6" },
-            { date: "2026-04-22", opp: "富邦悍將", res: "W", score: "2:4" },
-            { date: "2026-04-24", opp: "味全龍", res: "延賽", score: "-" },
-            { date: "2026-04-25", opp: "味全龍", res: "L", score: "4:1" },
-            { date: "2026-04-26", opp: "味全龍", res: "W", score: "2:3" },
-            // 五月
-            { date: "2026-05-08", opp: "統一獅", res: "-", score: "" },
-            { date: "2026-05-09", opp: "統一獅", res: "-", score: "" },
-            { date: "2026-05-10", opp: "統一獅", res: "-", score: "" },
-            { date: "2026-05-20", opp: "中信兄弟", res: "-", score: "" },
-            { date: "2026-05-22", opp: "富邦悍將", res: "-", score: "" },
-            { date: "2026-05-23", opp: "富邦悍將", res: "-", score: "" },
-            { date: "2026-05-24", opp: "富邦悍將", res: "-", score: "" },
-            { date: "2026-05-29", opp: "台鋼雄鷹", res: "-", score: "" },
-            { date: "2026-05-30", opp: "台鋼雄鷹", res: "-", score: "" },
-            { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
-        ];
-
-        // 3. 實際上班數據 (解析自 CSV)
-        const attendanceData = {
-            "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "宋宋": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "筠熹": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-24", "2026-04-25", "2026-05-08", "2026-05-09", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "貝佳頤": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10"],
-            "高橋佳帆": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "卉妮": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24"],
-            "穎樂": ["2026-03-28", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-16", "2026-04-24", "2026-05-08", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "孟潔": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-21", "2026-04-22", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-23", "2026-05-24", "2026-05-30", "2026-05-31"],
-            "笑笑": ["2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-22", "2026-04-24", "2026-05-08", "2026-05-09", "2026-05-10"],
-            "熊霓": ["2026-03-28", "2026-03-29", "2026-04-10", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24"],
-            "KIRA": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-16", "2026-04-21", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-30", "2026-05-31"],
-            "MIKA": ["2026-03-28", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-16", "2026-04-21", "2026-04-24", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "河智媛": ["2026-03-31", "2026-04-01", "2026-04-26", "2026-05-10", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "廉世彬": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-23"],
-            "禹洙漢": ["2026-03-31", "2026-04-01", "2026-04-26", "2026-05-10", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "高佳彬": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-23"],
-            "若潼": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-22", "2026-04-24", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24"],
-            "言梓璇": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-22", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23"],
-            "金佳垠": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "禹菡": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-24", "2026-04-25", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "岱縈": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-22", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24"],
-            "崔荷潾": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-10", "2026-05-20", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30"],
-            "曲曲": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "彭彭": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-24", "2026-04-25", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20"],
-            "沈珈妤": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-22", "2026-04-24", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-29", "2026-05-30", "2026-05-31"],
-            "溫妮": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"]
-        };
-
-        let currentTab = 0;
-
-        function render() {
-            const tbody = document.getElementById('girlTableBody');
-            tbody.innerHTML = '';
-            
-            if (currentTab === 4) {
-                document.getElementById('statsSection').classList.add('hidden');
-                document.getElementById('introSection').classList.remove('hidden');
-                return;
-            }
-            document.getElementById('statsSection').classList.remove('hidden');
-            document.getElementById('introSection').classList.add('hidden');
-
-            const monthNames = ["三月", "四月", "五月", "總表"];
-            document.getElementById('currentMonthLabel').innerText = monthNames[currentTab];
-
-            // 統計篩選邏輯
-            let activeGames = [];
-            if (currentTab === 0) activeGames = games.slice(0, 3);
-            else if (currentTab === 1) activeGames = games.slice(3, 14);
-            else if (currentTab === 2) activeGames = games.slice(14, 24);
-            else activeGames = games.slice(0, 14); // 總表計 3-4月
-
-            const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
-            document.getElementById('totalGames').innerText = validGames.length;
-            document.getElementById('teamWins').innerText = validGames.filter(g => g.res === 'W').length;
-            document.getElementById('teamLosses').innerText = validGames.filter(g => g.res === 'L').length;
-
-            girlRoster.forEach(girl => {
-                const dates = attendanceData[girl.name] || [];
-                let w = 0, l = 0, count = 0;
-                
-                dates.forEach(d => {
-                    const g = activeGames.find(x => x.date === d);
-                    if (g && g.res !== "延賽" && g.res !== "-") {
-                        count++;
-                        if (g.res === 'W') w++;
-                        if (g.res === 'L') l++;
-                    }
-                });
-
-                const rate = count > 0 ? ((w / count) * 100).toFixed(1) : "0.0";
-                const displayCount = dates.filter(d => activeGames.some(g => g.date === d)).length;
-
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-pink-50 transition cursor-pointer";
-                tr.onclick = () => showDetail(girl.name, dates);
-                tr.innerHTML = `
-                    <td class="p-4 flex items-center"><span class="number-badge">${girl.id}</span><b>${girl.name}</b></td>
-                    <td class="p-4 text-sm">${displayCount} 場</td>
-                    <td class="p-4 text-sm">${currentTab === 2 ? '-' : w+'W-'+l+'L'}</td>
-                    <td class="p-4 font-bold text-pink-600">${currentTab === 2 ? '-' : rate+'%'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function showDetail(name, dates) {
-            const girl = girlRoster.find(g => g.name === name);
-            document.getElementById('modalGirlName').innerText = `${girl.id} ${name}`;
-            const content = document.getElementById('modalContent');
-            content.innerHTML = '';
-            
-            dates.slice().reverse().forEach(d => {
-                const g = games.find(x => x.date === d);
-                if (!g) return;
-                const div = document.createElement('div');
-                let color = "border-gray-200", tag = g.res, text = "text-gray-400";
-                if (g.res === 'W') { color = "border-green-400"; text = "text-green-500"; }
-                else if (g.res === 'L') { color = "border-red-300"; text = "text-red-400"; }
-                else if (g.res === '延賽') { color = "border-blue-300"; tag = "⛈️ 延賽"; text = "text-blue-500"; }
-                
-                div.className = `p-3 bg-white rounded-lg border-l-4 shadow-sm ${color}`;
-                div.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div><p class="text-[10px] text-gray-400">${d}</p><p class="font-bold">vs ${g.opp}</p></div>
-                        <div class="text-right"><p class="text-sm font-bold text-gray-600">${g.score || '-'}</p><p class="text-xs font-bold ${text}">${tag}</p></div>
-                    </div>`;
-                content.appendChild(div);
-            });
-            document.getElementById('girlModal').classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        function closeModal() { document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none'); }
-        function switchTab(i) {
-            currentTab = i;
-            [0,1,2,3,4].forEach(idx => document.getElementById('tab'+idx).classList.remove('tab-active'));
-            document.getElementById('tab'+i).classList.add('tab-active');
-            render();
-        }
-        render();
-    </script>
-</body>
-</html>
+            { date: "2026-04-01", opp:
