@@ -19,26 +19,36 @@
             display: inline-flex; align-items: center; justify-content: center;
             background: #bf0845; color: white; width: 28px; height: 28px;
             border-radius: 50%; font-size: 0.75rem; font-weight: bold;
-            margin-right: 12px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(191, 8, 69, 0.2);
+            margin-right: 8px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(191, 8, 69, 0.2);
         }
 
-        /* 強制表格欄位固定寬度 */
+        /* 欄位比例設定 */
         .col-name { width: 35%; }
         .col-count { width: 20%; }
         .col-record { width: 25%; }
         .col-rate { width: 20%; }
+
+        @media (max-width: 640px) {
+            .col-name { width: 42%; }
+            .col-count { width: 18%; }
+            .col-record { width: 22%; }
+            .col-rate { width: 18%; }
+            .number-badge { width: 22px; height: 22px; font-size: 0.65rem; margin-right: 4px; }
+            td, th { padding: 12px 4px !important; font-size: 0.85rem; }
+            .dashboard-text { font-size: 1.25rem !important; }
+        }
     </style>
 </head>
 <body class="pb-10">
 
     <header class="pink-gradient text-white py-6 text-center shadow-lg mb-4">
-        <h1 class="text-3xl font-bold tracking-wider">📣 中華職棒啦啦隊</h1>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-wider px-2">📣 中華職棒啦啦隊</h1>
         <p class="mt-1 opacity-90 text-sm">應援戰報與女孩表現數據統計</p>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4">
+    <main class="max-w-6xl mx-auto px-2 md:px-4">
         
-        <div class="flex flex-wrap border-b border-gray-200 mb-6 bg-white rounded-t-lg overflow-hidden text-sm md:text-base">
+        <div class="flex flex-wrap border-b border-gray-200 mb-6 bg-white rounded-t-lg overflow-hidden text-sm">
             <button onclick="switchTab(0)" id="tab0" class="flex-1 py-4 text-center hover:bg-pink-50 transition tab-active">三月</button>
             <button onclick="switchTab(1)" id="tab1" class="flex-1 py-4 text-center hover:bg-pink-50 transition">四月</button>
             <button onclick="switchTab(2)" id="tab2" class="flex-1 py-4 text-center hover:bg-pink-50 transition">五月</button>
@@ -47,22 +57,22 @@
         </div>
 
         <div id="statsSection">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
-                <div class="card p-4 border-b-4 border-pink-100">
-                    <p class="text-gray-500 text-xs">應援場次</p>
-                    <p id="totalGames" class="text-2xl font-bold text-gray-800">-</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8 text-center px-1">
+                <div class="card p-3 md:p-4 border-b-4 border-pink-100">
+                    <p class="text-gray-500 text-[10px] md:text-xs">應援場次</p>
+                    <p id="totalGames" class="dashboard-text text-xl md:text-2xl font-bold text-gray-800">-</p>
                 </div>
-                <div class="card p-4 border-b-4 border-green-100">
-                    <p class="text-gray-500 text-xs">團隊勝場</p>
-                    <p id="teamWins" class="text-2xl font-bold text-green-500">-</p>
+                <div class="card p-3 md:p-4 border-b-4 border-green-100">
+                    <p class="text-gray-500 text-[10px] md:text-xs">團隊勝場</p>
+                    <p id="teamWins" class="dashboard-text text-xl md:text-2xl font-bold text-green-500">-</p>
                 </div>
-                <div class="card p-4 border-b-4 border-red-100">
-                    <p class="text-gray-500 text-xs">團隊敗場</p>
-                    <p id="teamLosses" class="text-2xl font-bold text-red-400">-</p>
+                <div class="card p-3 md:p-4 border-b-4 border-red-100">
+                    <p class="text-gray-500 text-[10px] md:text-xs">團隊敗場</p>
+                    <p id="teamLosses" class="dashboard-text text-xl md:text-2xl font-bold text-red-400">-</p>
                 </div>
-                <div class="card p-4 border-l-4 border-pink-500">
-                    <p class="text-gray-500 text-xs">統計期間</p>
-                    <p id="currentMonthLabel" class="text-2xl font-bold text-pink-600">-</p>
+                <div class="card p-3 md:p-4 border-l-4 border-pink-500">
+                    <p class="text-gray-500 text-[10px] md:text-xs">統計期間</p>
+                    <p id="currentMonthLabel" class="dashboard-text text-xl md:text-2xl font-bold text-pink-600">-</p>
                 </div>
             </div>
 
@@ -70,11 +80,11 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left table-fixed">
                         <thead>
-                            <tr class="bg-pink-50 text-pink-700 text-sm">
-                                <th class="p-4 col-name"># 姓名</th>
-                                <th class="p-4 col-count text-center">應援場次</th>
-                                <th class="p-4 col-record text-center">戰績</th>
-                                <th class="p-4 col-rate text-center">勝率</th>
+                            <tr class="bg-pink-50 text-pink-700 text-xs md:text-sm">
+                                <th class="p-3 md:p-4 col-name"># 姓名</th>
+                                <th class="p-3 md:p-4 col-count text-center">場次</th>
+                                <th class="p-3 md:p-4 col-record text-center">戰績</th>
+                                <th class="p-3 md:p-4 col-rate text-center">勝率</th>
                             </tr>
                         </thead>
                         <tbody id="girlTableBody" class="divide-y divide-gray-100"></tbody>
@@ -83,11 +93,11 @@
             </section>
         </div>
 
-        <div id="introSection" class="hidden">
-            <div class="card p-16 text-center">
-                <div class="text-6xl mb-6">🌸</div>
-                <h2 class="text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2>
-                <p class="text-gray-500">此頁面為預留空間，未來將用來放置女孩的個人資料、美照與應援故事。</p>
+        <div id="introSection" class="hidden px-2">
+            <div class="card p-10 md:p-16 text-center">
+                <div class="text-5xl md:text-6xl mb-6">🌸</div>
+                <h2 class="text-2xl md:text-3xl font-bold text-pink-600 mb-4">女孩詳細介紹</h2>
+                <p class="text-gray-500 text-sm md:text-base">此頁面為預留空間，未來將用來放置女孩的個人資料與美照。</p>
             </div>
         </div>
     </main>
@@ -95,9 +105,9 @@
     <div id="girlModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center opacity-0 pointer-events-none z-50">
         <div class="modal-overlay absolute w-full h-full bg-black opacity-50" onclick="closeModal()"></div>
         <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto max-h-[90vh]">
-            <div class="modal-content py-4 px-6">
+            <div class="modal-content py-4 px-4 md:px-6">
                 <div class="flex justify-between items-center pb-3 border-b mb-4">
-                    <p class="text-2xl font-bold text-pink-600" id="modalGirlName"></p>
+                    <p class="text-xl md:text-2xl font-bold text-pink-600" id="modalGirlName"></p>
                     <div class="cursor-pointer text-gray-400 text-xl" onclick="closeModal()">✕</div>
                 </div>
                 <div id="modalContent" class="space-y-4"></div>
@@ -106,7 +116,6 @@
     </div>
 
     <script>
-        // ... (保持原本的 girlRoster, games, attendanceData 數據不變)
         const girlRoster = [
             { id: "00", name: "琳妲" }, { id: "3", name: "穆又甯" }, { id: "6", name: "宋宋" }, 
             { id: "7", name: "筠熹" }, { id: "8", name: "貝佳頤" }, { id: "9", name: "高橋佳帆" }, 
@@ -120,7 +129,18 @@
         ];
 
         const games = [
-            { date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", info: { time: "2:56 (2小時56分)", audience: "40,000", wp: "陳冠宇", rbi: "林政華", mvp: "陳晨威" } },
+            { 
+                date: "2026-03-28", opp: "中信兄弟", res: "W", score: "2:3", 
+                info: { 
+                    no: "001",
+                    location: "台北大巨蛋",
+                    time: "2:56", 
+                    audience: "40,000", 
+                    wp: "陳冠宇", 
+                    rbi: "林政華", 
+                    mvp: "陳晨威" 
+                } 
+            },
             { date: "2026-03-29", opp: "味全龍", res: "L", score: "3:2" },
             { date: "2026-03-31", opp: "台鋼雄鷹", res: "L", score: "3:1" },
             { date: "2026-04-01", opp: "台鋼雄鷹", res: "L", score: "6:1" },
@@ -146,6 +166,7 @@
             { date: "2026-05-31", opp: "台鋼雄鷹", res: "-", score: "" }
         ];
 
+        // 上班數據直接寫入
         const attendanceData = {
             "琳妲": ["2026-03-28", "2026-03-29", "2026-04-01", "2026-04-10", "2026-04-11", "2026-04-16", "2026-04-24", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-20", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
             "穆又甯": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-01", "2026-04-11", "2026-04-12", "2026-04-21", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"],
@@ -176,13 +197,13 @@
             "溫妮": ["2026-03-28", "2026-03-29", "2026-03-31", "2026-04-10", "2026-04-11", "2026-04-15", "2026-04-16", "2026-04-22", "2026-04-25", "2026-04-26", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-29", "2026-05-30", "2026-05-31"]
         };
 
-        let currentTabIdx = 0;
+        let currentTab = 0;
 
         function render() {
             const tbody = document.getElementById('girlTableBody');
             tbody.innerHTML = '';
             
-            if (currentTabIdx === 4) {
+            if (currentTab === 4) {
                 document.getElementById('statsSection').classList.add('hidden');
                 document.getElementById('introSection').classList.remove('hidden');
                 return;
@@ -191,12 +212,12 @@
             document.getElementById('introSection').classList.add('hidden');
 
             const monthNames = ["三月", "四月", "五月", "總表統計"];
-            document.getElementById('currentMonthLabel').innerText = monthNames[currentTabIdx];
+            document.getElementById('currentMonthLabel').innerText = monthNames[currentTab];
 
             let activeGames = [];
-            if (currentTabIdx === 0) activeGames = games.slice(0, 3);
-            else if (currentTabIdx === 1) activeGames = games.slice(3, 14);
-            else if (currentTabIdx === 2) activeGames = games.slice(14, 24);
+            if (currentTab === 0) activeGames = games.slice(0, 3);
+            else if (currentTab === 1) activeGames = games.slice(3, 14);
+            else if (currentTab === 2) activeGames = games.slice(14, 24);
             else activeGames = games.slice(0, 14); 
 
             const validGames = activeGames.filter(g => g.res !== "延賽" && g.res !== "-");
@@ -226,8 +247,8 @@
                 tr.innerHTML = `
                     <td class="p-4 flex items-center col-name"><span class="number-badge">${girl.id}</span><b class="text-gray-700">${girl.name}</b></td>
                     <td class="p-4 text-sm text-center col-count text-gray-600">${displayCount} 場</td>
-                    <td class="p-4 text-sm text-center col-record text-gray-500">${currentTabIdx === 2 ? '-' : w+'W-'+l+'L'}</td>
-                    <td class="p-4 font-bold text-center col-rate text-pink-600">${currentTabIdx === 2 ? '-' : rate+'%'}</td>
+                    <td class="p-4 text-sm text-center col-record text-gray-500">${currentTab === 2 ? '-' : w+'W-'+l+'L'}</td>
+                    <td class="p-4 font-bold text-center col-rate text-pink-600">${currentTab === 2 ? '-' : rate+'%'}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -257,13 +278,14 @@
 
                 if (g.info) {
                     const infoBox = document.createElement('div');
-                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-xs text-gray-600 grid grid-cols-2 gap-y-1 border border-pink-100";
+                    infoBox.className = "mt-2 p-2 bg-pink-50 rounded text-[11px] text-gray-600 grid grid-cols-2 gap-y-1 border border-pink-100";
                     infoBox.innerHTML = `
+                        <div class="col-span-2 font-bold text-gray-800 border-b border-pink-200 pb-1 mb-1">場次: ${g.info.no} | 球場: ${g.info.location}</div>
                         <div>⏱️ 時間: ${g.info.time}</div>
                         <div>👥 觀眾: ${g.info.audience}</div>
-                        <div>🥎 勝投: ${g.info.wp}</div>
+                        <div>⚾ 勝投: ${g.info.wp}</div>
                         <div>勝利打點: ${g.info.rbi}</div>
-                        <div class="col-span-2 text-pink-600 font-bold">🏆 MVP: ${g.info.mvp}</div>
+                        <div class="col-span-2 text-pink-600 font-bold mt-1">🏆 MVP: ${g.info.mvp}</div>
                     `;
                     div.appendChild(infoBox);
                 }
@@ -274,7 +296,7 @@
 
         function closeModal() { document.getElementById('girlModal').classList.add('opacity-0', 'pointer-events-none'); }
         function switchTab(i) {
-            currentTabIdx = i;
+            currentTab = i;
             [0,1,2,3,4].forEach(idx => document.getElementById('tab'+idx).classList.remove('tab-active'));
             document.getElementById('tab'+i).classList.add('tab-active');
             render();
