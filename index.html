@@ -17,35 +17,70 @@ content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'
 
 <header class="header">
     <h1>📣 中華職棒啦啦隊</h1>
+    <p>應援戰報與女孩表現數據統計</p>
 </header>
 
+<main>
+
 <div id="tabList">
-    <button data-tab="0" id="tab0">三月</button>
+    <button data-tab="0" id="tab0" class="tab-active">三月</button>
     <button data-tab="1" id="tab1">四月</button>
     <button data-tab="2" id="tab2">五月</button>
     <button data-tab="3" id="tab3">總表</button>
+    <button data-tab="4" id="tab4">女孩介紹</button>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>姓名</th>
-<th>場次</th>
-<th>戰績</th>
-<th>勝率</th>
-</tr>
-</thead>
-<tbody id="girlTableBody"></tbody>
-</table>
+<div id="statsSection">
 
-<!-- Modal -->
+    <div class="stats-grid">
+        <div class="card">
+            <p>應援場次</p>
+            <p id="totalGames">-</p>
+        </div>
+        <div class="card">
+            <p>團隊勝場</p>
+            <p id="teamWins">-</p>
+        </div>
+        <div class="card">
+            <p>團隊敗場</p>
+            <p id="teamLosses">-</p>
+        </div>
+        <div class="card">
+            <p>統計期間</p>
+            <p id="currentMonthLabel">-</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th># 姓名</th>
+                <th>場次</th>
+                <th>戰績</th>
+                <th>勝率</th>
+            </tr>
+        </thead>
+        <tbody id="girlTableBody"></tbody>
+    </table>
+
+</div>
+
+<div id="introSection" class="hidden">
+    <div class="card intro-card">
+        <h2>🌸 女孩詳細介紹</h2>
+        <p>此頁面為預留空間。</p>
+    </div>
+</div>
+
+</main>
+
 <div id="girlModal" class="modal hidden">
-    <button id="modalOverlay" class="overlay"></button>
+    <button type="button" id="modalOverlay" class="overlay" aria-label="關閉視窗"></button>
 
     <div class="modal-box">
         <div class="modal-header">
             <span id="modalGirlName"></span>
-            <button id="modalClose">✕</button>
+            <button type="button" id="modalClose">✕</button>
         </div>
         <div id="modalContent"></div>
     </div>
