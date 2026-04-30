@@ -22,21 +22,21 @@
     <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold mb-6 text-slate-800 border-b pb-4">🏟️ 數據管理後台</h1>
         
-        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
-            <h2 class="text-xl font-bold mb-4 text-pink-600">🆕 新增比賽紀錄</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <input id="g_date" type="date" class="border p-2 rounded" placeholder="日期">
-                <input id="g_opp" type="text" class="border p-2 rounded" placeholder="對手 (如: 味全龍)">
-                <select id="g_res" class="border p-2 rounded">
-                    <option value="W">勝 (W)</option>
-                    <option value="L">敗 (L)</option>
-                    <option value="延賽">延賽</option>
-                    <option value="-">尚未開打</option>
-                </select>
-                <input id="g_score" type="text" class="border p-2 rounded" placeholder="比數 (如: 2:3)">
-            </div>
-            <button onclick="addGame()" class="mt-4 bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition">新增到清單</button>
-        </div>
+       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <input id="g_date" type="date" class="border p-2 rounded" placeholder="日期">
+    <input id="g_opp" type="text" class="border p-2 rounded" placeholder="對手">
+    <select id="g_res" class="border p-2 rounded">
+        <option value="W">勝 (W)</option>
+        <option value="L">敗 (L)</option>
+        <option value="延賽">延賽</option>
+    </select>
+    <input id="g_score" type="text" class="border p-2 rounded" placeholder="比數 (2:3)">
+    <input id="g_win_p" type="text" class="border p-2 rounded" placeholder="勝投">
+    <input id="g_loss_p" type="text" class="border p-2 rounded" placeholder="敗投">
+    <input id="g_mvp" type="text" class="border p-2 rounded" placeholder="MVP">
+    <input id="g_save" type="text" class="border p-2 rounded" placeholder="救援成功">
+    <input id="g_time" type="text" class="border p-2 rounded" placeholder="比賽時間 (如 3h20m)">
+</div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
             <h2 class="text-xl font-bold mb-4 text-pink-600">📅 女孩考勤勾選</h2>
@@ -76,17 +76,21 @@
         });
 
         // 邏輯：新增比賽
-        function addGame() {
-            const newGame = {
-                date: document.getElementById('g_date').value,
-                opp: document.getElementById('g_opp').value,
-                res: document.getElementById('g_res').value,
-                score: document.getElementById('g_score').value
-            };
-            if(!newGame.date || !newGame.opp) return alert("請填寫日期與對手！");
-            
-            CHEER_DATA.games.unshift(newGame); // 加到最前面
-            alert("已加入暫存，記得最後點擊「匯出」按鈕。");
+       function addGame() {
+    const newGame = {
+        date: document.getElementById('g_date').value,
+        opp: document.getElementById('g_opp').value,
+        res: document.getElementById('g_res').value,
+        score: document.getElementById('g_score').value,
+        win_p: document.getElementById('g_win_p').value, // 新增
+        loss_p: document.getElementById('g_loss_p').value, // 新增
+        mvp: document.getElementById('g_mvp').value, // 新增
+        save: document.getElementById('g_save').value, // 新增
+        time: document.getElementById('g_time').value // 新增
+    };
+    if(!newGame.date || !newGame.opp) return alert("請填寫日期與對手！");
+    CHEER_DATA.games.unshift(newGame);
+    alert("已加入暫存，記得點擊匯出。");
         }
 
         // 邏輯：更新考勤
