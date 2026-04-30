@@ -80,3 +80,27 @@ function calculateWinRate(win, loss) {
     if (total === 0) return "0.0";
     return ((win / total) * 100).toFixed(1);
 }
+
+// ====== 4. 比分解析工具 (超級幸運女神計算機) ======
+// 根據勝敗，自動判斷比分字串 (例如 "2:3") 哪一個是自己的得分
+function parseScoreForTeam(scoreStr, result) {
+    if (!scoreStr || !result || result.includes('延賽')) return { scored: 0, allowed: 0 };
+    
+    const parts = scoreStr.split(':');
+    if (parts.length !== 2) return { scored: 0, allowed: 0 };
+    
+    const num1 = parseInt(parts[0].trim());
+    const num2 = parseInt(parts[1].trim());
+    if (isNaN(num1) || isNaN(num2)) return { scored: 0, allowed: 0 };
+
+    const max = Math.max(num1, num2);
+    const min = Math.min(num1, num2);
+
+    if (result.includes('勝')) {
+        return { scored: max, allowed: min }; // 贏了，得分是高的
+    } else if (result.includes('敗')) {
+        return { scored: min, allowed: max }; // 輸了，得分是低的
+    } else {
+        return { scored: num1, allowed: num2 }; // 和局
+    }
+}
