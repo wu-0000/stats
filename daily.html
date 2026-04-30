@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>樂天女孩 - 每日站位查詢</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d90000; padding-bottom: 10px; }
+        .search-section { background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
+        .match-info { background: #fff3f3; padding: 15px; border-left: 5px solid #d90000; margin-bottom: 20px; display: none; }
+        .lineup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .lineup-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white; display: flex; justify-content: space-between; align-items: center; }
+        .pos-tag { background: #d90000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 14px; }
+        .no-data { text-align: center; color: #888; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📅 每日站位查詢</h1>
+        <a href="index.html">返回首頁</a>
+    </div>
+
+    <div class="search-section">
+        <label>選擇年份：</label>
+        <select id="year-select">
+            <option value="2026">2026</option>
+        </select>
+        &nbsp;&nbsp;
+        <label>選擇日期：</label>
+        <input type="text" id="date-input" placeholder="例如: 03/28" style="padding: 5px; width: 100px;">
+        <button onclick="searchLineup()" style="padding: 5px 15px; cursor: pointer;">查詢</button>
+    </div>
+
+    <div id="match-summary" class="match-info">
+        </div>
+
+    <div id="lineup-result" class="lineup-grid">
+        <p class="no-data">請輸入日期並點擊查詢</p>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        async function searchLineup() {
+            const targetYear = document.getElementById('year-select').value;
+            const targetDate = document.getElementById('date-input').value.trim();
+            const resultContainer = document.getElementById('lineup-result');
+            const matchSummary = document.getElementById('match-summary');
+
+            if (!targetDate) {
+                alert("請輸入日期，例如 03/28");
+                return;
+            }
+
+            resultContainer.innerHTML = '<p>搜尋中...</p>';
+
+            try {
+                const [scheduleData, matchesData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl),
+                    fetchCSV(CONFIG.matchesUrl)
+                ]);
+
+                // 1. 先找當天的比賽資訊
+                const match = matchesData.find(m => m.date === targetDate && m.year === targetYear);
+                if (match) {
+                    matchSummary.style.display = 'block';
+                    matchSummary.innerHTML = `
+                        <strong>🏟️ 當日賽事：</strong> 樂天 vs ${match.opponent} 
+                        (${match.result}) | <strong>比分：</strong> ${match.score} 
+                        | <strong>地點：</strong> ${match.location}
+                    `;
+                } else {
+                    matchSummary.style.display = 'none';
+                }
+
+                // 2. 搜尋所有女孩的班表，找出當天有上班的人
+                let dailyStaff = [];
+                scheduleData.forEach(girl => {
+                    if (girl.year === targetYear && girl.working_dates) {
+                        const works = parseWorkingDate(girl.working_dates);
+                        const todayWork = works.find(w => w.date === targetDate);
+                        if (todayWork) {
+                            dailyStaff.push({
+                                name: girl.girl_name,
+                                position: todayWork.position
+                            });
+                        }
+                    }
+                });
+
+                // 3. 渲染結果
+                resultContainer.innerHTML = '';
+                if (dailyStaff.length === 0) {
+                    resultContainer.innerHTML = '<p class="no-data">當天目前沒有排班資料</p>';
+                } else {
+                    dailyStaff.forEach(staff => {
+                        const card = document.createElement('div');
+                        card.className = 'lineup-card';
+                        card.innerHTML = `
+                            <span style="font-weight:bold;">${staff.name}</span>
+                            <span class="pos-tag">${staff.position}</span>
+                        `;
+                        resultContainer.appendChild(card);
+                    });
+                }
+
+            } catch (error) {
+                console.error(error);
+                resultContainer.innerHTML = '<p style="color:red;">載入失敗</p>';
+            }
+        }
+    </script>
+</body>
+</html>
