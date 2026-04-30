@@ -1,1 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>啦啦隊數據統計 - 首頁</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+        .team-tabs { margin-bottom: 20px; }
+        .team-tabs button { padding: 10px 20px; cursor: pointer; background: #eee; border: none; }
+        .team-tabs button.active { background: #d90000; color: white; font-weight: bold; }
+        .girl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
+        .girl-card { border: 1px solid #ccc; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .girl-card:hover { background: #f0f0f0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .girl-number { font-size: 24px; color: #888; margin-bottom: 5px; }
+        .girl-name { font-size: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>啦啦隊數據總覽</h1>
+    
+    <div class="team-tabs">
+        <button class="active">樂天桃猿</button>
+        </div>
 
+    <div id="girl-list" class="girl-grid">
+        <p>資料載入中...</p>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        async function loadGirls() {
+            const girlsData = await fetchCSV(CONFIG.girlsUrl);
+            const listContainer = document.getElementById('girl-list');
+            listContainer.innerHTML = ''; // 清空載入中提示
+
+            // 過濾出樂天女孩
+            const rakutenGirls = girlsData.filter(g => g.team === "樂天");
+
+            rakutenGirls.forEach(girl => {
+                const card = document.createElement('div');
+                card.className = 'girl-card';
+                card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}`;
+                card.innerHTML = `
+                    <div class="girl-number">${girl.id || "00"}</div>
+                    <div class="girl-name">${girl.name}</div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+        loadGirls();
+    </script>
+</body>
+</html>
