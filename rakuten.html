@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>樂天女孩名單</title>
+    <style>
+        .girl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
+        .girl-card { border: 1px solid #ddd; padding: 10px; text-align: center; cursor: pointer; }
+        .girl-card:hover { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>樂天女孩名單</h1>
+    <div id="girl-list" class="girl-grid">
+        </div>
+
+    <script>
+        // 替換成你的 Girls 工作表 CSV 連結
+        const girlsCsvUrl = "https://docs.google.com/spreadsheets/d/1yG6H2Uwxw48R-Nk8Pao9I_lgunw4idW3dgRqwFlcC58/edit?usp=sharing";
+
+        async function loadGirls() {
+            const response = await fetch(girlsCsvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1); // 跳過第一行標題
+
+            const listContainer = document.getElementById('girl-list');
+            rows.forEach(row => {
+                const [id, name, team] = row.split(',');
+                if (team && team.trim() === "樂天") {
+                    const card = document.createElement('div');
+                    card.className = 'girl-card';
+                    card.innerHTML = `<h3>${name}</h3><p>背號：${id}</p>`;
+                    // 點擊後跳轉到詳情頁，並帶著名字作為參數
+                    card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(name)}`;
+                    listContainer.appendChild(card);
+                }
+            });
+        }
+        loadGirls();
+    </script>
+</body>
+</html>
