@@ -1,0 +1,146 @@
+/* =========================================
+   全站共用變數設定 (樂天主題色)
+   ========================================= */
+:root {
+    --rakuten-red: #bf0000;
+    --rakuten-dark: #8a0000;
+    --bg-color: #f4f6f9;
+    --card-bg: #ffffff;
+    --text-main: #333333;
+    --border-radius: 12px;
+}
+
+/* =========================================
+   基礎排版與字體
+   ========================================= */
+body { 
+    font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Heiti TC', sans-serif; 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    margin: 0; 
+    padding: 15px; 
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+/* =========================================
+   頂部導覽列 (Header)
+   ========================================= */
+.header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 3px solid var(--rakuten-red); 
+    padding-bottom: 15px; 
+    margin-bottom: 25px; 
+    flex-wrap: wrap; /* 手機版自動換行 */
+    gap: 10px;
+}
+
+.header h1 { 
+    margin: 0; 
+    font-size: 1.5rem; 
+    color: var(--rakuten-red); 
+}
+
+/* =========================================
+   按鈕與控制區 (Buttons & Controls)
+   ========================================= */
+.btn { 
+    background-color: var(--rakuten-red); 
+    color: white; 
+    padding: 10px 16px; 
+    text-decoration: none; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    border: none; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    display: inline-block; 
+}
+
+.btn:hover { 
+    background-color: var(--rakuten-dark); 
+    box-shadow: 0 4px 10px rgba(191,0,0,0.3); 
+}
+
+.btn-secondary { background-color: #555; }
+.btn-secondary:hover { background-color: #333; }
+
+select, input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* =========================================
+   卡片設計 (首頁名單、總計數據)
+   ========================================= */
+.grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+    gap: 15px; 
+}
+
+.dashboard { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 15px; 
+    margin-bottom: 25px; 
+}
+
+.card { 
+    background: var(--card-bg); 
+    border-radius: var(--border-radius); 
+    padding: 20px; 
+    text-align: center; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+    transition: all 0.3s ease; 
+    border: 1px solid #eee; 
+}
+
+.card:hover { 
+    transform: translateY(-5px); /* 滑鼠游標移過去會浮起來 */
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
+    border-color: var(--rakuten-red); 
+}
+
+/* =========================================
+   手機版防撐破神器：表格滾動區 (Table Responsive)
+   ========================================= */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto; /* 核心魔法：超出螢幕範圍就出現左右卷軸 */
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-top: 20px;
+    -webkit-overflow-scrolling: touch; /* 讓蘋果手機滑起來更順 */
+}
+
+table { 
+    width: 100%; 
+    min-width: 700px; /* 強制表格不能被擠壓得太小 */
+    border-collapse: collapse; 
+    text-align: center; 
+    white-space: nowrap; /* 強制文字不換行 */
+}
+
+th, td { 
+    padding: 12px 15px; 
+    border-bottom: 1px solid #eee; 
+}
+
+th { 
+    background-color: #f8f9fa; 
+    font-weight: bold; 
+    color: var(--text-main); 
+}
+
+.win { color: #28a745; font-weight: bold; }
+.loss { color: #dc3545; }
