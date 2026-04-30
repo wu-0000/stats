@@ -5,19 +5,40 @@ const CONFIG = {
     scheduleUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZH16XqadNV3U1RnxqnX8vPaYVrR_oSci2R8QzZqcfhgTRuyNDkNbAUu6BCWiVPB8AVPpaqHmJVBQg/pub?gid=715298933&single=true&output=csv"
 };
 
-// ====== 2. 共用資料獲取工具 ======
+// ====== 2. 共用資料獲取工具 (防呆無敵版) ======
 async function fetchCSV(url) {
     const response = await fetch(url);
     const data = await response.text();
     // 處理換行並過濾掉空行
     const rows = data.split(/\r?\n/).map(row => row.trim()).filter(row => row);
-    const headers = rows[0].split(',');
+    
+    // 專門處理 CSV 引號陷阱的切菜刀
+    function parseCSVRow(rowStr) {
+        let result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < rowStr.length; i++) {
+            let char = rowStr[i];
+            if (char === '"') {
+                inQuotes = !inQuotes; // 遇到雙引號，開啟保護罩
+            } else if (char === ',' && !inQuotes) {
+                result.push(current.trim()); // 只有在保護罩外面的逗號才切斷
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        result.push(current.trim());
+        return result;
+    }
+
+    const headers = parseCSVRow(rows[0]);
     
     return rows.slice(1).map(row => {
-        const values = row.split(',');
+        const values = parseCSVRow(row);
         let obj = {};
         headers.forEach((h, i) => {
-            obj[h.trim()] = values[i] ? values[i].trim() : "";
+            obj[h] = values[i] ? values[i] : "";
         });
         return obj;
     });
