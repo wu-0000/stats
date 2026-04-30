@@ -49,8 +49,8 @@
         }
 
         // 🎀 切換隊伍的功能
+// 🎀 切換隊伍的功能 (升級 IG 按鈕版)
         function changeTeam(teamName) {
-            // A. 更新按鈕外觀：點到的變粉紅(btn)，沒點到的變淺色(btn-secondary)
             const tabs = document.querySelectorAll('#team-tabs button');
             tabs.forEach(tab => {
                 if (tab.innerText.includes(teamName)) {
@@ -60,7 +60,6 @@
                 }
             });
 
-            // B. 篩選資料並重新渲染名單
             const listContainer = document.getElementById('girl-list');
             listContainer.innerHTML = ''; 
 
@@ -76,14 +75,31 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.style.cursor = 'pointer';
-                // 跳轉時，除了名字，把「隊伍」也傳過去（detail.html 會用到）
                 card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}&team=${encodeURIComponent(teamName)}`;
+                
+                // 📷 判斷有沒有填寫 IG，自動產生專屬漸層按鈕
+                let igHtml = '';
+                if (girl.ig && girl.ig.trim() !== '') {
+                    let igStr = girl.ig.trim();
+                    // 如果只打帳號，程式自動幫你補全 IG 網址
+                    let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
+                    
+                    // event.stopPropagation() 是魔法：保證你點 IG 按鈕時是開新網頁，不會不小心點進去詳細數據頁
+                    igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" 
+                                 style="display:inline-block; margin-top:12px; background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
+                                 color:white; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:bold; text-decoration:none; box-shadow: 0 4px 10px rgba(220, 39, 67, 0.3);">
+                                 📷 Instagram
+                              </a>`;
+                }
+
                 card.innerHTML = `
                     <div style="font-size: 24px; color: var(--text-muted); margin-bottom: 8px; font-weight: 900;">${girl.id || "00"}</div>
                     <div style="font-size: 18px; font-weight: bold; color: var(--text-main);">${girl.name}</div>
+                    ${igHtml}
                 `;
                 listContainer.appendChild(card);
             });
+        }
         }
 
         // 啟動程式
