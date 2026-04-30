@@ -27,26 +27,49 @@
         <p>資料載入中...</p>
     </div>
 
-    <script src="app.js"></script>
+<script src="app.js"></script>
     <script>
         async function loadGirls() {
-            const girlsData = await fetchCSV(CONFIG.girlsUrl);
-            const listContainer = document.getElementById('girl-list');
-            listContainer.innerHTML = ''; // 清空載入中提示
+            try {
+                // 1. 確認有沒有讀到 app.js 裡的設定
+                console.log("準備抓取網址：", CONFIG.girlsUrl); 
 
-            // 過濾出樂天女孩
-            const rakutenGirls = girlsData.filter(g => g.team === "樂天");
+                const girlsData = await fetchCSV(CONFIG.girlsUrl);
+                
+                // 2. 把抓到的所有資料印在後台看看
+                console.log("從 Google Sheets 抓到的所有資料：", girlsData);
 
-            rakutenGirls.forEach(girl => {
-                const card = document.createElement('div');
-                card.className = 'girl-card';
-                card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}`;
-                card.innerHTML = `
-                    <div class="girl-number">${girl.id || "00"}</div>
-                    <div class="girl-name">${girl.name}</div>
-                `;
-                listContainer.appendChild(card);
-            });
+                const listContainer = document.getElementById('girl-list');
+                listContainer.innerHTML = ''; // 清空載入中提示
+
+                // 過濾出樂天女孩 (加入 .trim() 清除可能不小心打到的空白鍵)
+                const rakutenGirls = girlsData.filter(g => g.team && g.team.trim() === "樂天");
+
+                // 3. 看過濾後剩下幾筆
+                console.log("過濾出來的樂天女孩：", rakutenGirls);
+
+                // 防呆：如果抓了資料卻是空的，顯示提示
+                if (rakutenGirls.length === 0) {
+                    listContainer.innerHTML = '<p>有連上表格，但找不到隊伍是「樂天」的女孩，請檢查 Google Sheets 的 C 欄標題與內容！</p>';
+                    return;
+                }
+
+                rakutenGirls.forEach(girl => {
+                    const card = document.createElement('div');
+                    card.className = 'girl-card';
+                    card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}`;
+                    card.innerHTML = `
+                        <div class="girl-number">${girl.id || "00"}</div>
+                        <div class="girl-name">${girl.name}</div>
+                    `;
+                    listContainer.appendChild(card);
+                });
+                
+            } catch (error) {
+                // 如果連網址都抓不到，就會跑到這裡
+                console.error("發生嚴重錯誤：", error);
+                document.getElementById('girl-list').innerHTML = '<p style="color:red;">資料連線失敗！請按 F12 查看 Console 錯誤訊息。</p>';
+            }
         }
         loadGirls();
     </script>
