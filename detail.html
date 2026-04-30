@@ -59,85 +59,113 @@
             </tbody>
     </table>
 
-    <script src="app.js"></script>
+<script src="app.js"></script>
     <script>
         // 取得網址列上的名字 (例如 ?name=籃籃)
         const urlParams = new URLSearchParams(window.location.search);
         const girlName = urlParams.get('name');
+        
+        console.log("現在要查詢的女孩是：", girlName);
+        
         document.getElementById('page-title').innerText = girlName ? `${girlName} 的出勤數據` : '找不到女孩資料';
 
         let chartInstance = null;
-        let allMatches = []; // 儲存該女孩該年度所有比賽
+        let allMatches = [];
         
         async function loadDetailData() {
             if (!girlName) return;
 
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
+            console.log(`正在查詢 ${selectedYear} 年 ${selectedMonth === 'all' ? '全年' : selectedMonth + '月'} 的資料...`);
 
-            // 抓取班表與比賽資料
-            const [scheduleData, matchesData] = await Promise.all([
-                fetchCSV(CONFIG.scheduleUrl),
-                fetchCSV(CONFIG.matchesUrl)
-            ]);
+            try {
+                // 抓取班表與比賽資料
+                console.log("開始抓取班表與比賽 CSV...");
+                const [scheduleData, matchesData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl),
+                    fetchCSV(CONFIG.matchesUrl)
+                ]);
 
-            // 1. 找出該女孩在選定年度的班表字串
-            const mySchedule = scheduleData.find(s => s.girl_name === girlName && s.year === selectedYear);
-            if (!mySchedule || !mySchedule.working_dates) {
-                renderUI([], "all"); // 沒上班
-                return;
-            }
+                console.log("抓到的總班表資料：", scheduleData);
+                console.log("抓到的總比賽資料：", matchesData);
 
-            // 2. 解析班表字串 (如 "03/28(一三三)")
-            const workList = parseWorkingDate(mySchedule.working_dates);
+                // 1. 找出該女孩在選定年度的班表字串 (加入 .trim() 防呆)
+                const mySchedule = scheduleData.find(s => 
+                    s.girl_name && s.girl_name.trim() === girlName && 
+                    s.year && s.year.trim() === selectedYear
+                );
 
-            // 3. 結合比賽詳細資料
-            allMatches = workList.map(work => {
-                // 去 Matches 找對應日期與年度的比賽
-                const matchDetail = matchesData.find(m => m.date === work.date && m.year === selectedYear);
-                if (matchDetail) {
-                    return { ...matchDetail, position: work.position }; // 合併站位資訊
+                if (!mySchedule || !mySchedule.working_dates) {
+                    console.log("⚠️ 找不到該女孩當年的班表，或是班表欄位為空！");
+                    renderUI([], "all"); // 沒上班
+                    return;
                 }
-                return null;
-            }).filter(m => m !== null);
 
-            // 渲染介面
-            renderUI(allMatches, selectedMonth);
+                console.log("找到她的專屬班表字串：", mySchedule.working_dates);
+
+                // 2. 解析班表字串
+                const workList = parseWorkingDate(mySchedule.working_dates);
+                console.log("解析出的上班日期與站位：", workList);
+
+                // 3. 結合比賽詳細資料
+                allMatches = workList.map(work => {
+                    const matchDetail = matchesData.find(m => 
+                        m.date && m.date.trim() === work.date.trim() && 
+                        m.year && m.year.trim() === selectedYear
+                    );
+                    
+                    if (matchDetail) {
+                        return { ...matchDetail, position: work.position };
+                    } else {
+                        console.warn(`找不到 ${work.date} 這天的比賽紀錄！`);
+                        return null;
+                    }
+                }).filter(m => m !== null);
+
+                console.log("最終整理好的比賽清單：", allMatches);
+
+                // 渲染介面
+                renderUI(allMatches, selectedMonth);
+
+            } catch (error) {
+                console.error("❌ 讀取詳細資料時發生錯誤：", error);
+                document.getElementById('match-table-body').innerHTML = `<tr><td colspan="12" style="color:red;">資料載入失敗，請按 F12 查看錯誤訊息！</td></tr>`;
+            }
         }
 
         function renderUI(matches, filterMonth) {
-            // 月份過濾
             let displayMatches = matches;
             if (filterMonth !== "all") {
-                // 假設 CSV 裡的 month 是數字 (例如 "3")
-                displayMatches = matches.filter(m => m.month === filterMonth);
+                displayMatches = matches.filter(m => m.month && m.month.trim() === filterMonth);
             }
 
-            // 統計變數
             let winCount = 0, lossCount = 0, delayCount = 0, totalMinutes = 0;
             const tbody = document.getElementById('match-table-body');
             tbody.innerHTML = '';
 
+            if (displayMatches.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="12">這個月沒有出勤紀錄或找不到比賽資料</td></tr>`;
+            }
+
             displayMatches.forEach(m => {
-                // 累加統計
-                if (m.result === '勝') winCount++;
-                else if (m.result === '敗') lossCount++;
-                else if (m.result === '延賽') delayCount++;
+                const resultTrimmed = m.result ? m.result.trim() : "";
+                if (resultTrimmed === '勝') winCount++;
+                else if (resultTrimmed === '敗') lossCount++;
+                else if (resultTrimmed === '延賽') delayCount++;
 
                 totalMinutes += parseDuration(m.duration);
 
-                // 決定結果文字顏色
                 let resultClass = "";
-                if (m.result === '勝') resultClass = 'win';
-                if (m.result === '敗') resultClass = 'loss';
+                if (resultTrimmed === '勝') resultClass = 'win';
+                if (resultTrimmed === '敗') resultClass = 'loss';
 
-                // 產生表格行
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${m.date}</td>
-                    <td>${m.opponent}</td>
+                    <td>${m.date || "-"}</td>
+                    <td>${m.opponent || "-"}</td>
                     <td>${m.score || "-"}</td>
-                    <td class="${resultClass}">${m.result}</td>
+                    <td class="${resultClass}">${m.result || "-"}</td>
                     <td>${m.win_pitcher || "-"}</td>
                     <td>${m.loss_pitcher || "-"}</td>
                     <td>${m.save || "-"}</td>
@@ -145,28 +173,25 @@
                     <td>${m.duration || "-"}</td>
                     <td>${m.attendance || "-"}</td>
                     <td>${m.location || "-"}</td>
-                    <td>${m.position}</td>
+                    <td>${m.position || "-"}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // 更新統計看板
             document.getElementById('stat-winrate').innerText = `${calculateWinRate(winCount, lossCount)}%`;
             document.getElementById('stat-games').innerText = displayMatches.length;
             document.getElementById('stat-delay').innerText = delayCount;
             document.getElementById('stat-duration').innerText = formatMinutes(totalMinutes);
 
-            // 更新圓餅圖
             updateChart(winCount, lossCount, delayCount);
         }
 
         function updateChart(win, loss, delay) {
             const ctx = document.getElementById('winLossChart').getContext('2d');
-            
-            // 銷毀舊圖表以避免重疊
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
+
+            // 如果完全沒有數據，就不畫圖
+            if (win === 0 && loss === 0 && delay === 0) return; 
 
             chartInstance = new Chart(ctx, {
                 type: 'pie',
@@ -181,14 +206,11 @@
             });
         }
 
-        // 綁定下拉選單事件，改變時重新渲染
         document.getElementById('year-select').addEventListener('change', loadDetailData);
         document.getElementById('month-select').addEventListener('change', () => {
-            const selectedMonth = document.getElementById('month-select').value;
-            renderUI(allMatches, selectedMonth);
+            renderUI(allMatches, document.getElementById('month-select').value);
         });
 
-        // 初始載入
         loadDetailData();
     </script>
 </body>
