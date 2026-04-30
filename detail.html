@@ -65,15 +65,27 @@
         let chartInstance = null;
         let allMatches = [];
         
-        async function loadDetailData() {
+async function loadDetailData() {
             if (!girlName) return;
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
 
             try {
-                const [scheduleData, matchesData] = await Promise.all([
-                    fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
+                // 🎀 這裡多加了 fetchCSV(CONFIG.girlsUrl) 把女孩總表也抓下來看 IG
+                const [scheduleData, matchesData, girlsData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
+
+                // 📷 去找這位女孩的 IG 資料並更新標題
+                const girlInfo = girlsData.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
+                let titleHtml = `✨ ${girlName} 的出勤數據 ✨`;
+                
+                if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
+                    let igStr = girlInfo.ig.trim();
+                    let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
+                    titleHtml += ` <a href="${igLink}" target="_blank" style="font-size:14px; background:linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color:white; padding:4px 12px; border-radius:12px; text-decoration:none; vertical-align:middle; margin-left:10px; box-shadow: 0 4px 10px rgba(220, 39, 67, 0.3);">📷 IG</a>`;
+                }
+                document.getElementById('page-title').innerHTML = titleHtml;
 
                 const mySchedule = scheduleData.find(s => s.girl_name && s.girl_name.trim() === girlName && s.year && s.year.trim() === selectedYear);
                 if (!mySchedule || !mySchedule.working_dates) {
@@ -93,7 +105,6 @@
                 renderUI(allMatches, selectedMonth);
             } catch (error) { console.error(error); }
         }
-
         function renderUI(matches, filterMonth) {
             let displayMatches = matches;
             if (filterMonth !== "all") {
