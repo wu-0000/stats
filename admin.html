@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>啦啦隊數據管理後台</title>
+(function() {
+    const password = prompt("請輸入管理員密碼：");
+    if (password !== "你的密碼") {  // 在這裡設定你的密碼
+        alert("密碼錯誤，將返回首頁");
+        window.location.href = "index.html";
+    }
+})();
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
