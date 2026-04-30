@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>啦啦隊數據管理後台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .config-box { background: #1e293b; color: #38bdf8; font-family: monospace; }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-slate-800 border-b pb-4">🏟️ 數據管理後台</h1>
+        
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <h2 class="text-xl font-bold mb-4 text-pink-600">🆕 新增比賽紀錄</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <input id="g_date" type="date" class="border p-2 rounded" placeholder="日期">
+                <input id="g_opp" type="text" class="border p-2 rounded" placeholder="對手 (如: 味全龍)">
+                <select id="g_res" class="border p-2 rounded">
+                    <option value="W">勝 (W)</option>
+                    <option value="L">敗 (L)</option>
+                    <option value="延賽">延賽</option>
+                    <option value="-">尚未開打</option>
+                </select>
+                <input id="g_score" type="text" class="border p-2 rounded" placeholder="比數 (如: 2:3)">
+            </div>
+            <button onclick="addGame()" class="mt-4 bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition">新增到清單</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <h2 class="text-xl font-bold mb-4 text-pink-600">📅 女孩考勤勾選</h2>
+            <p class="text-sm text-gray-500 mb-4">選擇日期後，勾選當天有上班的女孩：</p>
+            <input id="att_date" type="date" class="border p-2 rounded mb-4">
+            <div id="girlChecklist" class="grid grid-cols-3 md:grid-cols-6 gap-2 text-sm">
+                </div>
+            <button onclick="updateAttendance()" class="mt-4 bg-slate-700 text-white px-6 py-2 rounded-lg hover:bg-slate-800 transition">更新考勤</button>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-dashed border-slate-300">
+            <h2 class="text-xl font-bold mb-2">💾 產生新資料</h2>
+            <p class="text-sm text-gray-600 mb-4">修改完成後，點擊下方按鈕，並將產生的程式碼「覆蓋」掉原本的 `data.js` 檔案即可。</p>
+            <button onclick="exportJSON()" class="bg-green-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-green-700 shadow-lg transition">產生成式碼 (Export)</button>
+            
+            <div class="mt-6">
+                <p class="font-bold text-slate-700 mb-2">請複製下方內容：</p>
+                <textarea id="output" class="config-box w-full h-96 p-4 rounded-lg text-xs" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+
+    <script>
+        const girlList = CHEER_DATA.girlRoster;
+
+        // 初始化女孩勾選清單
+        const checklist = document.getElementById('girlChecklist');
+        girlList.forEach(girl => {
+            checklist.innerHTML += `
+                <label class="flex items-center space-x-1 cursor-pointer hover:bg-gray-100 p-1 rounded">
+                    <input type="checkbox" name="girlAtt" value="${girl.name}">
+                    <span>${girl.name}</span>
+                </label>
+            `;
+        });
+
+        // 邏輯：新增比賽
+        function addGame() {
+            const newGame = {
+                date: document.getElementById('g_date').value,
+                opp: document.getElementById('g_opp').value,
+                res: document.getElementById('g_res').value,
+                score: document.getElementById('g_score').value
+            };
+            if(!newGame.date || !newGame.opp) return alert("請填寫日期與對手！");
+            
+            CHEER_DATA.games.unshift(newGame); // 加到最前面
+            alert("已加入暫存，記得最後點擊「匯出」按鈕。");
+        }
+
+        // 邏輯：更新考勤
+        function updateAttendance() {
+            const date = document.getElementById('att_date').value;
+            if(!date) return alert("請先選擇日期！");
+            
+            const selectedGirls = Array.from(document.querySelectorAll('input[name="girlAtt"]:checked')).map(cb => cb.value);
+            
+            selectedGirls.forEach(name => {
+                if(!CHEER_DATA.attendanceData[name]) CHEER_DATA.attendanceData[name] = [];
+                if(!CHEER_DATA.attendanceData[name].includes(date)) {
+                    CHEER_DATA.attendanceData[name].push(date);
+                    CHEER_DATA.attendanceData[name].sort(); // 排序日期
+                }
+            });
+            alert(`已更新 ${selectedGirls.length} 位女孩在 ${date} 的考勤。`);
+        }
+
+        // 核心：產生 data.js 內容
+        function exportJSON() {
+            const fullContent = `const CHEER_DATA = ${JSON.stringify(CHEER_DATA, null, 4)};`;
+            document.getElementById('output').value = fullContent;
+            document.getElementById('output').select();
+            alert("代碼已產生並全選！請按下 Ctrl+C 複製，然後貼上到你的 data.js 檔案裡。");
+        }
+    </script>
+</body>
+</html>
