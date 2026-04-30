@@ -85,4 +85,82 @@
                 // 找比賽 (🎀 加入防撞期機制：不只要日期對，還要隊伍對！)
                 const workList = parseWorkingDate(mySchedule.working_dates);
                 allMatches = workList.map(work => {
-                    const matchDetail = matchesData.find(
+                    const matchDetail = matchesData.find(m => 
+                        m.date && m.date.trim() === work.date.trim() && 
+                        m.year && m.year.trim() === selectedYear &&
+                        m.team && m.team.trim() === girlTeam // 👈 就是這一行保護了數據不被抓錯！
+                    );
+                    return matchDetail ? { ...matchDetail, position: work.position } : null;
+                }).filter(m => m !== null);
+
+                renderUI(allMatches, selectedMonth);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function renderUI(matches, filterMonth) {
+            let displayMatches = matches;
+            if (filterMonth !== "all") {
+                displayMatches = matches.filter(m => m.month && m.month.trim() === filterMonth);
+            }
+
+            let winCount = 0, lossCount = 0, delayCount = 0, totalMinutes = 0;
+            const tbody = document.getElementById('match-table-body');
+            tbody.innerHTML = '';
+
+            displayMatches.forEach(m => {
+                const resultTrimmed = m.result ? m.result.trim() : "";
+                if (resultTrimmed === '勝') winCount++;
+                else if (resultTrimmed === '敗') lossCount++;
+                else if (resultTrimmed === '延賽') delayCount++;
+                totalMinutes += parseDuration(m.duration);
+
+                let resultClass = resultTrimmed === '勝' ? 'win' : (resultTrimmed === '敗' ? 'loss' : '');
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${m.date || "-"}</td><td>${m.opponent || "-"}</td><td>${m.score || "-"}</td>
+                    <td><span class="${resultClass}">${m.result || "-"}</span></td><td>${m.win_pitcher || "-"}</td>
+                    <td>${m.loss_pitcher || "-"}</td><td>${m.save || "-"}</td><td>${m.mvp || "-"}</td>
+                    <td>${m.duration || "-"}</td><td>${m.attendance || "-"}</td><td>${m.location || "-"}</td>
+                    <td><span style="background:var(--theme-main);color:white;padding:4px 10px;border-radius:12px;font-size:12px;">${m.position || "-"}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('stat-winrate').innerText = `${calculateWinRate(winCount, lossCount)}%`;
+            document.getElementById('stat-wins').innerText = winCount;
+            document.getElementById('stat-losses').innerText = lossCount;
+            document.getElementById('stat-games').innerText = displayMatches.length;
+            document.getElementById('stat-delay').innerText = delayCount;
+            document.getElementById('stat-duration').innerText = formatMinutes(totalMinutes);
+            
+            updateChart(winCount, lossCount, delayCount);
+        }
+
+        function updateChart(win, loss, delay) {
+            const ctx = document.getElementById('winLossChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            if (win === 0 && loss === 0 && delay === 0) return; 
+
+            chartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['勝', '敗', '延賽'],
+                    datasets: [{ 
+                        data: [win, loss, delay], 
+                        backgroundColor: ['#ff9a9e', '#a1c4fd', '#e2e2e2'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        document.getElementById('year-select').addEventListener('change', loadDetailData);
+        document.getElementById('month-select').addEventListener('change', () => renderUI(allMatches, document.getElementById('month-select').value));
+        loadDetailData();
+    </script>
+</body>
+</html>
