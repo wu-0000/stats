@@ -28,11 +28,13 @@
 
         <div class="dashboard">
             <div class="card"><div style="color:var(--text-muted); font-weight:bold;">👑 勝率</div><div id="stat-winrate" style="font-size:28px; color:var(--theme-main); font-weight:900;">0%</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🎉 勝場</div><div id="stat-wins" style="font-size:28px; color:var(--theme-main); font-weight:900;">0</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">💔 敗場</div><div id="stat-losses" style="font-size:28px; color:var(--theme-main); font-weight:900;">0</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🏟️ 總場次</div><div id="stat-games" style="font-size:28px; color:var(--theme-main); font-weight:900;">0</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🌧️ 延賽</div><div id="stat-delay" style="font-size:28px; color:var(--theme-main); font-weight:900;">0</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">⏱️ 上班時數</div><div id="stat-duration" style="font-size:28px; color:var(--theme-main); font-weight:900;">0H0M</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🔥 場均得分</div><div id="stat-avg-score" style="font-size:28px; color:#e74c3c; font-weight:900;">0.0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🛡️ 場均失分</div><div id="stat-avg-allow" style="font-size:28px; color:#3498db; font-weight:900;">0.0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🎉 勝場</div><div id="stat-wins" style="font-size:28px; color:var(--text-main); font-weight:900;">0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">💔 敗場</div><div id="stat-losses" style="font-size:28px; color:var(--text-main); font-weight:900;">0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🏟️ 總場次</div><div id="stat-games" style="font-size:28px; color:var(--text-main); font-weight:900;">0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🌧️ 延賽</div><div id="stat-delay" style="font-size:28px; color:var(--text-main); font-weight:900;">0</div></div>
+            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">⏱️ 上班時數</div><div id="stat-duration" style="font-size:28px; color:var(--text-main); font-weight:900;">0H0M</div></div>
         </div>
 
         <div style="width: 300px; margin: 30px auto;">
@@ -56,7 +58,6 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const girlName = urlParams.get('name');
-        // 🎀 這裡接收了首頁傳來的「隊伍」暗號！
         const girlTeam = urlParams.get('team'); 
 
         document.getElementById('page-title').innerText = girlName ? `✨ ${girlName} 的出勤數據 ✨` : '找不到女孩資料';
@@ -71,32 +72,26 @@
 
             try {
                 const [scheduleData, matchesData] = await Promise.all([
-                    fetchCSV(CONFIG.scheduleUrl),
-                    fetchCSV(CONFIG.matchesUrl)
+                    fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
                 ]);
 
-                // 找班表
                 const mySchedule = scheduleData.find(s => s.girl_name && s.girl_name.trim() === girlName && s.year && s.year.trim() === selectedYear);
                 if (!mySchedule || !mySchedule.working_dates) {
-                    renderUI([], "all"); 
-                    return;
+                    renderUI([], "all"); return;
                 }
 
-                // 找比賽 (🎀 加入防撞期機制：不只要日期對，還要隊伍對！)
                 const workList = parseWorkingDate(mySchedule.working_dates);
                 allMatches = workList.map(work => {
                     const matchDetail = matchesData.find(m => 
                         m.date && m.date.trim() === work.date.trim() && 
                         m.year && m.year.trim() === selectedYear &&
-                        m.team && m.team.trim() === girlTeam // 👈 就是這一行保護了數據不被抓錯！
+                        m.team && m.team.trim() === girlTeam 
                     );
                     return matchDetail ? { ...matchDetail, position: work.position } : null;
                 }).filter(m => m !== null);
 
                 renderUI(allMatches, selectedMonth);
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         function renderUI(matches, filterMonth) {
@@ -106,14 +101,26 @@
             }
 
             let winCount = 0, lossCount = 0, delayCount = 0, totalMinutes = 0;
+            let totalScored = 0, totalAllowed = 0; // 記錄總得分與失分
+
             const tbody = document.getElementById('match-table-body');
             tbody.innerHTML = '';
 
             displayMatches.forEach(m => {
                 const resultTrimmed = m.result ? m.result.trim() : "";
-                if (resultTrimmed === '勝') winCount++;
-                else if (resultTrimmed === '敗') lossCount++;
-                else if (resultTrimmed === '延賽') delayCount++;
+                
+                if (resultTrimmed === '延賽') {
+                    delayCount++;
+                } else {
+                    if (resultTrimmed === '勝') winCount++;
+                    else if (resultTrimmed === '敗') lossCount++;
+                    
+                    // 🎀 呼叫我們剛剛寫的超聰明計算機
+                    const scoreData = parseScoreForTeam(m.score, resultTrimmed);
+                    totalScored += scoreData.scored;
+                    totalAllowed += scoreData.allowed;
+                }
+                
                 totalMinutes += parseDuration(m.duration);
 
                 let resultClass = resultTrimmed === '勝' ? 'win' : (resultTrimmed === '敗' ? 'loss' : '');
@@ -129,31 +136,30 @@
                 tbody.appendChild(tr);
             });
 
+            const validGames = winCount + lossCount; // 扣除延賽的有效場次
+            const avgScore = validGames > 0 ? (totalScored / validGames).toFixed(1) : "0.0";
+            const avgAllow = validGames > 0 ? (totalAllowed / validGames).toFixed(1) : "0.0";
+
             document.getElementById('stat-winrate').innerText = `${calculateWinRate(winCount, lossCount)}%`;
             document.getElementById('stat-wins').innerText = winCount;
             document.getElementById('stat-losses').innerText = lossCount;
             document.getElementById('stat-games').innerText = displayMatches.length;
             document.getElementById('stat-delay').innerText = delayCount;
             document.getElementById('stat-duration').innerText = formatMinutes(totalMinutes);
+            document.getElementById('stat-avg-score').innerText = avgScore; // 顯示場均得分
+            document.getElementById('stat-avg-allow').innerText = avgAllow; // 顯示場均失分
             
             updateChart(winCount, lossCount, delayCount);
         }
 
+        // ... 圓餅圖代碼保持不變 ...
         function updateChart(win, loss, delay) {
             const ctx = document.getElementById('winLossChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
             if (win === 0 && loss === 0 && delay === 0) return; 
-
             chartInstance = new Chart(ctx, {
                 type: 'pie',
-                data: {
-                    labels: ['勝', '敗', '延賽'],
-                    datasets: [{ 
-                        data: [win, loss, delay], 
-                        backgroundColor: ['#ff9a9e', '#a1c4fd', '#e2e2e2'],
-                        borderWidth: 0
-                    }]
-                },
+                data: { labels: ['勝', '敗', '延賽'], datasets: [{ data: [win, loss, delay], backgroundColor: ['#ff9a9e', '#a1c4fd', '#e2e2e2'], borderWidth: 0 }] },
                 options: { responsive: true }
             });
         }
