@@ -2,151 +2,105 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>樂天女孩 - 每日站位查詢</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d90000; padding-bottom: 10px; }
-        .search-section { background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; }
-        .match-info { background: #fff3f3; padding: 15px; border-left: 5px solid #d90000; margin-bottom: 20px; display: none; }
-        .lineup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
-        .lineup-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white; display: flex; justify-content: space-between; align-items: center; }
-        .pos-tag { background: #d90000; color: white; padding: 2px 8px; border-radius: 4px; font-size: 14px; }
-        .no-data { text-align: center; color: #888; margin-top: 50px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header">
-        <h1>📅 每日站位查詢</h1>
-        <a href="index.html">返回首頁</a>
-    </div>
-
-    <div class="search-section">
-        <label>選擇年份：</label>
-        <select id="year-select" onchange="loadAvailableDates()" style="padding: 5px;">
-            <option value="2026">2026</option>
-            </select>
-        &nbsp;&nbsp;
-        <label>選擇比賽日期：</label>
-        <select id="date-select" style="padding: 5px; min-width: 100px;">
-            <option value="">日期載入中...</option>
-        </select>
-        <button onclick="searchLineup()" style="background: #333; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">查詢</button>
-    </div>
-
-    <div id="match-summary" class="match-info">
+    <div class="container">
+        <div class="header">
+            <h1>📅 每日站位查詢</h1>
+            <a href="index.html" class="btn btn-secondary">返回首頁</a>
         </div>
 
-    <div id="lineup-result" class="lineup-grid">
-        <p class="no-data">請選擇日期並點擊查詢</p>
+        <div class="card" style="margin-bottom: 20px;">
+            <label>年份：</label>
+            <select id="year-select" onchange="loadAvailableDates()">
+                <option value="2026">2026</option>
+            </select>
+            &nbsp;&nbsp;
+            <label>比賽日期：</label>
+            <select id="date-select">
+                <option value="">日期載入中...</option>
+            </select>
+            <button onclick="searchLineup()" class="btn" style="margin-left: 10px;">查詢</button>
+        </div>
+
+        <div id="match-summary" class="card" style="display: none; border-left: 5px solid var(--rakuten-red); margin-bottom: 20px;">
+        </div>
+
+        <div id="lineup-result" class="grid">
+            <p style="grid-column: 1 / -1; text-align: center; color: #888;">請選擇日期並點擊查詢</p>
+        </div>
     </div>
 
     <script src="app.js"></script>
     <script>
-        let allMatchesData = []; // 儲存所有比賽紀錄
+        let allMatchesData = [];
 
-        // 1. 網頁載入時，先去抓比賽資料來建立日期選單
         async function initDateDropdown() {
             try {
-                // 去抓 Matches 表格
                 allMatchesData = await fetchCSV(CONFIG.matchesUrl);
-                loadAvailableDates(); // 產生選單
+                loadAvailableDates();
             } catch (error) {
-                console.error("載入日期失敗", error);
-                document.getElementById('date-select').innerHTML = '<option value="">資料連線失敗</option>';
+                console.error("載入失敗", error);
             }
         }
 
-        // 2. 根據年份，自動把有比賽的日期塞進下拉選單
         function loadAvailableDates() {
             const year = document.getElementById('year-select').value;
-            const dateSelect = document.getElementById('date-select');
-            
-            // 挑出該年度的所有日期，並使用 Set 排除重複的日子
-            const dates = [...new Set(
-                allMatchesData
-                    .filter(m => m.year === year && m.date)
-                    .map(m => m.date.trim())
-            )];
-            
-            dates.sort(); // 把日期按照 03/28, 03/29 的順序排好
-
-            if (dates.length === 0) {
-                dateSelect.innerHTML = '<option value="">該年無比賽資料</option>';
-            } else {
-                // 把日期變成選項塞進選單
-                dateSelect.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
-            }
+            const dates = [...new Set(allMatchesData.filter(m => m.year === year && m.date).map(m => m.date.trim()))].sort();
+            document.getElementById('date-select').innerHTML = dates.length === 0 ? '<option value="">該年無比賽資料</option>' : dates.map(d => `<option value="${d}">${d}</option>`).join('');
         }
 
-        // 3. 執行站位查詢邏輯
         async function searchLineup() {
             const targetYear = document.getElementById('year-select').value;
-            const targetDate = document.getElementById('date-select').value; // 改從 select 抓值
+            const targetDate = document.getElementById('date-select').value;
             const resultContainer = document.getElementById('lineup-result');
             const matchSummary = document.getElementById('match-summary');
 
-            if (!targetDate) {
-                alert("請選擇有效的日期！");
-                return;
-            }
-
-            resultContainer.innerHTML = '<p class="no-data">搜尋中...</p>';
+            if (!targetDate) return alert("請選擇有效的日期！");
+            resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">搜尋中...</p>';
 
             try {
-                // 抓取班表資料
                 const scheduleData = await fetchCSV(CONFIG.scheduleUrl);
-
-                // 顯示比賽資訊
                 const match = allMatchesData.find(m => m.date === targetDate && m.year === targetYear);
+                
                 if (match) {
                     matchSummary.style.display = 'block';
-                    matchSummary.innerHTML = `
-                        <strong>🏟️ 當日賽事：</strong> 樂天 vs ${match.opponent} 
-                        (${match.result}) | <strong>比分：</strong> ${match.score} 
-                        | <strong>地點：</strong> ${match.location}
-                    `;
+                    matchSummary.innerHTML = `<strong>🏟️ 賽事：</strong> 樂天 vs ${match.opponent} (${match.result}) | <strong>比分：</strong> ${match.score} | <strong>地點：</strong> ${match.location}`;
                 } else {
                     matchSummary.style.display = 'none';
                 }
 
-                // 搜尋有上班的女孩
                 let dailyStaff = [];
                 scheduleData.forEach(girl => {
                     if (girl.year === targetYear && girl.working_dates) {
                         const works = parseWorkingDate(girl.working_dates);
                         const todayWork = works.find(w => w.date === targetDate);
-                        if (todayWork) {
-                            dailyStaff.push({
-                                name: girl.girl_name,
-                                position: todayWork.position
-                            });
-                        }
+                        if (todayWork) dailyStaff.push({ name: girl.girl_name, position: todayWork.position });
                     }
                 });
 
-                // 渲染名單卡片
                 resultContainer.innerHTML = '';
                 if (dailyStaff.length === 0) {
-                    resultContainer.innerHTML = '<p class="no-data">當天目前沒有排班資料</p>';
+                    resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">當天目前沒有排班資料</p>';
                 } else {
                     dailyStaff.forEach(staff => {
                         const card = document.createElement('div');
-                        card.className = 'lineup-card';
-                        card.innerHTML = `
-                            <span style="font-weight:bold;">${staff.name}</span>
-                            <span class="pos-tag">${staff.position}</span>
-                        `;
+                        card.className = 'card';
+                        card.style.display = 'flex';
+                        card.style.justifyContent = 'space-between';
+                        card.style.alignItems = 'center';
+                        card.style.padding = '15px';
+                        card.innerHTML = `<span style="font-weight:bold;">${staff.name}</span><span style="background:var(--rakuten-red);color:white;padding:2px 8px;border-radius:4px;font-size:14px;">${staff.position}</span>`;
                         resultContainer.appendChild(card);
                     });
                 }
-
             } catch (error) {
                 console.error(error);
-                resultContainer.innerHTML = '<p style="color:red;" class="no-data">載入失敗</p>';
             }
         }
-
-        // 網頁一打開就立刻啟動初始化函數
         initDateDropdown();
     </script>
 </body>
