@@ -4,73 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>啦啦隊數據統計 - 首頁</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: auto; }
-        .team-tabs { margin-bottom: 20px; }
-        .team-tabs button { padding: 10px 20px; cursor: pointer; background: #eee; border: none; }
-        .team-tabs button.active { background: #d90000; color: white; font-weight: bold; }
-        .girl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        .girl-card { border: 1px solid #ccc; border-radius: 8px; padding: 15px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .girl-card:hover { background: #f0f0f0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .girl-number { font-size: 24px; color: #888; margin-bottom: 5px; }
-        .girl-name { font-size: 18px; font-weight: bold; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1>啦啦隊數據總覽</h1>
-        <div>
-            <a href="daily.html" style="background: #555; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 10px;">📅 每日站位查詢</a>
-            <a href="ranking.html" style="background: #d90000; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;">🏆 年度排行榜</a>
+    <div class="container">
+        
+        <div class="header">
+            <h1>啦啦隊數據總覽</h1>
+            <div>
+                <a href="daily.html" class="btn btn-secondary">📅 每日站位查詢</a>
+                <a href="ranking.html" class="btn">🏆 年度排行榜</a>
+            </div>
         </div>
+
+        <div id="girl-list" class="grid">
+            <p>資料載入中...</p>
+        </div>
+
     </div>
 
-    <div id="girl-list" class="girl-grid">
-        <p>資料載入中...</p>
-    </div>
-
-<script src="app.js"></script>
+    <script src="app.js"></script>
     <script>
         async function loadGirls() {
             try {
-                // 1. 確認有沒有讀到 app.js 裡的設定
-                console.log("準備抓取網址：", CONFIG.girlsUrl); 
-
                 const girlsData = await fetchCSV(CONFIG.girlsUrl);
-                
-                // 2. 把抓到的所有資料印在後台看看
-                console.log("從 Google Sheets 抓到的所有資料：", girlsData);
-
                 const listContainer = document.getElementById('girl-list');
-                listContainer.innerHTML = ''; // 清空載入中提示
+                listContainer.innerHTML = ''; 
 
-                // 過濾出樂天女孩 (加入 .trim() 清除可能不小心打到的空白鍵)
                 const rakutenGirls = girlsData.filter(g => g.team && g.team.trim() === "樂天");
 
-                // 3. 看過濾後剩下幾筆
-                console.log("過濾出來的樂天女孩：", rakutenGirls);
-
-                // 防呆：如果抓了資料卻是空的，顯示提示
                 if (rakutenGirls.length === 0) {
-                    listContainer.innerHTML = '<p>有連上表格，但找不到隊伍是「樂天」的女孩，請檢查 Google Sheets 的 C 欄標題與內容！</p>';
+                    listContainer.innerHTML = '<p>找不到隊伍是「樂天」的女孩資料。</p>';
                     return;
                 }
 
                 rakutenGirls.forEach(girl => {
                     const card = document.createElement('div');
-                    card.className = 'girl-card';
+                    // 這裡換成 class="card"
+                    card.className = 'card';
+                    card.style.cursor = 'pointer';
                     card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}`;
                     card.innerHTML = `
-                        <div class="girl-number">${girl.id || "00"}</div>
-                        <div class="girl-name">${girl.name}</div>
+                        <div style="font-size: 24px; color: #888; margin-bottom: 5px;">${girl.id || "00"}</div>
+                        <div style="font-size: 18px; font-weight: bold;">${girl.name}</div>
                     `;
                     listContainer.appendChild(card);
                 });
                 
             } catch (error) {
-                // 如果連網址都抓不到，就會跑到這裡
-                console.error("發生嚴重錯誤：", error);
-                document.getElementById('girl-list').innerHTML = '<p style="color:red;">資料連線失敗！請按 F12 查看 Console 錯誤訊息。</p>';
+                console.error(error);
+                document.getElementById('girl-list').innerHTML = '<p style="color:red;">資料連線失敗！</p>';
             }
         }
         loadGirls();
