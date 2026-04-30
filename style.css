@@ -1,146 +1,208 @@
 /* =========================================
-   全站共用變數設定 (樂天主題色)
+   1. 載入 Google 現代字體
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+/* =========================================
+   2. 全站色彩與變數設定
    ========================================= */
 :root {
     --rakuten-red: #bf0000;
-    --rakuten-dark: #8a0000;
-    --bg-color: #f4f6f9;
+    --rakuten-gradient: linear-gradient(135deg, #e3000f 0%, #a00000 100%);
+    --rakuten-light: #fff2f2;
+    --bg-color: #f4f7f6;
     --card-bg: #ffffff;
-    --text-main: #333333;
-    --border-radius: 12px;
+    --text-main: #2c3e50;
+    --text-muted: #7f8c8d;
+    --border-radius: 16px; /* 更圓潤的邊角 */
 }
 
 /* =========================================
-   基礎排版與字體
+   3. 基礎排版
    ========================================= */
 body { 
-    font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Heiti TC', sans-serif; 
+    font-family: 'Noto Sans TC', sans-serif; 
     background-color: var(--bg-color); 
     color: var(--text-main); 
     margin: 0; 
-    padding: 15px; 
+    padding: 20px 10px; 
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1050px;
     margin: 0 auto;
     padding-bottom: 40px;
 }
 
 /* =========================================
-   頂部導覽列 (Header)
+   4. 頂部導覽列 (現代化漂浮設計)
    ========================================= */
 .header { 
+    background: var(--card-bg);
+    padding: 20px 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    border-bottom: 3px solid var(--rakuten-red); 
-    padding-bottom: 15px; 
-    margin-bottom: 25px; 
-    flex-wrap: wrap; /* 手機版自動換行 */
-    gap: 10px;
+    margin-bottom: 30px; 
+    flex-wrap: wrap; 
+    gap: 15px;
 }
 
 .header h1 { 
     margin: 0; 
-    font-size: 1.5rem; 
+    font-size: 1.8rem; 
+    font-weight: 900;
     color: var(--rakuten-red); 
+    letter-spacing: 1px;
 }
 
 /* =========================================
-   按鈕與控制區 (Buttons & Controls)
+   5. 漸層立體按鈕與輸入框
    ========================================= */
 .btn { 
-    background-color: var(--rakuten-red); 
+    background: var(--rakuten-gradient); 
     color: white; 
-    padding: 10px 16px; 
+    padding: 10px 24px; 
     text-decoration: none; 
-    border-radius: 8px; 
+    border-radius: 30px; /* 膠囊形狀 */
     font-weight: bold; 
     border: none; 
     cursor: pointer; 
-    transition: 0.3s; 
+    transition: all 0.3s ease; 
     display: inline-block; 
+    box-shadow: 0 4px 15px rgba(191,0,0,0.2);
 }
 
 .btn:hover { 
-    background-color: var(--rakuten-dark); 
-    box-shadow: 0 4px 10px rgba(191,0,0,0.3); 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 20px rgba(191,0,0,0.4); 
 }
 
-.btn-secondary { background-color: #555; }
-.btn-secondary:hover { background-color: #333; }
+.btn-secondary { 
+    background: #34495e; 
+    box-shadow: 0 4px 15px rgba(52,73,94,0.2);
+}
+.btn-secondary:hover { 
+    background: #2c3e50; 
+    box-shadow: 0 8px 20px rgba(52,73,94,0.4);
+}
 
 select, input {
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #dfe6e9;
+    font-family: inherit;
     font-size: 1rem;
+    background: #fff;
+    color: var(--text-main);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus, input:focus {
+    border-color: var(--rakuten-red);
+    box-shadow: 0 0 0 3px var(--rakuten-light);
 }
 
 /* =========================================
-   卡片設計 (首頁名單、總計數據)
+   6. 卡片設計 (首頁名單、總計數據)
    ========================================= */
 .grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-    gap: 15px; 
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+    gap: 20px; 
 }
 
 .dashboard { 
     display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-    gap: 15px; 
-    margin-bottom: 25px; 
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+    gap: 20px; 
+    margin-bottom: 30px; 
 }
 
 .card { 
     background: var(--card-bg); 
     border-radius: var(--border-radius); 
-    padding: 20px; 
+    padding: 25px 20px; 
     text-align: center; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-    transition: all 0.3s ease; 
-    border: 1px solid #eee; 
+    box-shadow: 0 8px 24px rgba(0,0,0,0.03); 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    border: 1px solid rgba(0,0,0,0.02); 
+    position: relative;
+    overflow: hidden;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 4px;
+    background: var(--rakuten-gradient);
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
 .card:hover { 
-    transform: translateY(-5px); /* 滑鼠游標移過去會浮起來 */
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1); 
-    border-color: var(--rakuten-red); 
+    transform: translateY(-6px); 
+    box-shadow: 0 15px 35px rgba(191,0,0,0.1); 
+}
+
+.card:hover::before {
+    opacity: 1; /* 滑鼠移過去卡片頂部會亮起紅線 */
 }
 
 /* =========================================
-   手機版防撐破神器：表格滾動區 (Table Responsive)
+   7. 高級感表格與膠囊標籤
    ========================================= */
 .table-responsive {
     width: 100%;
-    overflow-x: auto; /* 核心魔法：超出螢幕範圍就出現左右卷軸 */
+    overflow-x: auto; 
     background: var(--card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.03);
     margin-top: 20px;
-    -webkit-overflow-scrolling: touch; /* 讓蘋果手機滑起來更順 */
+    padding: 10px;
 }
 
 table { 
     width: 100%; 
-    min-width: 700px; /* 強制表格不能被擠壓得太小 */
-    border-collapse: collapse; 
+    min-width: 800px; 
+    border-collapse: separate; 
+    border-spacing: 0;
     text-align: center; 
-    white-space: nowrap; /* 強制文字不換行 */
+    white-space: nowrap; 
 }
 
 th, td { 
-    padding: 12px 15px; 
-    border-bottom: 1px solid #eee; 
+    padding: 16px 15px; 
+    border-bottom: 1px solid #f1f2f6; 
 }
 
 th { 
-    background-color: #f8f9fa; 
-    font-weight: bold; 
-    color: var(--text-main); 
+    background-color: #f8f9fc; 
+    font-weight: 700; 
+    color: var(--text-muted); 
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
 }
 
-.win { color: #28a745; font-weight: bold; }
-.loss { color: #dc3545; }
+th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
+th:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
+
+/* 表格列懸停變色 */
+tr:hover td {
+    background-color: var(--rakuten-light);
+}
+
+/* 勝敗膠囊標籤 */
+.win, .loss { 
+    padding: 6px 14px; 
+    border-radius: 20px; 
+    font-weight: bold; 
+    font-size: 0.9rem;
+    display: inline-block;
+}
+.win { background-color: #e8f8f5; color: #1abc9c; } /* 勝利：薄荷綠 */
+.loss { background-color: #fdedec; color: #e74c3c; } /* 失敗：柔和紅 */
