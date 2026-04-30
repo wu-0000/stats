@@ -159,48 +159,56 @@
         }
 
         function showPage(name) {
-            const girl = girlRoster.find(g => g.name === name);
-            document.getElementById('mainPage').classList.add('hidden');
-            document.getElementById('detailPage').classList.remove('hidden');
-            document.getElementById('detailGirlName').innerText = `${girl.id} ${name} - 個人戰報`;
-            
-            const content = document.getElementById('detailContent');
-            content.innerHTML = '';
+    const girl = girlRoster.find(g => g.name === name);
+    document.getElementById('mainPage').classList.add('hidden');
+    document.getElementById('detailPage').classList.remove('hidden');
+    document.getElementById('detailGirlName').innerText = `${girl.id} ${name} - 個人戰報`;
+    
+    const content = document.getElementById('detailContent');
+    content.innerHTML = '';
 
-            const allDates = attendanceData[name] || [];
-            const activeGames = getGamesInPeriod(currentTabIdx);
-            const displayDates = allDates.filter(d => activeGames.some(g => g.date === d));
+    const allDates = attendanceData[name] || [];
+    const activeGames = getGamesInPeriod(currentTabIdx);
+    const displayDates = allDates.filter(d => activeGames.some(g => g.date === d));
 
-            displayDates.slice().reverse().forEach(d => {
-                const g = games.find(x => x.date === d);
-                if (!g) return;
+    displayDates.slice().reverse().forEach(d => {
+        const g = games.find(x => x.date === d);
+        if (!g) return;
 
-                let color = "border-gray-200", tag = g.res, text = "text-gray-400";
-                if (g.res === 'W') { color = "border-green-400"; text = "text-green-500"; }
-                else if (g.res === 'L') { color = "border-red-300"; text = "text-red-400"; }
+        let color = "border-gray-200", tag = g.res, text = "text-gray-400";
+        if (g.res === 'W') { color = "border-green-400"; text = "text-green-500"; }
+        else if (g.res === 'L') { color = "border-red-300"; text = "text-red-400"; }
 
-                const div = document.createElement('div');
-                div.className = `p-4 bg-white rounded-xl border-l-8 ${color} shadow-sm`;
-                div.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-xs text-gray-400">${safe(d)}</p>
-                            <h4 class="font-bold text-lg">對戰 ${safe(g.opp)}</h4>
-                            <p class="text-sm">比數：${safe(g.score || '-')}</p>
-                        </div>
-                        <p class="font-bold ${text}">${safe(tag)}</p>
-                    </div>
-                `;
-                
-                const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, '');
-                if (stationData[simpleDate] && stationData[simpleDate][name]) {
-                    div.innerHTML += `<p class="mt-2 text-xs font-bold text-pink-600">📍 站位：${safe(stationData[simpleDate][name])}</p>`;
-                }
-                content.appendChild(div);
-            });
-            window.scrollTo(0,0);
+        const div = document.createElement('div');
+        div.className = `p-4 bg-white rounded-xl border-l-8 ${color} shadow-sm space-y-2`;
+        
+        // 組裝顯示 HTML
+        div.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400">${safe(d)}</p>
+                    <h4 class="font-bold text-lg">對戰 ${safe(g.opp)}</h4>
+                    <p class="text-sm font-bold">比數：${safe(g.score || '-')}</p>
+                </div>
+                <p class="font-bold ${text}">${safe(tag)}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-y-1 mt-2 pt-2 border-t border-gray-50 text-xs text-gray-600">
+                <p>🏆 MVP: <span class="text-gray-800">${safe(g.mvp || '-')}</span></p>
+                <p>⏱️ 時間: <span class="text-gray-800">${safe(g.time || '-')}</span></p>
+                <p>✅ 勝投: <span class="text-gray-800">${safe(g.win_p || '-')}</span></p>
+                <p>❌ 敗投: <span class="text-gray-800">${safe(g.loss_p || '-')}</span></p>
+                <p>🛡️ 救援: <span class="text-gray-800">${safe(g.save || '-')}</span></p>
+            </div>
+        `;
+        
+        const simpleDate = d.split('-').slice(1).join('/').replace(/^0/, '');
+        if (stationData[simpleDate] && stationData[simpleDate][name]) {
+            div.innerHTML += `<p class="mt-2 text-xs font-bold text-pink-600">📍 站位：${safe(stationData[simpleDate][name])}</p>`;
         }
-
+        content.appendChild(div);
+    });
+    window.scrollTo(0,0);
+}
         document.addEventListener('DOMContentLoaded', () => {
             render();
             document.querySelectorAll('.tab-btn').forEach(btn => {
