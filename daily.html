@@ -22,45 +22,82 @@
 
     <div class="search-section">
         <label>選擇年份：</label>
-        <select id="year-select">
+        <select id="year-select" onchange="loadAvailableDates()" style="padding: 5px;">
             <option value="2026">2026</option>
-        </select>
+            </select>
         &nbsp;&nbsp;
-        <label>選擇日期：</label>
-        <input type="text" id="date-input" placeholder="例如: 03/28" style="padding: 5px; width: 100px;">
-        <button onclick="searchLineup()" style="padding: 5px 15px; cursor: pointer;">查詢</button>
+        <label>選擇比賽日期：</label>
+        <select id="date-select" style="padding: 5px; min-width: 100px;">
+            <option value="">日期載入中...</option>
+        </select>
+        <button onclick="searchLineup()" style="background: #333; color: white; padding: 6px 15px; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">查詢</button>
     </div>
 
     <div id="match-summary" class="match-info">
         </div>
 
     <div id="lineup-result" class="lineup-grid">
-        <p class="no-data">請輸入日期並點擊查詢</p>
+        <p class="no-data">請選擇日期並點擊查詢</p>
     </div>
 
     <script src="app.js"></script>
     <script>
+        let allMatchesData = []; // 儲存所有比賽紀錄
+
+        // 1. 網頁載入時，先去抓比賽資料來建立日期選單
+        async function initDateDropdown() {
+            try {
+                // 去抓 Matches 表格
+                allMatchesData = await fetchCSV(CONFIG.matchesUrl);
+                loadAvailableDates(); // 產生選單
+            } catch (error) {
+                console.error("載入日期失敗", error);
+                document.getElementById('date-select').innerHTML = '<option value="">資料連線失敗</option>';
+            }
+        }
+
+        // 2. 根據年份，自動把有比賽的日期塞進下拉選單
+        function loadAvailableDates() {
+            const year = document.getElementById('year-select').value;
+            const dateSelect = document.getElementById('date-select');
+            
+            // 挑出該年度的所有日期，並使用 Set 排除重複的日子
+            const dates = [...new Set(
+                allMatchesData
+                    .filter(m => m.year === year && m.date)
+                    .map(m => m.date.trim())
+            )];
+            
+            dates.sort(); // 把日期按照 03/28, 03/29 的順序排好
+
+            if (dates.length === 0) {
+                dateSelect.innerHTML = '<option value="">該年無比賽資料</option>';
+            } else {
+                // 把日期變成選項塞進選單
+                dateSelect.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
+        }
+
+        // 3. 執行站位查詢邏輯
         async function searchLineup() {
             const targetYear = document.getElementById('year-select').value;
-            const targetDate = document.getElementById('date-input').value.trim();
+            const targetDate = document.getElementById('date-select').value; // 改從 select 抓值
             const resultContainer = document.getElementById('lineup-result');
             const matchSummary = document.getElementById('match-summary');
 
             if (!targetDate) {
-                alert("請輸入日期，例如 03/28");
+                alert("請選擇有效的日期！");
                 return;
             }
 
-            resultContainer.innerHTML = '<p>搜尋中...</p>';
+            resultContainer.innerHTML = '<p class="no-data">搜尋中...</p>';
 
             try {
-                const [scheduleData, matchesData] = await Promise.all([
-                    fetchCSV(CONFIG.scheduleUrl),
-                    fetchCSV(CONFIG.matchesUrl)
-                ]);
+                // 抓取班表資料
+                const scheduleData = await fetchCSV(CONFIG.scheduleUrl);
 
-                // 1. 先找當天的比賽資訊
-                const match = matchesData.find(m => m.date === targetDate && m.year === targetYear);
+                // 顯示比賽資訊
+                const match = allMatchesData.find(m => m.date === targetDate && m.year === targetYear);
                 if (match) {
                     matchSummary.style.display = 'block';
                     matchSummary.innerHTML = `
@@ -72,7 +109,7 @@
                     matchSummary.style.display = 'none';
                 }
 
-                // 2. 搜尋所有女孩的班表，找出當天有上班的人
+                // 搜尋有上班的女孩
                 let dailyStaff = [];
                 scheduleData.forEach(girl => {
                     if (girl.year === targetYear && girl.working_dates) {
@@ -87,7 +124,7 @@
                     }
                 });
 
-                // 3. 渲染結果
+                // 渲染名單卡片
                 resultContainer.innerHTML = '';
                 if (dailyStaff.length === 0) {
                     resultContainer.innerHTML = '<p class="no-data">當天目前沒有排班資料</p>';
@@ -105,9 +142,12 @@
 
             } catch (error) {
                 console.error(error);
-                resultContainer.innerHTML = '<p style="color:red;">載入失敗</p>';
+                resultContainer.innerHTML = '<p style="color:red;" class="no-data">載入失敗</p>';
             }
         }
+
+        // 網頁一打開就立刻啟動初始化函數
+        initDateDropdown();
     </script>
 </body>
 </html>
