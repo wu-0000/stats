@@ -13,24 +13,26 @@
             <a href="index.html" class="btn btn-secondary">返回首頁</a>
         </div>
 
-        <div class="card" style="margin-bottom: 20px;">
-            <label>年份：</label>
-            <select id="year-select" onchange="loadAvailableDates()">
-                <option value="2026">2026</option>
-            </select>
-            &nbsp;&nbsp;
-            <label>比賽日期：</label>
-            <select id="date-select">
-                <option value="">日期載入中...</option>
-            </select>
-            <button onclick="searchLineup()" class="btn" style="margin-left: 10px;">查詢</button>
+        <div class="card" style="margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center;">
+            <div>
+                <label style="font-weight: bold; color: var(--text-muted);">年份：</label>
+                <select id="year-select" onchange="loadAvailableDates()">
+                    <option value="2026">2026</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-weight: bold; color: var(--text-muted);">比賽日期：</label>
+                <select id="date-select">
+                    <option value="">日期載入中...</option>
+                </select>
+            </div>
+            <button onclick="searchLineup()" class="btn">🔍 查詢陣容</button>
         </div>
 
-        <div id="match-summary" class="card" style="display: none; border-left: 5px solid var(--rakuten-red); margin-bottom: 20px;">
-        </div>
+        <div id="match-summary" style="margin-bottom: 25px;"></div>
 
         <div id="lineup-result" class="grid">
-            <p style="grid-column: 1 / -1; text-align: center; color: #888;">請選擇日期並點擊查詢</p>
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-weight: bold;">請選擇日期並點擊查詢</p>
         </div>
     </div>
 
@@ -38,6 +40,7 @@
     <script>
         let allMatchesData = [];
 
+        // 1. 初始化下拉選單
         async function initDateDropdown() {
             try {
                 allMatchesData = await fetchCSV(CONFIG.matchesUrl);
@@ -47,12 +50,14 @@
             }
         }
 
+        // 2. 抓取有比賽的日期
         function loadAvailableDates() {
             const year = document.getElementById('year-select').value;
             const dates = [...new Set(allMatchesData.filter(m => m.year === year && m.date).map(m => m.date.trim()))].sort();
             document.getElementById('date-select').innerHTML = dates.length === 0 ? '<option value="">該年無比賽資料</option>' : dates.map(d => `<option value="${d}">${d}</option>`).join('');
         }
 
+        // 3. 核心查詢功能
         async function searchLineup() {
             const targetYear = document.getElementById('year-select').value;
             const targetDate = document.getElementById('date-select').value;
@@ -60,47 +65,97 @@
             const matchSummary = document.getElementById('match-summary');
 
             if (!targetDate) return alert("請選擇有效的日期！");
-            resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">搜尋中...</p>';
+            resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">🔍 資料搜尋中...</p>';
 
             try {
-                const scheduleData = await fetchCSV(CONFIG.scheduleUrl);
-                const match = allMatchesData.find(m => m.date === targetDate && m.year === targetYear);
+                // 一次把班表跟女孩名單(用來查隊伍)都抓下來
+                const [scheduleData, girlsData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl),
+                    fetchCSV(CONFIG.girlsUrl)
+                ]);
+
+                // A. 顯示當天【所有】的比賽賽事
+                const matchesToday = allMatchesData.filter(m => m.date === targetDate && m.year === targetYear);
                 
-                if (match) {
-                    matchSummary.style.display = 'block';
-                    matchSummary.innerHTML = `<strong>🏟️ 賽事：</strong> 樂天 vs ${match.opponent} (${match.result}) | <strong>比分：</strong> ${match.score} | <strong>地點：</strong> ${match.location}`;
+                if (matchesToday.length > 0) {
+                    matchSummary.innerHTML = matchesToday.map(match => `
+                        <div class="card" style="border-left: 6px solid var(--theme-main); margin-bottom: 10px; padding: 15px 20px; text-align: left;">
+                            <div style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 5px;">
+                                🏟️ ${match.team || '主場'} vs ${match.opponent} (${match.result || '-'})
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 14px;">
+                                <strong>比分：</strong> ${match.score || '-'} &nbsp;|&nbsp; 
+                                <strong>地點：</strong> ${match.location || '-'}
+                            </div>
+                        </div>
+                    `).join('');
                 } else {
-                    matchSummary.style.display = 'none';
+                    matchSummary.innerHTML = '<div class="card" style="color: var(--text-muted);">本日無賽事紀錄</div>';
                 }
 
+                // B. 尋找當天有上班的女孩，並配對她的隊伍
                 let dailyStaff = [];
-                scheduleData.forEach(girl => {
-                    if (girl.year === targetYear && girl.working_dates) {
-                        const works = parseWorkingDate(girl.working_dates);
+                scheduleData.forEach(sched => {
+                    if (sched.year === targetYear && sched.working_dates) {
+                        const works = parseWorkingDate(sched.working_dates);
                         const todayWork = works.find(w => w.date === targetDate);
-                        if (todayWork) dailyStaff.push({ name: girl.girl_name, position: todayWork.position });
+                        
+                        if (todayWork) {
+                            // 去 Girls 表格查她是哪一隊的
+                            const girlInfo = girlsData.find(g => g.name.trim() === sched.girl_name.trim());
+                            const teamName = girlInfo && girlInfo.team ? girlInfo.team.trim() : '未知隊伍';
+                            
+                            dailyStaff.push({ 
+                                name: sched.girl_name, 
+                                position: todayWork.position,
+                                team: teamName
+                            });
+                        }
                     }
                 });
 
+                // C. 畫出精美的女孩卡片
                 resultContainer.innerHTML = '';
                 if (dailyStaff.length === 0) {
-                    resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">當天目前沒有排班資料</p>';
+                    resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">當天目前沒有排班資料</p>';
                 } else {
                     dailyStaff.forEach(staff => {
+                        // 依照隊伍給予不同的標籤顏色
+                        let teamColor = 'var(--theme-main)'; // 預設粉紅
+                        if(staff.team.includes('兄弟')) teamColor = '#f1c40f'; // 兄弟黃
+                        else if(staff.team.includes('味全')) teamColor = '#e74c3c'; // 味全紅
+                        else if(staff.team.includes('統一')) teamColor = '#e67e22'; // 統一橘
+                        else if(staff.team.includes('富邦')) teamColor = '#3498db'; // 富邦藍
+                        else if(staff.team.includes('台鋼')) teamColor = '#2ecc71'; // 台鋼綠
+
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.style.display = 'flex';
-                        card.style.justifyContent = 'space-between';
+                        card.style.flexDirection = 'column';
                         card.style.alignItems = 'center';
-                        card.style.padding = '15px';
-                        card.innerHTML = `<span style="font-weight:bold;">${staff.name}</span><span style="background:var(--rakuten-red);color:white;padding:2px 8px;border-radius:4px;font-size:14px;">${staff.position}</span>`;
+                        card.style.gap = '12px';
+                        card.style.padding = '20px 15px';
+                        
+                        card.innerHTML = `
+                            <div style="background:${teamColor}; color:white; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:900; letter-spacing:1px;">
+                                ${staff.team}
+                            </div>
+                            <div style="font-size: 20px; font-weight: 900; color: var(--text-main);">
+                                ${staff.name}
+                            </div>
+                            <div style="background: var(--theme-light); color: var(--theme-main); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; border: 1px solid #ffe4e8;">
+                                📍 ${staff.position}
+                            </div>
+                        `;
                         resultContainer.appendChild(card);
                     });
                 }
             } catch (error) {
                 console.error(error);
+                resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">資料載入發生錯誤！</p>';
             }
         }
+
         initDateDropdown();
     </script>
 </body>
