@@ -169,6 +169,37 @@
                     return matchDetail ? { ...matchDetail, position: work.position } : null;
                 }).filter(m => m !== null);
 
+// 🔥 1. 新增：連勝 / 連敗 氣勢玄學計算機
+                // 排除延賽，只看勝負，並由新到舊倒過來檢查
+                const validGames = allMatches.filter(m => m.result && (m.result.trim() === '勝' || m.result.trim() === '敗')).reverse();
+                let streakHtml = '';
+                
+                if (validGames.length > 0) {
+                    let currentStreakType = validGames[0].result.trim();
+                    let streakCount = 0;
+                    
+                    for (let i = 0; i < validGames.length; i++) {
+                        if (validGames[i].result.trim() === currentStreakType) {
+                            streakCount++;
+                        } else {
+                            break; // 中斷連勝/敗
+                        }
+                    }
+
+                    // 只要連續 2 場以上，就發放氣勢徽章！
+                    if (streakCount >= 2) {
+                        if (currentStreakType === '勝') {
+                            streakHtml = `<span class="streak-badge streak-win">🔥 ${streakCount} 連勝中！</span>`;
+                        } else if (currentStreakType === '敗') {
+                            streakHtml = `<span class="streak-badge streak-loss">❄️ 苦吞 ${streakCount} 連敗...</span>`;
+                        }
+                    }
+                }
+
+                // 將徽章加入到標題的最右邊
+                document.getElementById('page-title').innerHTML += streakHtml;
+
+                // 2. 畫出表格跟圓餅圖
                 renderUI(allMatches, selectedMonth);
                 
                 // 🎀 資料全部都畫完了，準備開獎！
