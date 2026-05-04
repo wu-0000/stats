@@ -388,3 +388,72 @@ tr:hover td {
     0% { transform: scale(0); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+/* =========================================
+   13. 女神專屬大頭貼 (Avatar & Fallback)
+   ========================================= */
+/* 首頁卡片上的小頭貼 */
+.avatar-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 5px auto 12px auto; /* 置中並與下方文字保持距離 */
+    border: 3px solid #ffe4e8;
+    overflow: hidden;
+    background: var(--theme-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(255, 117, 140, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.card:hover .avatar-wrapper {
+    transform: scale(1.05); /* 滑鼠游標移過去時，大頭貼會微微放大 */
+    border-color: var(--theme-main);
+}
+
+.avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 確保照片不會變形，完美填滿圓形 */
+}
+
+/* 沒有照片時的預設圖示 */
+.avatar-fallback {
+    font-size: 40px;
+    line-height: 1;
+}
+
+/* 詳細頁 (detail.html) 的超大頭貼與標題排版 */
+.profile-header-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    background: #ffffff;
+    padding: 15px 25px;
+    border-radius: 20px;
+    border: 2px solid #ffe4e8;
+    box-shadow: 0 4px 15px rgba(255, 117, 140, 0.05);
+}
+
+.profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 4px solid var(--theme-main);
+    overflow: hidden;
+    background: var(--theme-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(255, 117, 140, 0.2);
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
