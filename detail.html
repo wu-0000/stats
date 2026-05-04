@@ -8,13 +8,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🎀 正在為您整理女神資料...</div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1 id="page-title">載入中...</h1>
             <a href="index.html" class="btn btn-secondary">返回名單</a>
         </div>
 
-<div id="profile-card" class="card" style="display: none; margin-bottom: 20px; padding: 15px; border: 1px solid #ffe4e8; background: #fffcfd;">
+        <div id="profile-card" class="card" style="display: none; margin-bottom: 20px; padding: 15px; border: 1px solid #ffe4e8; background: #fffcfd;">
             <h3 style="margin: 0 0 12px 0; color: var(--theme-main); font-size: 15px; font-weight: 900; display: flex; align-items: center; gap: 6px;">
                 🔍 女神情報局
             </h3>
@@ -46,7 +51,6 @@
                     <div class="p-value-mini" id="p-hobby">-</div>
                 </div>
             </div>
-        </div>
         </div>
 
         <div style="margin-bottom: 20px; text-align: center;">
@@ -100,8 +104,21 @@
         let chartInstance = null;
         let allMatches = [];
         
+        // 🎀 關閉讀取畫面的小工具
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if(overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+        }
+
         async function loadDetailData() {
-            if (!girlName) return;
+            if (!girlName) {
+                hideLoading();
+                return;
+            }
+            
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
 
@@ -114,7 +131,6 @@
                 const girlInfo = girlsData.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
                 
                 if (girlInfo) {
-                    // 處理 IG 標題按鈕
                     let titleHtml = `✨ ${girlName} 的出勤數據 ✨`;
                     if (girlInfo.ig && girlInfo.ig.trim() !== '') {
                         let igStr = girlInfo.ig.trim();
@@ -127,7 +143,6 @@
                     }
                     document.getElementById('page-title').innerHTML = titleHtml;
 
-                    // 處理小檔案面板
                     document.getElementById('profile-card').style.display = 'block';
                     document.getElementById('p-birthday').innerText = girlInfo.birthday || '保密中 🤫';
                     document.getElementById('p-zodiac').innerText = girlInfo.zodiac || '保密中 🤫';
@@ -136,10 +151,12 @@
                     document.getElementById('p-hobby').innerText = girlInfo.hobby || '保密中 🤫';
                 }
 
-                // 🎀 2. 處理比賽數據 (保持不變)
+                // 🎀 2. 處理比賽數據
                 const mySchedule = scheduleData.find(s => s.girl_name && s.girl_name.trim() === girlName && s.year && s.year.trim() === selectedYear);
                 if (!mySchedule || !mySchedule.working_dates) {
-                    renderUI([], "all"); return;
+                    renderUI([], "all"); 
+                    hideLoading(); // 沒班表也要關閉讀取畫面
+                    return;
                 }
 
                 const workList = parseWorkingDate(mySchedule.working_dates);
@@ -153,7 +170,15 @@
                 }).filter(m => m !== null);
 
                 renderUI(allMatches, selectedMonth);
-            } catch (error) { console.error(error); }
+                
+                // 🎀 資料全部都畫完了，準備開獎！
+                hideLoading();
+
+            } catch (error) { 
+                console.error(error); 
+                // 如果發生錯誤，把讀取畫面關掉避免卡死
+                hideLoading();
+            }
         }
 
         function renderUI(matches, filterMonth) {
