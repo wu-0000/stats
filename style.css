@@ -189,3 +189,42 @@ tr:hover td {
 }
 .win { background-color: #ff9a9e; color: #fff; } /* 勝利：可愛粉紅 */
 .loss { background-color: #a1c4fd; color: #fff; } /* 失敗：寶寶藍 */
+/* =========================================
+   8. 專業級 IG 懸停按鈕
+   ========================================= */
+.ig-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: #ffffff;
+    color: var(--theme-main);
+    border: 2px solid #ffe4e8;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.ig-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+/* 當滑鼠移過去時的魔法效果 */
+.ig-btn:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
+}
+
+.ig-btn:hover svg {
+    transform: scale(1.1); /* 圖示微微放大 */
+}
+
