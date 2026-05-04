@@ -18,6 +18,36 @@
 }
 
 /* =========================================
+       📱 首頁頭部 (Header) 手機版大瘦身
+       ========================================= */
+    /* 1. 讓「全台啦啦隊女神圖鑑」標題縮小，維持單行霸氣 */
+    .header h1 {
+        font-size: 18px !important; /* 強制縮小字體 */
+        margin-bottom: 10px;
+        letter-spacing: 0px; /* 稍微縮減字距 */
+    }
+
+    /* 2. 把標題跟按鈕改成上下置中排列，節省空間 */
+    .header {
+        flex-direction: column;
+        padding: 15px;
+        gap: 10px;
+    }
+
+    /* 3. 「每日站位」跟「排行榜」按鈕變成精緻膠囊 */
+    .header .btn {
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+    }
+    
+    /* 讓兩顆按鈕靠緊一點 */
+    .header div {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+    }
+
+/* =========================================
    3. 基礎排版
    ========================================= */
 body { 
