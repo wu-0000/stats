@@ -457,3 +457,18 @@ tr:hover td {
     height: 100%;
     object-fit: cover;
 }
+
+/* =========================================
+   14. 返回按鈕的絕對定位
+   ========================================= */
+.back-btn-container {
+    margin-bottom: 15px; /* 與下方大頭貼保持一點距離 */
+    text-align: left;    /* 靠左對齊 */
+}
+
+/* 確保大頭貼跟名字的排版不會亂掉 */
+.header {
+    display: block; /* 取消原本的 flex 排版 */
+    text-align: center;
+    margin-bottom: 20px;
+}
