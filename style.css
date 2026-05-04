@@ -228,3 +228,24 @@ tr:hover td {
     transform: scale(1.1); /* 圖示微微放大 */
 }
 
+/* =========================================
+   9. 女孩個人小檔案標籤 (Profile Badges)
+   ========================================= */
+.profile-badge {
+    background: var(--theme-light);
+    color: var(--theme-main);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 900;
+    border: 1px solid #ffe4e8;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.profile-badge span {
+    color: var(--text-main);
+    font-weight: bold;
+}
+
