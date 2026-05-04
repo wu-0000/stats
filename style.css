@@ -229,48 +229,54 @@ tr:hover td {
 }
 
 /* =========================================
-   9. 升級版：女孩個人專屬檔案卡 (Idol Profile Grid)
+   9. 迷你橫向版：女神情報局 (Mini Profile Row)
    ========================================= */
-.profile-grid {
-    display: grid;
-    /* 讓小方塊自動排列，手機螢幕小就會自動換行 */
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 15px;
+.profile-row-mini {
+    display: flex;
+    justify-content: space-between; /* 均勻分配空間 */
+    gap: 8px;
+    overflow-x: auto; /* 手機版寬度不足時可橫向滑動 */
+    padding-bottom: 5px;
 }
 
-.profile-item {
-    background: rgba(255, 255, 255, 0.7);
+.profile-mini-item {
+    flex: 1;
+    min-width: 75px; /* 限制最小寬度，避免文字擠壓 */
+    background: #ffffff;
     border: 1px solid #ffe4e8;
-    border-radius: 16px;
-    padding: 15px 10px;
+    border-radius: 12px;
+    padding: 6px 4px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(255, 117, 140, 0.03);
     transition: all 0.3s ease;
 }
 
-.profile-item:hover {
-    transform: translateY(-3px);
-    background: #fff;
+.profile-mini-item:hover {
     border-color: var(--theme-main);
-    box-shadow: 0 8px 15px rgba(255, 117, 140, 0.1);
+    background: var(--theme-light);
 }
 
-.p-icon {
-    font-size: 26px;
-    margin-bottom: 8px;
+.p-icon-mini {
+    font-size: 16px; /* 圖示變小 */
+    margin-bottom: 2px;
 }
 
-.p-label {
-    font-size: 12px;
+.p-label-mini {
+    font-size: 10px; /* 標題變小 */
     color: var(--text-muted);
     font-weight: bold;
-    margin-bottom: 4px;
-    letter-spacing: 1px;
 }
 
-.p-value {
-    font-size: 15px;
-    font-weight: 900;
+.p-value-mini {
+    font-size: 12px; /* 內容變小 */
+    font-weight: 800;
     color: var(--text-main);
+    white-space: nowrap; /* 避免換行 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 文字太長顯示省略號 */
+}
+
+/* 隱藏捲軸（讓畫面更乾淨） */
+.profile-row-mini::-webkit-scrollbar {
+    display: none;
 }
 
