@@ -472,3 +472,57 @@ tr:hover td {
     text-align: center;
     margin-bottom: 20px;
 }
+
+/* =========================================
+   15. 手機版專屬神級優化 (Mobile Responsive)
+   ========================================= */
+@media (max-width: 600px) {
+    /* 1. 讓大頭貼和名字在手機上變成「上下排列」，偶像感更重 */
+    .profile-header-container {
+        flex-direction: column; /* 改為垂直排列 */
+        text-align: center;
+        padding: 20px 10px;
+    }
+
+    /* 名字與連勝徽章置中 */
+    #page-title {
+        justify-content: center; 
+        margin-top: 10px;
+        font-size: 20px !important; /* 稍微縮小標題避免換行太醜 */
+    }
+
+    /* IG 按鈕置中 */
+    .profile-header-container .ig-btn {
+        margin: 10px auto 0 auto;
+    }
+
+    /* 2. 數據儀表板強制變成「兩兩並列」，整齊又不會太小 */
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .card {
+        padding: 12px 5px; /* 縮小卡片內距，節省螢幕空間 */
+    }
+
+    .card div:nth-child(2) {
+        font-size: 22px !important; /* 手機版數字稍微縮小，看起來更精緻 */
+    }
+
+    /* 3. 縮小整體網頁的邊界，把空間還給內容 */
+    .container {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    /* 4. 微調女神情報局的間距 */
+    .profile-row-mini {
+        gap: 5px;
+    }
+    
+    .profile-mini-item {
+        min-width: 65px;
+        padding: 5px 2px;
+    }
+}
