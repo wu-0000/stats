@@ -280,3 +280,46 @@ tr:hover td {
     display: none;
 }
 
+/* =========================================
+   10. APP 級專屬讀取畫面 (Loading Overlay)
+   ========================================= */
+#loading-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-color); /* 用粉嫩的底色蓋住全螢幕 */
+    z-index: 9999; /* 確保它在最上層 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease; /* 消失時會有柔和的淡出效果 */
+}
+
+/* 🎀 粉色小圈圈動畫 */
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #ffe4e8;
+    border-top: 5px solid var(--theme-main);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    margin-top: 15px;
+    color: var(--theme-main);
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 2px;
+    animation: pulse 1.5s infinite; /* 文字微微閃爍呼吸 */
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
