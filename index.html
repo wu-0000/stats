@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全台啦啦隊女神圖鑑</title>
+    <title>啦啦隊數據統計 - 首頁</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🎀 正在為您準備女神名單...</div>
+    </div>
+
     <div class="container">
         
         <div class="header">
-           <h1>✨ 全台啦啦隊女神圖鑑 ✨</h1>
+            <h1>✨ 全台啦啦隊女神圖鑑 ✨</h1>
             <div>
                 <a href="daily.html" class="btn btn-secondary">📅 每日站位</a>
                 <a href="ranking.html" class="btn">🏆 排行榜</a>
             </div>
         </div>
 
-<div id="team-tabs" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center;">
+        <div id="team-tabs" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center;">
             <button class="btn" onclick="changeTeam('樂天')">樂天桃猿</button>
             <button class="btn btn-secondary" onclick="changeTeam('中信兄弟')">中信兄弟</button>
             <button class="btn btn-secondary" onclick="changeTeam('味全龍')">味全龍</button>
@@ -31,7 +36,6 @@
         </div>
 
         <div id="girl-list" class="grid">
-            <p style="grid-column: 1 / -1; text-align: center;">資料載入中...</p>
         </div>
 
     </div>
@@ -39,7 +43,16 @@
     <script src="app.js"></script>
     <script>
         let allGirlsData = []; 
-        let currentTeam = '樂天'; // 記住現在點選的隊伍
+        let currentTeam = '樂天'; 
+
+        // 🎀 關閉讀取畫面的小工具
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if(overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+        }
 
         async function loadGirls() {
             try {
@@ -48,13 +61,14 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('girl-list').innerHTML = '<p style="color:red; text-align:center;">資料連線失敗！</p>';
+            } finally {
+                hideLoading(); // 🎀 不管成功失敗，最後一定關閉讀取畫面
             }
         }
 
-        // 🎀 點擊隊伍按鈕的處理
         function changeTeam(teamName) {
             currentTeam = teamName;
-            document.getElementById('search-input').value = ''; // 切換隊伍時清空搜尋框
+            document.getElementById('search-input').value = ''; 
 
             const tabs = document.querySelectorAll('#team-tabs button');
             tabs.forEach(tab => {
@@ -65,26 +79,18 @@
             renderGirlCards(teamGirls, teamName);
         }
 
-        // 🎀 新增：搜尋列的專屬魔法
         function searchGirl() {
             const keyword = document.getElementById('search-input').value.trim().toLowerCase();
-            
-            // 如果搜尋框空了，乖乖退回原本選擇的隊伍畫面
             if (keyword === '') {
                 changeTeam(currentTeam);
                 return;
             }
-
-            // 搜尋模式啟動！把所有隊伍按鈕變暗
             const tabs = document.querySelectorAll('#team-tabs button');
             tabs.forEach(tab => tab.className = 'btn btn-secondary');
-
-            // 跨隊尋找名字相符的女孩
             const matchedGirls = allGirlsData.filter(g => g.name && g.name.toLowerCase().includes(keyword));
             renderGirlCards(matchedGirls, '搜尋結果');
         }
 
-// 🎀 把畫卡片的程式獨立出來，方便重複使用
         function renderGirlCards(girlsArray, contextName) {
             const listContainer = document.getElementById('girl-list');
             listContainer.innerHTML = ''; 
@@ -107,21 +113,10 @@
                 if (girl.ig && girl.ig.trim() !== '') {
                     let igStr = girl.ig.trim();
                     let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
-                    igHtml = `
-                        <a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn">
-                            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                            Instagram
-                        </a>`;
+                    igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
                 }
 
-                // 📷 判斷大頭貼：如果有填網址就顯示圖片，沒填就顯示預設圖案 👱‍♀️
-                let avatarHtml = '';
-                if (girl.photo && girl.photo.trim() !== '') {
-                    avatarHtml = `<div class="avatar-wrapper"><img src="${girl.photo.trim()}" alt="${girl.name}"></div>`;
-                } else {
-                    avatarHtml = `<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>`;
-                }
-
+                let avatarHtml = (girl.photo && girl.photo.trim() !== '') ? `<div class="avatar-wrapper"><img src="${girl.photo.trim()}" alt="${girl.name}"></div>` : `<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>`;
                 const teamBadge = contextName === '搜尋結果' ? `<div style="font-size:12px; color:white; background:var(--theme-main); display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${realTeam}</div>` : '';
 
                 card.innerHTML = `
@@ -135,7 +130,6 @@
             });
         }
 
-        // 啟動程式
         loadGirls();
     </script>
 </body>
