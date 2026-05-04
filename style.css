@@ -520,7 +520,55 @@ tr:hover td {
     .profile-row-mini {
         gap: 5px;
     }
+    /* =========================================
+       👑 排行榜 (ranking.html) 手機版神級優化
+       ========================================= */
+    /* 1. 上方四大天王卡片微調 */
+    #top-cards .card {
+        padding: 10px 5px;
+    }
+    #top-cards .card div:nth-child(2) {
+        font-size: 18px !important; /* 名字縮小，避免被切掉 */
+    }
+    #top-cards .card div:nth-child(3) {
+        font-size: 13px !important; /* 隊伍名稱縮小 */
+    }
+
+    /* 2. 縮小隊伍過濾按鈕 */
+    #team-tabs {
+        gap: 6px;
+    }
+    #team-tabs .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    /* 3. 數據大表格優化：縮小字體與內距 */
+    table th, table td {
+        padding: 8px 6px;
+        font-size: 13px;
+        white-space: nowrap; /* 強制文字不換行，讓表格可以左右順滑捲動 */
+    }
+
+    /* ✨ 4. 魔法在此：凍結「女孩姓名」欄位 (第 2 欄) ✨ */
+    table th:nth-child(2),
+    table td:nth-child(2) {
+        position: sticky;
+        left: 0; /* 把它釘在最左邊 */
+        z-index: 2; /* 讓它浮在其他數據的上面 */
+        box-shadow: 3px 0 5px rgba(255, 117, 140, 0.1); /* 右側加上淡淡的陰影，製造立體感 */
+    }
     
+    /* 資料列的名字加上微粉紅底色，避免滑動時字疊在一起 */
+    table td:nth-child(2) {
+        background-color: #fffafb; 
+    }
+    
+    /* 表頭的名字顏色保持主題色，且層級要最高 */
+    table th:nth-child(2) {
+        background-color: var(--theme-main);
+        z-index: 3;
+    }
     .profile-mini-item {
         min-width: 65px;
         padding: 5px 2px;
