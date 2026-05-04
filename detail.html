@@ -14,6 +14,19 @@
             <a href="index.html" class="btn btn-secondary">返回名單</a>
         </div>
 
+        <div id="profile-card" class="card" style="display: none; margin-bottom: 20px; text-align: left; background: #fffcfd;">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: var(--theme-main); font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                📝 關於她的小檔案
+            </h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <div class="profile-badge">🎂 生日：<span id="p-birthday">-</span></div>
+                <div class="profile-badge">✨ 星座：<span id="p-zodiac">-</span></div>
+                <div class="profile-badge">⚾ 喜歡的球員：<span id="p-player">-</span></div>
+                <div class="profile-badge">🍰 喜歡的食物：<span id="p-food">-</span></div>
+                <div class="profile-badge">🎨 興趣：<span id="p-hobby">-</span></div>
+            </div>
+        </div>
+
         <div style="margin-bottom: 20px; text-align: center;">
             <select id="year-select">
                 <option value="2026">2026 年度</option>
@@ -65,34 +78,43 @@
         let chartInstance = null;
         let allMatches = [];
         
-async function loadDetailData() {
+        async function loadDetailData() {
             if (!girlName) return;
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
 
             try {
-                // 🎀 這裡多加了 fetchCSV(CONFIG.girlsUrl) 把女孩總表也抓下來看 IG
                 const [scheduleData, matchesData, girlsData] = await Promise.all([
                     fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
 
-                // 📷 去找這位女孩的 IG 資料並更新標題
+                // 🎀 1. 抓取女孩專屬資料，更新 IG 與小檔案
                 const girlInfo = girlsData.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
-                let titleHtml = `✨ ${girlName} 的出勤數據 ✨`;
                 
-                if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
-                    let igStr = girlInfo.ig.trim();
-                    let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
-                    
-                    // 這裡也套用了 ig-btn，並微調間距讓它跟標題對齊
-                    titleHtml += ` 
-                        <a href="${igLink}" target="_blank" class="ig-btn" style="margin-top:0; margin-left:12px; vertical-align:middle; padding:4px 12px;">
-                            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                            IG
-                        </a>`;
-                }
-                document.getElementById('page-title').innerHTML = titleHtml;
+                if (girlInfo) {
+                    // 處理 IG 標題按鈕
+                    let titleHtml = `✨ ${girlName} 的出勤數據 ✨`;
+                    if (girlInfo.ig && girlInfo.ig.trim() !== '') {
+                        let igStr = girlInfo.ig.trim();
+                        let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
+                        titleHtml += ` 
+                            <a href="${igLink}" target="_blank" class="ig-btn" style="margin-top:0; margin-left:12px; vertical-align:middle; padding:4px 12px;">
+                                <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                                IG
+                            </a>`;
+                    }
+                    document.getElementById('page-title').innerHTML = titleHtml;
 
+                    // 處理小檔案面板
+                    document.getElementById('profile-card').style.display = 'block';
+                    document.getElementById('p-birthday').innerText = girlInfo.birthday || '保密中 🤫';
+                    document.getElementById('p-zodiac').innerText = girlInfo.zodiac || '保密中 🤫';
+                    document.getElementById('p-player').innerText = girlInfo.favorite_player || '保密中 🤫';
+                    document.getElementById('p-food').innerText = girlInfo.food || '保密中 🤫';
+                    document.getElementById('p-hobby').innerText = girlInfo.hobby || '保密中 🤫';
+                }
+
+                // 🎀 2. 處理比賽數據 (保持不變)
                 const mySchedule = scheduleData.find(s => s.girl_name && s.girl_name.trim() === girlName && s.year && s.year.trim() === selectedYear);
                 if (!mySchedule || !mySchedule.working_dates) {
                     renderUI([], "all"); return;
@@ -111,6 +133,7 @@ async function loadDetailData() {
                 renderUI(allMatches, selectedMonth);
             } catch (error) { console.error(error); }
         }
+
         function renderUI(matches, filterMonth) {
             let displayMatches = matches;
             if (filterMonth !== "all") {
@@ -118,7 +141,7 @@ async function loadDetailData() {
             }
 
             let winCount = 0, lossCount = 0, delayCount = 0, totalMinutes = 0;
-            let totalScored = 0, totalAllowed = 0; // 記錄總得分與失分
+            let totalScored = 0, totalAllowed = 0; 
 
             const tbody = document.getElementById('match-table-body');
             tbody.innerHTML = '';
@@ -132,7 +155,6 @@ async function loadDetailData() {
                     if (resultTrimmed === '勝') winCount++;
                     else if (resultTrimmed === '敗') lossCount++;
                     
-                    // 🎀 呼叫我們剛剛寫的超聰明計算機
                     const scoreData = parseScoreForTeam(m.score, resultTrimmed);
                     totalScored += scoreData.scored;
                     totalAllowed += scoreData.allowed;
@@ -153,7 +175,7 @@ async function loadDetailData() {
                 tbody.appendChild(tr);
             });
 
-            const validGames = winCount + lossCount; // 扣除延賽的有效場次
+            const validGames = winCount + lossCount; 
             const avgScore = validGames > 0 ? (totalScored / validGames).toFixed(1) : "0.0";
             const avgAllow = validGames > 0 ? (totalAllowed / validGames).toFixed(1) : "0.0";
 
@@ -163,13 +185,12 @@ async function loadDetailData() {
             document.getElementById('stat-games').innerText = displayMatches.length;
             document.getElementById('stat-delay').innerText = delayCount;
             document.getElementById('stat-duration').innerText = formatMinutes(totalMinutes);
-            document.getElementById('stat-avg-score').innerText = avgScore; // 顯示場均得分
-            document.getElementById('stat-avg-allow').innerText = avgAllow; // 顯示場均失分
+            document.getElementById('stat-avg-score').innerText = avgScore; 
+            document.getElementById('stat-avg-allow').innerText = avgAllow; 
             
             updateChart(winCount, lossCount, delayCount);
         }
 
-        // ... 圓餅圖代碼保持不變 ...
         function updateChart(win, loss, delay) {
             const ctx = document.getElementById('winLossChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
