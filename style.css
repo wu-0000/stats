@@ -580,13 +580,24 @@ tr:hover td {
         white-space: nowrap; /* 強制文字不換行，讓表格可以左右順滑捲動 */
     }
 
-    /* ✨ 4. 魔法在此：凍結「女孩姓名」欄位 (第 2 欄) ✨ */
+   /* ✨ 4. 魔法在此：凍結「女孩姓名」欄位 (第 2 欄) ✨ */
     table th:nth-child(2),
     table td:nth-child(2) {
         position: sticky;
         left: 0; /* 把它釘在最左邊 */
         z-index: 2; /* 讓它浮在其他數據的上面 */
         box-shadow: 3px 0 5px rgba(255, 117, 140, 0.1); /* 右側加上淡淡的陰影，製造立體感 */
+    }
+    
+    /* 資料列的名字加上微粉紅底色，避免滑動時字疊在一起 */
+    table td:nth-child(2) {
+        background-color: #fffafb; 
+    }
+    
+    /* 表頭的名字顏色保持主題色，且層級要最高 */
+    table th:nth-child(2) {
+        background-color: var(--theme-main);
+        z-index: 3;
     }
     
     /* 資料列的名字加上微粉紅底色，避免滑動時字疊在一起 */
