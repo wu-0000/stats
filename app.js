@@ -9,7 +9,6 @@ const CONFIG = {
 async function fetchCSV(url) {
     const response = await fetch(url);
     const data = await response.text();
-    // 處理換行並過濾掉空行
     const rows = data.split(/\r?\n/).map(row => row.trim()).filter(row => row);
     
     // 專門處理 CSV 引號陷阱的切菜刀
@@ -20,9 +19,9 @@ async function fetchCSV(url) {
         for (let i = 0; i < rowStr.length; i++) {
             let char = rowStr[i];
             if (char === '"') {
-                inQuotes = !inQuotes; // 遇到雙引號，開啟保護罩
+                inQuotes = !inQuotes; 
             } else if (char === ',' && !inQuotes) {
-                result.push(current.trim()); // 只有在保護罩外面的逗號才切斷
+                result.push(current.trim()); 
                 current = '';
             } else {
                 current += char;
@@ -45,7 +44,6 @@ async function fetchCSV(url) {
 }
 
 // ====== 3. 欄位解析與換算工具 ======
-// 將 "2H56M" 轉換為分鐘，避免錯誤或負值
 function parseDuration(timeStr) {
     if (!timeStr || timeStr === "-" || timeStr === "無") return 0;
     const match = timeStr.match(/(\d+)H(\d+)M/i);
@@ -56,7 +54,6 @@ function parseDuration(timeStr) {
     return 0;
 }
 
-// 將分鐘轉回 "XHXQM" 顯示
 function formatMinutes(totalMinutes) {
     if (totalMinutes === 0) return "0H0M";
     const h = Math.floor(totalMinutes / 60);
@@ -64,7 +61,6 @@ function formatMinutes(totalMinutes) {
     return `${h}H${m}M`;
 }
 
-// 拆解 "03/28(一三三)" 格式
 function parseWorkingDate(dateStr) {
     if (!dateStr) return [];
     const entries = dateStr.split(',').map(s => s.trim());
@@ -74,7 +70,6 @@ function parseWorkingDate(dateStr) {
     });
 }
 
-// 計算勝率
 function calculateWinRate(win, loss) {
     const total = win + loss;
     if (total === 0) return "0.0";
@@ -82,7 +77,6 @@ function calculateWinRate(win, loss) {
 }
 
 // ====== 4. 比分解析工具 (超級幸運女神計算機) ======
-// 根據勝敗，自動判斷比分字串 (例如 "2:3") 哪一個是自己的得分
 function parseScoreForTeam(scoreStr, result) {
     if (!scoreStr || !result || result.includes('延賽')) return { scored: 0, allowed: 0 };
     
@@ -97,10 +91,10 @@ function parseScoreForTeam(scoreStr, result) {
     const min = Math.min(num1, num2);
 
     if (result.includes('勝')) {
-        return { scored: max, allowed: min }; // 贏了，得分是高的
+        return { scored: max, allowed: min }; 
     } else if (result.includes('敗')) {
-        return { scored: min, allowed: max }; // 輸了，得分是低的
+        return { scored: min, allowed: max }; 
     } else {
-        return { scored: num1, allowed: num2 }; // 和局
+        return { scored: num1, allowed: num2 }; 
     }
 }
