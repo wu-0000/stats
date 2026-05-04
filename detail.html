@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>女孩詳細數據</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -77,10 +76,6 @@
             <div class="card"><div style="color:var(--text-muted); font-weight:bold;">⏱️ 上班時數</div><div id="stat-duration" style="font-size:28px; color:var(--text-main); font-weight:900;">0H0M</div></div>
         </div>
 
-        <div style="width: 300px; margin: 30px auto;">
-            <canvas id="winLossChart"></canvas>
-        </div>
-
         <div class="table-responsive">
             <table>
                 <thead>
@@ -99,7 +94,6 @@
         const girlName = urlParams.get('name');
         const girlTeam = urlParams.get('team'); 
 
-        let chartInstance = null;
         let allMatches = [];
         
         function hideLoading() {
@@ -178,7 +172,7 @@
 
                 renderUI(allMatches, selectedMonth);
             } catch (error) { console.error(error); }
-            finally { hideLoading(); } // 🎀 不管成功失敗，最後一定關閉讀取畫面
+            finally { hideLoading(); } 
         }
 
         function renderUI(matches, filterMonth) {
@@ -209,14 +203,6 @@
             document.getElementById('stat-games').innerText = displayMatches.length;
             document.getElementById('stat-delay').innerText = delay;
             document.getElementById('stat-duration').innerText = formatMinutes(totalMin);
-            updateChart(win, loss, delay);
-        }
-
-        function updateChart(w, l, d) {
-            const ctx = document.getElementById('winLossChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-            if (w + l + d === 0) return;
-            chartInstance = new Chart(ctx, { type: 'pie', data: { labels: ['勝', '敗', '延賽'], datasets: [{ data: [w, l, d], backgroundColor: ['#ff9a9e', '#a1c4fd', '#e2e2e2'], borderWidth: 0 }] }, options: { responsive: true } });
         }
 
         document.getElementById('year-select').addEventListener('change', loadDetailData);
