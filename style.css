@@ -323,3 +323,68 @@ tr:hover td {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
+
+/* =========================================
+   11. 女神快搜輸入框 (Search Bar)
+   ========================================= */
+.search-container {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.search-input {
+    width: 90%;
+    max-width: 400px;
+    padding: 12px 20px;
+    border: 2px solid #ffe4e8;
+    border-radius: 30px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    color: var(--theme-main);
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(255, 117, 140, 0.05);
+}
+
+.search-input:focus {
+    border-color: var(--theme-main);
+    box-shadow: 0 4px 15px rgba(255, 117, 140, 0.2);
+}
+
+.search-input::placeholder {
+    color: #ffb3c1;
+    font-weight: normal;
+}
+
+/* =========================================
+   12. 連勝氣勢徽章 (Streak Badge)
+   ========================================= */
+.streak-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 900;
+    margin-left: 10px;
+    vertical-align: middle;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 瘋狂連勝：漸層橘紅 */
+.streak-win {
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+}
+
+/* 苦吞連敗：漸層冰藍 */
+.streak-loss {
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
