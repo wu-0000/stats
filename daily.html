@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">🎀 正在計算排行榜資料...</div>
+    </div>
     <div class="container">
         <div class="header">
             <h1>📅 每日站位查詢</h1>
@@ -157,6 +161,28 @@
         }
 
         initDateDropdown();
+        // 🎀 加入隱藏功能
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if(overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+            }
+        }
+
+        async function initData() {
+            try {
+                const [girls, sched, matches] = await Promise.all([
+                    fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
+                ]);
+                rawData = { girls, schedule: sched, matches };
+                changeRankingTeam('全聯盟'); 
+            } catch (error) { 
+                console.error(error); 
+            } finally {
+                hideLoading(); // 🎀 算完之後關掉讀取畫面
+            }
+        }
     </script>
 </body>
 </html>
