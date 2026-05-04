@@ -84,7 +84,7 @@
             renderGirlCards(matchedGirls, '搜尋結果');
         }
 
-        // 🎀 把畫卡片的程式獨立出來，方便重複使用
+// 🎀 把畫卡片的程式獨立出來，方便重複使用
         function renderGirlCards(girlsArray, contextName) {
             const listContainer = document.getElementById('girl-list');
             listContainer.innerHTML = ''; 
@@ -100,7 +100,6 @@
                 card.className = 'card';
                 card.style.cursor = 'pointer';
                 
-                // 注意：這裡傳送的 url team 暗號，必須是女孩真正的 team，這樣搜尋其他隊伍點進去才不會抓錯
                 const realTeam = girl.team ? girl.team.trim() : contextName;
                 card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}&team=${encodeURIComponent(realTeam)}`;
                 
@@ -108,7 +107,6 @@
                 if (girl.ig && girl.ig.trim() !== '') {
                     let igStr = girl.ig.trim();
                     let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
-                    
                     igHtml = `
                         <a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn">
                             <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
@@ -116,12 +114,20 @@
                         </a>`;
                 }
 
-                // 加入顯示球隊名稱的標籤 (當全域搜尋時很實用)
-                const teamBadge = contextName === '搜尋結果' ? `<div style="font-size:12px; color:white; background:var(--theme-main); display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:5px;">${realTeam}</div>` : '';
+                // 📷 判斷大頭貼：如果有填網址就顯示圖片，沒填就顯示預設圖案 👱‍♀️
+                let avatarHtml = '';
+                if (girl.photo && girl.photo.trim() !== '') {
+                    avatarHtml = `<div class="avatar-wrapper"><img src="${girl.photo.trim()}" alt="${girl.name}"></div>`;
+                } else {
+                    avatarHtml = `<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>`;
+                }
+
+                const teamBadge = contextName === '搜尋結果' ? `<div style="font-size:12px; color:white; background:var(--theme-main); display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${realTeam}</div>` : '';
 
                 card.innerHTML = `
                     ${teamBadge}
-                    <div style="font-size: 24px; color: var(--text-muted); margin-bottom: 8px; font-weight: 900;">${girl.id || "00"}</div>
+                    ${avatarHtml}
+                    <div style="font-size: 20px; color: var(--text-muted); margin-bottom: 2px; font-weight: 900;">${girl.id || "00"}</div>
                     <div style="font-size: 18px; font-weight: bold; color: var(--text-main);">${girl.name}</div>
                     ${igHtml}
                 `;
