@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>女孩詳細數據</title>
+    <title>女神詳細數據</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +13,7 @@
         <div class="loading-text">🎀 正在為您整理女神資料...</div>
     </div>
 
-<div class="container">
+    <div class="container">
         <div class="back-btn-container">
             <a href="index.html" class="btn btn-secondary">◀ 返回名單</a>
         </div>
@@ -24,47 +25,21 @@
         </div>
 
         <div id="profile-card" class="card" style="display: none; margin-bottom: 20px; padding: 15px; border: 1px solid #ffe4e8; background: #fffcfd;">
-            <h3 style="margin: 0 0 12px 0; color: var(--theme-main); font-size: 15px; font-weight: 900; display: flex; align-items: center; gap: 6px;">
-                🔍 女神情報局
-            </h3>
+            <h3 style="margin: 0 0 12px 0; color: var(--theme-main); font-size: 15px; font-weight: 900; display: flex; align-items: center; gap: 6px;">🔍 女神情報局</h3>
             <div class="profile-row-mini">
-                <div class="profile-mini-item">
-                    <div class="p-icon-mini">🎂</div>
-                    <div class="p-label-mini">生日</div>
-                    <div class="p-value-mini" id="p-birthday">-</div>
-                </div>
-                <div class="profile-mini-item">
-                    <div class="p-icon-mini">✨</div>
-                    <div class="p-label-mini">星座</div>
-                    <div class="p-value-mini" id="p-zodiac">-</div>
-                </div>
-                <div class="profile-mini-item">
-                    <div class="p-icon-mini">⚾</div>
-                    <div class="p-label-mini">最愛球員</div>
-                    <div class="p-value-mini" id="p-player">-</div>
-                </div>
-                <div class="profile-mini-item">
-                    <div class="p-icon-mini">🍰</div>
-                    <div class="p-label-mini">最愛食物</div>
-                    <div class="p-value-mini" id="p-food">-</div>
-                </div>
-                <div class="profile-mini-item">
-                    <div class="p-icon-mini">🎨</div>
-                    <div class="p-label-mini">興趣</div>
-                    <div class="p-value-mini" id="p-hobby">-</div>
-                </div>
+                <div class="profile-mini-item"><div class="p-icon-mini">🎂</div><div class="p-label-mini">生日</div><div class="p-value-mini" id="p-birthday">-</div></div>
+                <div class="profile-mini-item"><div class="p-icon-mini">✨</div><div class="p-label-mini">星座</div><div class="p-value-mini" id="p-zodiac">-</div></div>
+                <div class="profile-mini-item"><div class="p-icon-mini">⚾</div><div class="p-label-mini">最愛球員</div><div class="p-value-mini" id="p-player">-</div></div>
+                <div class="profile-mini-item"><div class="p-icon-mini">🍰</div><div class="p-label-mini">最愛食物</div><div class="p-value-mini" id="p-food">-</div></div>
+                <div class="profile-mini-item"><div class="p-icon-mini">🎨</div><div class="p-label-mini">興趣</div><div class="p-value-mini" id="p-hobby">-</div></div>
             </div>
         </div>
 
         <div style="margin-bottom: 20px; text-align: center;">
-            <select id="year-select">
-                <option value="2026">2026 年度</option>
-            </select>
+            <select id="year-select"><option value="2026">2026 年度</option></select>
             <select id="month-select">
                 <option value="all">全年總計</option>
-                <option value="3">3 月</option>
-                <option value="4">4 月</option>
-                <option value="5">5 月</option>
+                <option value="3">3 月</option><option value="4">4 月</option><option value="5">5 月</option>
             </select>
         </div>
 
@@ -81,11 +56,7 @@
 
         <div class="table-responsive">
             <table>
-                <thead>
-                    <tr>
-                        <th>日期</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>時間</th><th>觀眾數</th><th>地點</th><th>站位</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>日期</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>時間</th><th>觀眾數</th><th>地點</th><th>站位</th></tr></thead>
                 <tbody id="match-table-body"></tbody>
             </table>
         </div>
@@ -97,62 +68,35 @@
         const girlName = urlParams.get('name');
         const girlTeam = urlParams.get('team'); 
 
-        let allMatches = [];
-        
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
-            if(overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.display = 'none', 500);
-            }
+            if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
         }
 
         async function loadDetailData() {
             if (!girlName) { hideLoading(); return; }
-            
             const selectedYear = document.getElementById('year-select').value;
             const selectedMonth = document.getElementById('month-select').value;
-
             try {
                 const [scheduleData, matchesData, girlsData] = await Promise.all([
                     fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
-
                 const girlInfo = girlsData.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
-                
                 if (girlInfo) {
-                    // 📷 大頭貼處理
                     let avatarHtml = (girlInfo.photo && girlInfo.photo.trim() !== '') 
                         ? `<div class="profile-avatar-large"><img src="${girlInfo.photo.trim()}" alt="${girlName}"></div>`
                         : `<div class="profile-avatar-large"><div class="avatar-fallback" style="font-size: 50px;">👱‍♀️</div></div>`;
-
-                    // IG 按鈕處理
-                    let igBtnHtml = '';
-                    if (girlInfo.ig && girlInfo.ig.trim() !== '') {
-                        let igLink = girlInfo.ig.trim().startsWith('http') ? girlInfo.ig.trim() : `https://www.instagram.com/${girlInfo.ig.trim()}/`;
-                        igBtnHtml = `<a href="${igLink}" target="_blank" class="ig-btn" style="margin-top:10px; display:inline-flex;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
-                    }
-
-                    document.getElementById('profile-header-box').innerHTML = `
-                        <div class="profile-header-container">
-                            ${avatarHtml}
-                            <div>
-                                <h1 id="page-title" style="margin: 0; display: flex; align-items: center; flex-wrap: wrap;">✨ ${girlName} 的出勤數據</h1>
-                                ${igBtnHtml}
-                            </div>
-                        </div>
-                    `;
-
+                    let igBtnHtml = (girlInfo.ig && girlInfo.ig.trim() !== '') ? `<a href="${girlInfo.ig.trim().startsWith('http')?girlInfo.ig.trim():'https://www.instagram.com/'+girlInfo.ig.trim()+'/'}" target="_blank" class="ig-btn" style="margin-top:10px; display:inline-flex;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>` : '';
+                    document.getElementById('profile-header-box').innerHTML = `<div class="profile-header-container">${avatarHtml}<div><h1 id="page-title" style="margin: 0; display: flex; align-items: center; flex-wrap: wrap;">✨ ${girlName} 的出勤數據</h1>${igBtnHtml}</div></div>`;
                     document.getElementById('profile-card').style.display = 'block';
-                    document.getElementById('p-birthday').innerText = girlInfo.birthday || '保密中 🤫';
-                    document.getElementById('p-zodiac').innerText = girlInfo.zodiac || '保密中 🤫';
-                    document.getElementById('p-player').innerText = girlInfo.favorite_player || '保密中 🤫';
-                    document.getElementById('p-food').innerText = girlInfo.food || '保密中 🤫';
-                    document.getElementById('p-hobby').innerText = girlInfo.hobby || '保密中 🤫';
+                    document.getElementById('p-birthday').innerText = girlInfo.birthday || '保密中';
+                    document.getElementById('p-zodiac').innerText = girlInfo.zodiac || '保密中';
+                    document.getElementById('p-player').innerText = girlInfo.favorite_player || '保密中';
+                    document.getElementById('p-food').innerText = girlInfo.food || '保密中';
+                    document.getElementById('p-hobby').innerText = girlInfo.hobby || '保密中';
                 }
-
-                // 比賽數據處理
                 const mySchedule = scheduleData.find(s => s.girl_name && s.girl_name.trim() === girlName && s.year === selectedYear);
+                let allMatches = [];
                 if (mySchedule && mySchedule.working_dates) {
                     const workList = parseWorkingDate(mySchedule.working_dates);
                     allMatches = workList.map(work => {
@@ -160,56 +104,43 @@
                         return m ? { ...m, position: work.position } : null;
                     }).filter(m => m !== null);
                 }
-
-                // 🔥 連勝計算
                 const validGames = allMatches.filter(m => m.result && (m.result.trim() === '勝' || m.result.trim() === '敗')).reverse();
                 if (validGames.length >= 2) {
-                    let type = validGames[0].result.trim();
-                    let count = 0;
+                    let type = validGames[0].result.trim(), count = 0;
                     for (let g of validGames) { if (g.result.trim() === type) count++; else break; }
                     if (count >= 2) {
                         const badge = type === '勝' ? `<span class="streak-badge streak-win">🔥 ${count} 連勝中！</span>` : `<span class="streak-badge streak-loss">❄️ 苦吞 ${count} 連敗...</span>`;
                         document.getElementById('page-title').innerHTML += badge;
                     }
                 }
-
                 renderUI(allMatches, selectedMonth);
-            } catch (error) { console.error(error); }
-            finally { hideLoading(); } 
+            } catch (error) { console.error(error); } finally { hideLoading(); }
         }
 
         function renderUI(matches, filterMonth) {
             let displayMatches = (filterMonth === "all") ? matches : matches.filter(m => m.month === filterMonth);
             let win = 0, loss = 0, delay = 0, totalMin = 0, tScored = 0, tAllowed = 0;
-            const tbody = document.getElementById('match-table-body');
-            tbody.innerHTML = '';
-
+            const tbody = document.getElementById('match-table-body'); tbody.innerHTML = '';
             displayMatches.forEach(m => {
                 const res = m.result ? m.result.trim() : "";
                 if (res === '勝') win++; else if (res === '敗') loss++; else if (res === '延賽') delay++;
-                
                 const score = parseScoreForTeam(m.score, res);
                 tScored += score.scored; tAllowed += score.allowed;
                 totalMin += parseDuration(m.duration);
-
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${m.date || "-"}</td><td>${m.opponent || "-"}</td><td>${m.score || "-"}</td><td><span class="${res==='勝'?'win':res==='敗'?'loss':''}">${res || "-"}</span></td><td>${m.win_pitcher || "-"}</td><td>${m.loss_pitcher || "-"}</td><td>${m.save || "-"}</td><td>${m.mvp || "-"}</td><td>${m.duration || "-"}</td><td>${m.attendance || "-"}</td><td>${m.location || "-"}</td><td><span style="background:var(--theme-main);color:white;padding:4px 10px;border-radius:12px;font-size:12px;">${m.position || "-"}</span></td>`;
+                tr.innerHTML = `<td>${m.date||"-"}</td><td>${m.opponent||"-"}</td><td>${m.score||"-"}</td><td><span class="${res==='勝'?'win':res==='敗'?'loss':''}">${res||"-"}</span></td><td>${m.win_pitcher||"-"}</td><td>${m.loss_pitcher||"-"}</td><td>${m.save||"-"}</td><td>${m.mvp||"-"}</td><td>${m.duration||"-"}</td><td>${m.attendance||"-"}</td><td>${m.location||"-"}</td><td><span style="background:var(--theme-main);color:white;padding:4px 10px;border-radius:12px;font-size:12px;">${m.position||"-"}</span></td>`;
                 tbody.appendChild(tr);
             });
-
             const valid = win + loss;
             document.getElementById('stat-winrate').innerText = `${calculateWinRate(win, loss)}%`;
             document.getElementById('stat-avg-score').innerText = valid > 0 ? (tScored / valid).toFixed(1) : "0.0";
             document.getElementById('stat-avg-allow').innerText = valid > 0 ? (tAllowed / valid).toFixed(1) : "0.0";
-            document.getElementById('stat-wins').innerText = win;
-            document.getElementById('stat-losses').innerText = loss;
-            document.getElementById('stat-games').innerText = displayMatches.length;
-            document.getElementById('stat-delay').innerText = delay;
+            document.getElementById('stat-wins').innerText = win; document.getElementById('stat-losses').innerText = loss;
+            document.getElementById('stat-games').innerText = displayMatches.length; document.getElementById('stat-delay').innerText = delay;
             document.getElementById('stat-duration').innerText = formatMinutes(totalMin);
         }
-
         document.getElementById('year-select').addEventListener('change', loadDetailData);
-        document.getElementById('month-select').addEventListener('change', () => renderUI(allMatches, document.getElementById('month-select').value));
+        document.getElementById('month-select').addEventListener('change', () => loadDetailData());
         loadDetailData();
     </script>
 </body>
