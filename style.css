@@ -163,4 +163,43 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
     #ranking-table th:nth-child(2), #ranking-table td:nth-child(2) {
         position: sticky; left: 0; z-index: 2; background: #fffafb; box-shadow: 2px 0 5px rgba(0,0,0,0.05);
     }
+   /* =========================================
+   🚑 終極修復：手機版女孩大頭貼防擠壓
+   ========================================= */
+@media (max-width: 600px) {
+    /* 強制大頭貼跟名字「上下排列」，絕對不准左右硬擠！ */
+    .profile-header-container {
+        display: flex !important;
+        flex-direction: column !important; /* 圖片在上、名字在下 */
+        align-items: center !important;    /* 絕對水平置中 */
+        justify-content: center !important;
+        padding: 20px 10px !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 確保大頭貼乖乖待在正中間，維持完美圓形 */
+    .profile-avatar-large {
+        margin: 0 auto !important;
+        width: 90px !important;  /* 手機版稍微縮小一點點會更精緻 */
+        height: 90px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* 文字容器與標題強制置中 */
+    .profile-header-container div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    #page-title {
+        justify-content: center !important;
+        font-size: 19px !important;
+        text-align: center !important;
+        white-space: normal !important; /* 如果名字真的太長，允許安全換行 */
+    }
+}
 }
