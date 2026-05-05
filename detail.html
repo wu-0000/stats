@@ -157,7 +157,7 @@
                     let type = validGames[0].result.trim(), count = 0;
                     for (let g of validGames) { if (g.result.trim() === type) count++; else break; }
                     if (count >= 2) {
-                        const badge = type === '勝' ? `<span class="streak-badge streak-win">🔥 ${count} 連勝中！</span>` : `<span class="streak-badge streak-loss">❄️ 苦吞 ${count} 連敗...</span>`;
+                        const badge = type === '勝' ? `<span class="streak-badge streak-win">🔥 ${count} 連勝</span>` : `<span class="streak-badge streak-loss">❄️ 苦吞 ${count} 連敗</span>`;
                         document.getElementById('page-title').innerHTML += badge;
                     }
                 }
