@@ -201,5 +201,41 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
         text-align: center !important;
         white-space: normal !important; /* 如果名字真的太長，允許安全換行 */
     }
+   /* =========================================
+       🚑 終極修復：女孩頁面大頭貼防擠壓
+       ========================================= */
+    /* 1. 強制整個白框變成「上下排列」，絕對不准左右硬擠 */
+    .profile-header-container {
+        display: flex !important;
+        flex-direction: column !important; /* 圖片在上、文字在下 */
+        align-items: center !important;
+        text-align: center !important;
+        padding: 20px 15px !important;
+        gap: 15px !important;
+    }
+
+    /* 2. 讓文字跟按鈕的區塊佔滿寬度，字才不會被擠成直的 */
+    .profile-header-container > div {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    /* 3. 標題文字正常化 */
+    #page-title {
+        font-size: 22px !important;
+        white-space: normal !important; /* 讓文字正常顯示，不准變直書 */
+        word-break: keep-all !important;
+        justify-content: center !important;
+        margin-top: 5px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    /* 4. 浮水印文字微調 */
+    .profile-header-container div[style*="10px"] {
+        margin-top: 8px !important;
+        font-size: 11px !important;
+    }
 }
 }
