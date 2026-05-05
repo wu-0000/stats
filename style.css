@@ -108,7 +108,7 @@ select, input {
 .card:hover { transform: translateY(-8px); border-color: #ffe4e8; }
 
 /* =========================================
-   5. 表格、IG、大頭貼、連勝、讀取
+   5. 表格、IG、大頭貼、讀取畫面
    ========================================= */
 .table-responsive { width: 100%; overflow-x: auto; background: var(--card-bg); border-radius: var(--border-radius); padding: 10px; }
 table { width: 100%; border-collapse: separate; text-align: center; }
@@ -127,16 +127,30 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
 .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
 .profile-header-container { display: flex; align-items: center; gap: 20px; background: white; padding: 15px 25px; border-radius: 20px; border: 2px solid #ffe4e8; margin-bottom: 25px; }
 
-.streak-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 900; margin-left: 10px; color: white; }
-.streak-win { background: linear-gradient(45deg, #ff416c, #ff4b2b); }
-.streak-loss { background: linear-gradient(45deg, #4facfe, #00f2fe); }
-
 #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.5s; }
 .loading-spinner { width: 50px; height: 50px; border: 5px solid #ffe4e8; border-top: 5px solid var(--theme-main); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
 /* =========================================
-   6. 女神情報局迷你橫向版
+   6. ❄️ 連勝/連敗氣勢徽章 (精緻縮小版)
+   ========================================= */
+.streak-badge { 
+    display: inline-block; 
+    padding: 3px 8px;           /* 讓框框變窄一點 */
+    border-radius: 12px;        /* 邊角稍微收一點 */
+    font-size: 12px !important; /* 🔥 強制縮小字體 */
+    font-weight: 800;           /* 字體稍微沒那麼粗，更精緻 */
+    margin-left: 8px; 
+    color: white; 
+    vertical-align: middle;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    transform: translateY(-2px); /* 讓徽章稍微往上浮一點點 */
+}
+.streak-win { background: linear-gradient(45deg, #ff416c, #ff4b2b); }
+.streak-loss { background: linear-gradient(45deg, #4facfe, #00f2fe); }
+
+/* =========================================
+   7. 女神情報局迷你橫向版
    ========================================= */
 .profile-row-mini { display: flex; justify-content: space-between; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
 .profile-mini-item { flex: 1; min-width: 75px; background: #fff; border: 1px solid #ffe4e8; border-radius: 12px; padding: 6px 4px; text-align: center; }
@@ -145,36 +159,31 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
 .profile-row-mini::-webkit-scrollbar { display: none; }
 
 /* =========================================
-   📱 手機版專屬優化 (Mobile Only)
+   📱 8. 手機版專屬優化 (Mobile Only 合併終極版)
    ========================================= */
 @media (max-width: 600px) {
+    /* --- 首頁與通用排版 --- */
     .header { flex-direction: column !important; padding: 15px 10px !important; }
     .header h1 { font-size: 18px !important; white-space: nowrap !important; margin-bottom: 12px !important; }
     .header div { display: flex !important; flex-direction: row !important; gap: 8px !important; justify-content: center; width: 100%; }
     .header .btn { flex: 1; max-width: 120px; padding: 6px 14px !important; font-size: 13px !important; }
 
-    .profile-header-container { flex-direction: column; text-align: center; }
-    #page-title { justify-content: center; font-size: 20px !important; }
-
     .dashboard { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     table th, table td { padding: 8px 6px; font-size: 13px; }
 
-    /* 只凍結排行榜的名字 */
+    /* --- 排行榜凍結窗格 --- */
     #ranking-table th:nth-child(2), #ranking-table td:nth-child(2) {
         position: sticky; left: 0; z-index: 2; background: #fffafb; box-shadow: 2px 0 5px rgba(0,0,0,0.05);
     }
-   /* =========================================
-   🚑 終極修復：手機版女孩大頭貼防擠壓
-   ========================================= */
-@media (max-width: 600px) {
-    /* 強制大頭貼跟名字「上下排列」，絕對不准左右硬擠！ */
+
+    /* --- 🚑 終極修復：女孩頁面大頭貼防擠壓 --- */
     .profile-header-container {
         display: flex !important;
-        flex-direction: column !important; /* 圖片在上、名字在下 */
+        flex-direction: column !important; /* 圖片在上、文字在下 */
         align-items: center !important;    /* 絕對水平置中 */
-        justify-content: center !important;
-        padding: 20px 10px !important;
-        gap: 12px !important;
+        text-align: center !important;
+        padding: 20px 15px !important;
+        gap: 15px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
@@ -182,39 +191,12 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
     /* 確保大頭貼乖乖待在正中間，維持完美圓形 */
     .profile-avatar-large {
         margin: 0 auto !important;
-        width: 90px !important;  /* 手機版稍微縮小一點點會更精緻 */
+        width: 90px !important;  
         height: 90px !important;
         flex-shrink: 0 !important;
     }
 
-    /* 文字容器與標題強制置中 */
-    .profile-header-container div {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-
-    #page-title {
-        justify-content: center !important;
-        font-size: 19px !important;
-        text-align: center !important;
-        white-space: normal !important; /* 如果名字真的太長，允許安全換行 */
-    }
-   /* =========================================
-       🚑 終極修復：女孩頁面大頭貼防擠壓
-       ========================================= */
-    /* 1. 強制整個白框變成「上下排列」，絕對不准左右硬擠 */
-    .profile-header-container {
-        display: flex !important;
-        flex-direction: column !important; /* 圖片在上、文字在下 */
-        align-items: center !important;
-        text-align: center !important;
-        padding: 20px 15px !important;
-        gap: 15px !important;
-    }
-
-    /* 2. 讓文字跟按鈕的區塊佔滿寬度，字才不會被擠成直的 */
+    /* 讓文字跟按鈕的區塊佔滿寬度，字才不會被擠成直的 */
     .profile-header-container > div {
         width: 100% !important;
         display: flex !important;
@@ -222,20 +204,19 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
         align-items: center !important;
     }
 
-    /* 3. 標題文字正常化 */
+    /* 標題文字正常化 (防直書) */
     #page-title {
-        font-size: 22px !important;
-        white-space: normal !important; /* 讓文字正常顯示，不准變直書 */
+        font-size: 20px !important;
+        white-space: normal !important; 
         word-break: keep-all !important;
         justify-content: center !important;
         margin-top: 5px !important;
         margin-bottom: 10px !important;
     }
     
-    /* 4. 浮水印文字微調 */
+    /* 浮水印文字微調 */
     .profile-header-container div[style*="10px"] {
         margin-top: 8px !important;
         font-size: 11px !important;
     }
-}
 }
