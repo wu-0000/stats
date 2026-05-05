@@ -3,165 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>樂天女孩 - 每日站位查詢</title>
+    <title>每日站位查詢</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">🎀 正在計算排行榜資料...</div>
+        <div class="loading-text">🎀 正在為您準備今日班表...</div>
     </div>
+
     <div class="container">
+        <div class="back-btn-container">
+            <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
+        </div>
+
         <div class="header">
-            <h1>📅 每日站位查詢</h1>
-            <a href="index.html" class="btn btn-secondary">返回首頁</a>
+            <h1 style="margin: 0; color: var(--theme-main);">📅 每日站位查詢</h1>
         </div>
 
-        <div class="card" style="margin-bottom: 25px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; align-items: center;">
-            <div>
-                <label style="font-weight: bold; color: var(--text-muted);">年份：</label>
-                <select id="year-select" onchange="loadAvailableDates()">
-                    <option value="2026">2026</option>
-                </select>
-            </div>
-            <div>
-                <label style="font-weight: bold; color: var(--text-muted);">比賽日期：</label>
-                <select id="date-select">
-                    <option value="">日期載入中...</option>
-                </select>
-            </div>
-            <button onclick="searchLineup()" class="btn">🔍 查詢陣容</button>
+        <div style="text-align: center; margin-bottom: 25px;">
+            <input type="date" id="date-select" style="font-size: 16px;" onchange="renderDaily()">
         </div>
 
-        <div id="match-summary" style="margin-bottom: 25px;"></div>
-
-        <div id="lineup-result" class="grid">
-            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-weight: bold;">請選擇日期並點擊查詢</p>
+        <div id="daily-list" class="grid">
+            <p style="grid-column: 1 / -1; text-align: center;">資料載入中...</p>
         </div>
     </div>
 
     <script src="app.js"></script>
     <script>
-        let allMatchesData = [];
+        let allSchedule = [];
+        let allGirls = [];
 
-        // 1. 初始化下拉選單
-        async function initDateDropdown() {
-            try {
-                allMatchesData = await fetchCSV(CONFIG.matchesUrl);
-                loadAvailableDates();
-            } catch (error) {
-                console.error("載入失敗", error);
-            }
-        }
-
-        // 2. 抓取有比賽的日期
-        function loadAvailableDates() {
-            const year = document.getElementById('year-select').value;
-            const dates = [...new Set(allMatchesData.filter(m => m.year === year && m.date).map(m => m.date.trim()))].sort();
-            document.getElementById('date-select').innerHTML = dates.length === 0 ? '<option value="">該年無比賽資料</option>' : dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
-
-        // 3. 核心查詢功能
-        async function searchLineup() {
-            const targetYear = document.getElementById('year-select').value;
-            const targetDate = document.getElementById('date-select').value;
-            const resultContainer = document.getElementById('lineup-result');
-            const matchSummary = document.getElementById('match-summary');
-
-            if (!targetDate) return alert("請選擇有效的日期！");
-            resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">🔍 資料搜尋中...</p>';
-
-            try {
-                // 一次把班表跟女孩名單(用來查隊伍)都抓下來
-                const [scheduleData, girlsData] = await Promise.all([
-                    fetchCSV(CONFIG.scheduleUrl),
-                    fetchCSV(CONFIG.girlsUrl)
-                ]);
-
-                // A. 顯示當天【所有】的比賽賽事
-                const matchesToday = allMatchesData.filter(m => m.date === targetDate && m.year === targetYear);
-                
-                if (matchesToday.length > 0) {
-                    matchSummary.innerHTML = matchesToday.map(match => `
-                        <div class="card" style="border-left: 6px solid var(--theme-main); margin-bottom: 10px; padding: 15px 20px; text-align: left;">
-                            <div style="font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 5px;">
-                                🏟️ ${match.team || '主場'} vs ${match.opponent} (${match.result || '-'})
-                            </div>
-                            <div style="color: var(--text-muted); font-size: 14px;">
-                                <strong>比分：</strong> ${match.score || '-'} &nbsp;|&nbsp; 
-                                <strong>地點：</strong> ${match.location || '-'}
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    matchSummary.innerHTML = '<div class="card" style="color: var(--text-muted);">本日無賽事紀錄</div>';
-                }
-
-                // B. 尋找當天有上班的女孩，並配對她的隊伍
-                let dailyStaff = [];
-                scheduleData.forEach(sched => {
-                    if (sched.year === targetYear && sched.working_dates) {
-                        const works = parseWorkingDate(sched.working_dates);
-                        const todayWork = works.find(w => w.date === targetDate);
-                        
-                        if (todayWork) {
-                            // 去 Girls 表格查她是哪一隊的
-                            const girlInfo = girlsData.find(g => g.name.trim() === sched.girl_name.trim());
-                            const teamName = girlInfo && girlInfo.team ? girlInfo.team.trim() : '未知隊伍';
-                            
-                            dailyStaff.push({ 
-                                name: sched.girl_name, 
-                                position: todayWork.position,
-                                team: teamName
-                            });
-                        }
-                    }
-                });
-
-                // C. 畫出精美的女孩卡片
-                resultContainer.innerHTML = '';
-                if (dailyStaff.length === 0) {
-                    resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">當天目前沒有排班資料</p>';
-                } else {
-                    dailyStaff.forEach(staff => {
-                        // 依照隊伍給予不同的標籤顏色
-                        let teamColor = 'var(--theme-main)'; // 預設粉紅
-                        if(staff.team.includes('兄弟')) teamColor = '#f1c40f'; // 兄弟黃
-                        else if(staff.team.includes('味全')) teamColor = '#e74c3c'; // 味全紅
-                        else if(staff.team.includes('統一')) teamColor = '#e67e22'; // 統一橘
-                        else if(staff.team.includes('富邦')) teamColor = '#3498db'; // 富邦藍
-                        else if(staff.team.includes('台鋼')) teamColor = '#2ecc71'; // 台鋼綠
-
-                        const card = document.createElement('div');
-                        card.className = 'card';
-                        card.style.display = 'flex';
-                        card.style.flexDirection = 'column';
-                        card.style.alignItems = 'center';
-                        card.style.gap = '12px';
-                        card.style.padding = '20px 15px';
-                        
-                        card.innerHTML = `
-                            <div style="background:${teamColor}; color:white; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:900; letter-spacing:1px;">
-                                ${staff.team}
-                            </div>
-                            <div style="font-size: 20px; font-weight: 900; color: var(--text-main);">
-                                ${staff.name}
-                            </div>
-                            <div style="background: var(--theme-light); color: var(--theme-main); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; border: 1px solid #ffe4e8;">
-                                📍 ${staff.position}
-                            </div>
-                        `;
-                        resultContainer.appendChild(card);
-                    });
-                }
-            } catch (error) {
-                console.error(error);
-                resultContainer.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">資料載入發生錯誤！</p>';
-            }
-        }
-
-        initDateDropdown();
-        // 🎀 加入隱藏功能
+        // 🎀 關閉讀取畫面的小工具
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
             if(overlay) {
@@ -170,19 +44,103 @@
             }
         }
 
-        async function initData() {
+        async function initDaily() {
             try {
-                const [girls, sched, matches] = await Promise.all([
-                    fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
+                // 同時抓取班表與女孩總表 (為了顯示大頭貼)
+                const [scheduleData, girlsData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl),
+                    fetchCSV(CONFIG.girlsUrl)
                 ]);
-                rawData = { girls, schedule: sched, matches };
-                changeRankingTeam('全聯盟'); 
-            } catch (error) { 
-                console.error(error); 
+                allSchedule = scheduleData;
+                allGirls = girlsData;
+
+                // 設定今天的日期為預設值
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                document.getElementById('date-select').value = `${yyyy}-${mm}-${dd}`;
+
+                renderDaily();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('daily-list').innerHTML = '<p style="color:red; text-align:center;">資料載入失敗</p>';
             } finally {
-                hideLoading(); // 🎀 算完之後關掉讀取畫面
+                hideLoading(); // 🎀 確保最後一定會關閉讀取畫面
             }
         }
+
+        function renderDaily() {
+            const selectedDateStr = document.getElementById('date-select').value;
+            if (!selectedDateStr) return;
+
+            // 將輸入的 2026-04-05 轉換成 4/5 來對比 CSV 的日期
+            const dateParts = selectedDateStr.split('-');
+            const targetDate = parseInt(dateParts[1]) + '/' + parseInt(dateParts[2]);
+
+            const listContainer = document.getElementById('daily-list');
+            listContainer.innerHTML = '';
+
+            let foundCount = 0;
+
+            allSchedule.forEach(s => {
+                if (!s.working_dates) return;
+                const workDates = parseWorkingDate(s.working_dates);
+                const workToday = workDates.find(w => w.date === targetDate);
+
+                if (workToday) {
+                    foundCount++;
+                    const girlName = s.girl_name ? s.girl_name.trim() : "";
+                    const girlTeam = s.team ? s.team.trim() : "";
+                    
+                    // 尋找這女孩的專屬照片跟 IG
+                    const girlInfo = allGirls.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.cursor = 'pointer';
+                    card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girlName)}&team=${encodeURIComponent(girlTeam)}`;
+
+                    // 📷 產生大頭貼
+                    let avatarHtml = '<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>';
+                    if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
+                        avatarHtml = `<div class="avatar-wrapper"><img src="${girlInfo.photo.trim()}" alt="${girlName}"></div>`;
+                    }
+
+                    // 🎀 產生 IG 按鈕
+                    let igHtml = '';
+                    if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
+                        let igLink = girlInfo.ig.trim().startsWith('http') ? girlInfo.ig.trim() : `https://www.instagram.com/${girlInfo.ig.trim()}/`;
+                        igHtml = `<br><a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin-top:10px;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
+                    }
+
+                    // 🏷️ 判斷球隊顏色
+                    let teamColor = 'var(--theme-main)';
+                    if(girlTeam.includes('兄弟')) teamColor = '#f1c40f'; 
+                    else if(girlTeam.includes('味全')) teamColor = '#e74c3c'; 
+                    else if(girlTeam.includes('統一')) teamColor = '#e67e22'; 
+                    else if(girlTeam.includes('富邦')) teamColor = '#3498db'; 
+                    else if(girlTeam.includes('台鋼')) teamColor = '#2ecc71'; 
+                    
+                    const teamBadge = `<div style="font-size:12px; color:white; background:${teamColor}; display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${girlTeam}</div>`;
+
+                    card.innerHTML = `
+                        ${teamBadge}
+                        ${avatarHtml}
+                        <div style="font-size: 18px; font-weight: bold; color: var(--text-main); margin-bottom: 5px;">${girlName}</div>
+                        <div style="color: var(--theme-main); font-weight: 900; font-size: 15px;">📍 ${workToday.position || "未指定"}</div>
+                        ${igHtml}
+                    `;
+                    listContainer.appendChild(card);
+                }
+            });
+
+            if (foundCount === 0) {
+                listContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); margin-top: 20px;">這天沒有女孩排班喔！去別天看看吧🔍</p>`;
+            }
+        }
+
+        initDaily();
     </script>
 </body>
 </html>
