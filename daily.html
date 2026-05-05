@@ -21,8 +21,18 @@
             <h1 style="margin: 0; color: var(--theme-main);">📅 每日站位查詢</h1>
         </div>
 
-        <div style="text-align: center; margin-bottom: 25px;">
-            <input type="date" id="date-select" style="font-size: 16px;" onchange="renderDaily()">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <input type="date" id="date-select" style="font-size: 16px; padding: 12px 20px; font-weight: bold; color: var(--theme-main);" onchange="renderDaily()">
+        </div>
+
+        <div id="team-tabs" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px; justify-content: center;">
+            <button class="btn" onclick="filterTeam('全聯盟')">全聯盟</button>
+            <button class="btn btn-secondary" onclick="filterTeam('樂天')">樂天桃猿</button>
+            <button class="btn btn-secondary" onclick="filterTeam('中信兄弟')">中信兄弟</button>
+            <button class="btn btn-secondary" onclick="filterTeam('味全龍')">味全龍</button>
+            <button class="btn btn-secondary" onclick="filterTeam('統一獅')">統一獅</button>
+            <button class="btn btn-secondary" onclick="filterTeam('富邦悍將')">富邦悍將</button>
+            <button class="btn btn-secondary" onclick="filterTeam('台鋼雄鷹')">台鋼雄鷹</button>
         </div>
 
         <div id="daily-list" class="grid">
@@ -34,8 +44,8 @@
     <script>
         let allSchedule = [];
         let allGirls = [];
+        let currentTeamFilter = '全聯盟'; // 預設顯示全部
 
-        // 🎀 關閉讀取畫面的小工具
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
             if(overlay) {
@@ -46,7 +56,6 @@
 
         async function initDaily() {
             try {
-                // 同時抓取班表與女孩總表 (為了顯示大頭貼)
                 const [scheduleData, girlsData] = await Promise.all([
                     fetchCSV(CONFIG.scheduleUrl),
                     fetchCSV(CONFIG.girlsUrl)
@@ -54,7 +63,6 @@
                 allSchedule = scheduleData;
                 allGirls = girlsData;
 
-                // 設定今天的日期為預設值
                 const today = new Date();
                 const yyyy = today.getFullYear();
                 const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -66,19 +74,31 @@
                 console.error(error);
                 document.getElementById('daily-list').innerHTML = '<p style="color:red; text-align:center;">資料載入失敗</p>';
             } finally {
-                hideLoading(); // 🎀 確保最後一定會關閉讀取畫面
+                hideLoading();
             }
+        }
+
+        // 🏆 新增：切換球隊的功能
+        function filterTeam(teamName) {
+            currentTeamFilter = teamName;
+            
+            // 讓點擊的按鈕亮起來，其他變暗
+            const tabs = document.querySelectorAll('#team-tabs button');
+            tabs.forEach(tab => {
+                tab.className = tab.innerText.includes(teamName) ? 'btn' : 'btn btn-secondary';
+            });
+
+            renderDaily(); // 重新繪製畫面
         }
 
         function renderDaily() {
             const selectedDateStr = document.getElementById('date-select').value;
             if (!selectedDateStr) return;
 
-            // 1. 精準拆解使用者選的年、月、日
             const dateParts = selectedDateStr.split('-');
-            const targetYear = dateParts[0]; // 例如 "2026"
-            const targetM = parseInt(dateParts[1], 10); // 例如 5
-            const targetD = parseInt(dateParts[2], 10); // 例如 5
+            const targetYear = dateParts[0]; 
+            const targetM = parseInt(dateParts[1], 10); 
+            const targetD = parseInt(dateParts[2], 10); 
 
             const listContainer = document.getElementById('daily-list');
             listContainer.innerHTML = '';
@@ -86,28 +106,27 @@
             let foundCount = 0;
 
             allSchedule.forEach(s => {
-                // 🛡️ 防呆一：先確認「年份」有沒有對上！
                 if (s.year && s.year.toString().trim() !== targetYear) return;
-
                 if (!s.working_dates) return;
-                const workDates = parseWorkingDate(s.working_dates);
+                
+                const girlTeam = s.team ? s.team.trim() : "";
+                
+                // 🛡️ 過濾機制：如果不是選「全聯盟」，且隊伍名字對不上，就跳過這位女孩
+                if (currentTeamFilter !== '全聯盟' && !girlTeam.includes(currentTeamFilter)) return;
 
-                // 🛡️ 防呆二：不管 CSV 填 04/05 還是 4/5，通通轉成純數字來比對！
+                const workDates = parseWorkingDate(s.working_dates);
                 const workToday = workDates.find(w => {
                     if (!w.date) return false;
                     const wParts = w.date.split('/');
                     if (wParts.length === 2) {
                         return parseInt(wParts[0], 10) === targetM && parseInt(wParts[1], 10) === targetD;
                     }
-                    // 如果格式真的寫錯（例如沒用斜線），就用最原始的方式比對
                     return w.date.includes(`${targetM}/${targetD}`); 
                 });
 
                 if (workToday) {
                     foundCount++;
                     const girlName = s.girl_name ? s.girl_name.trim() : "";
-                    const girlTeam = s.team ? s.team.trim() : "";
-                    
                     const girlInfo = allGirls.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
                     
                     const card = document.createElement('div');
@@ -115,20 +134,17 @@
                     card.style.cursor = 'pointer';
                     card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girlName)}&team=${encodeURIComponent(girlTeam)}`;
 
-                    // 📷 大頭貼
                     let avatarHtml = '<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>';
                     if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
                         avatarHtml = `<div class="avatar-wrapper"><img src="${girlInfo.photo.trim()}" alt="${girlName}"></div>`;
                     }
 
-                    // 📱 IG 按鈕
                     let igHtml = '';
                     if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
                         let igLink = girlInfo.ig.trim().startsWith('http') ? girlInfo.ig.trim() : `https://www.instagram.com/${girlInfo.ig.trim()}/`;
-                        igHtml = `<br><a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin-top:10px;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
+                        igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin-top:5px;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
                     }
 
-                    // 🏷️ 球隊標籤顏色
                     let teamColor = 'var(--theme-main)';
                     if(girlTeam.includes('兄弟')) teamColor = '#f1c40f'; 
                     else if(girlTeam.includes('味全')) teamColor = '#e74c3c'; 
@@ -138,11 +154,14 @@
                     
                     const teamBadge = `<div style="font-size:12px; color:white; background:${teamColor}; display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${girlTeam}</div>`;
 
+                    // ✨ 站位標籤放大升級版
+                    const positionTag = `<div style="background:var(--theme-light); color:var(--theme-main); padding:6px 14px; border-radius:15px; font-weight:900; display:inline-block; margin-bottom:12px; border:2px solid #ffe4e8; font-size: 15px;">📍 站位：${workToday.position || "未指定"}</div>`;
+
                     card.innerHTML = `
                         ${teamBadge}
                         ${avatarHtml}
-                        <div style="font-size: 18px; font-weight: bold; color: var(--text-main); margin-bottom: 5px;">${girlName}</div>
-                        <div style="color: var(--theme-main); font-weight: 900; font-size: 15px;">📍 ${workToday.position || "未指定"}</div>
+                        <div style="font-size: 19px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">${girlName}</div>
+                        ${positionTag}<br>
                         ${igHtml}
                     `;
                     listContainer.appendChild(card);
@@ -150,7 +169,11 @@
             });
 
             if (foundCount === 0) {
-                listContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); margin-top: 20px;">這天沒有女孩排班喔！去別天看看吧🔍</p>`;
+                // 根據過濾狀態給予不同的提示文字
+                const emptyMsg = currentTeamFilter === '全聯盟' 
+                    ? '這天沒有女孩排班喔！去別天看看吧🔍' 
+                    : `這天【${currentTeamFilter}】沒有女孩排班喔！去別天看看吧🔍`;
+                listContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); margin-top: 20px; font-weight: bold; font-size: 16px;">${emptyMsg}</p>`;
             }
         }
 
