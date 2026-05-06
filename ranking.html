@@ -3,253 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>年度排行榜</title>
+    <title>🏆 聯盟風雲榜</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">🎀 正在計算排行榜資料...</div>
+        <div class="loading-text">🔥 正在為您計算聯盟排行榜...</div>
     </div>
-    
+
     <div class="container">
-        <div class="header">
-            <h1>🏆 年度排行榜總覽</h1>
-            <a href="index.html" class="btn btn-secondary">返回首頁</a>
+        <div class="back-btn-container">
+            <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div style="margin-bottom: 20px; text-align: center;">
-            <select id="year-select" onchange="calculateRanking()">
-                <option value="2026">2026 年度</option>
-            </select>
+        <div class="header" style="justify-content: center; text-align: center;">
+            <h1 style="margin: 0; color: var(--theme-main);">🏆 全聯盟榮譽風雲榜</h1>
         </div>
 
-        <div id="team-tabs" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 25px; justify-content: center;">
-            <button class="btn" onclick="changeRankingTeam('全聯盟')">🌟 全聯盟總排行</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('樂天')">樂天桃猿</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('中信兄弟')">中信兄弟</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('味全龍')">味全龍</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('統一獅')">統一獅</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('富邦悍將')">富邦悍將</button>
-            <button class="btn btn-secondary" onclick="changeRankingTeam('台鋼雄鷹')">台鋼雄鷹</button>
-        </div>
+        <h2 style="color:var(--theme-main); margin-top:30px; display:flex; align-items:center; gap:8px;">
+            👑 勝利女神榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(出賽≥5場)</span>
+        </h2>
+        <div id="winrate-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;">
+            </div>
 
-        <div class="dashboard" id="top-cards">
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">👑 勝率女王</div><div id="top-winrate" style="font-size:24px; color:var(--theme-main); font-weight:900; margin: 5px 0;">-</div><div id="top-winrate-val" style="font-weight:bold;">-</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🌧️ 延賽體質</div><div id="top-delay" style="font-size:24px; color:var(--theme-main); font-weight:900; margin: 5px 0;">-</div><div id="top-delay-val" style="font-weight:bold;">-</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">🔋 爆肝楷模</div><div id="top-duration" style="font-size:24px; color:var(--theme-main); font-weight:900; margin: 5px 0;">-</div><div id="top-duration-val" style="font-weight:bold;">-</div></div>
-            <div class="card"><div style="color:var(--text-muted); font-weight:bold;">💔 苦吞敗后</div><div id="low-winrate" style="font-size:24px; color:var(--theme-main); font-weight:900; margin: 5px 0;">-</div><div id="low-winrate-val" style="font-weight:bold;">-</div></div>
-        </div>
+        <h2 style="color:#e67e22; margin-top:30px; display:flex; align-items:center; gap:8px;">
+            🔥 鐵人全勤榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(總出賽場數)</span>
+        </h2>
+        <div id="iron-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;"></div>
 
-        <h2 style="color: var(--theme-main); text-align: center;">📊 數據總表 (點擊標題可自動排序)</h2>
-        <div class="table-responsive">
-            <table id="ranking-table">
-                <thead>
-                    <tr>
-                        <th>隊伍</th>
-                        <th style="cursor:pointer;">女孩姓名</th>
-                        <th style="cursor:pointer;" onclick="sortTable('totalGames')">總場次 ↕</th>
-                        <th style="cursor:pointer;" onclick="sortTable('wins')">勝場 ↕</th>
-                        <th style="cursor:pointer;" onclick="sortTable('losses')">敗場 ↕</th>
-                        <th style="cursor:pointer;" onclick="sortTable('winRate')">勝率 ↕</th>
-                        <th style="cursor:pointer;" onclick="sortTable('delays')">延賽 ↕</th>
-                        <th style="cursor:pointer;" onclick="sortTable('duration')">上班時數 ↕</th>
-                    </tr>
-                </thead>
-                <tbody id="ranking-body">
-                    <tr><td colspan="8">資料載入與計算中...</td></tr>
-                </tbody>
-            </table>
-        </div>
+        <h2 style="color:#3498db; margin-top:30px; display:flex; align-items:center; gap:8px;">
+            🌧️ 呼風喚雨榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(最常遇到延賽)</span>
+        </h2>
+        <div id="rain-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;"></div>
+
     </div>
 
     <script src="app.js"></script>
     <script>
-        let rawData = { girls: [], schedule: [], matches: [] };
-        let currentTeam = '全聯盟';
-        let allStats = []; 
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
+        }
 
-        // 1. 初始化：一口氣抓取所有資料
-        async function initData() {
+        async function initRanking() {
             try {
-                const [girls, sched, matches] = await Promise.all([
-                    fetchCSV(CONFIG.girlsUrl), 
-                    fetchCSV(CONFIG.scheduleUrl), 
-                    fetchCSV(CONFIG.matchesUrl)
+                const [scheduleData, matchesData, girlsData] = await Promise.all([
+                    fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
-                rawData = { girls, schedule: sched, matches };
-                changeRankingTeam('全聯盟'); // 預設顯示全聯盟
-            } catch (error) {
-                console.error(error);
-                document.getElementById('ranking-body').innerHTML = '<tr><td colspan="8" style="color:red;">資料載入失敗</td></tr>';
-            }
-        }
 
-        // 2. 切換隊伍頁籤
-        function changeRankingTeam(teamName) {
-            currentTeam = teamName;
-            
-            // 更新按鈕顏色
-            const tabs = document.querySelectorAll('#team-tabs button');
-            tabs.forEach(tab => {
-                if (tab.innerText.includes(teamName)) tab.className = 'btn'; 
-                else tab.className = 'btn btn-secondary'; 
-            });
+                // 初始化女孩統計資料庫
+                let girlStats = {};
+                girlsData.forEach(g => {
+                    const key = g.name.trim() + "_" + g.team.trim();
+                    girlStats[key] = {
+                        name: g.name.trim(), team: g.team.trim(), photo: g.photo ? g.photo.trim() : '',
+                        wins: 0, losses: 0, delays: 0, games: 0
+                    };
+                });
 
-            calculateRanking();
-        }
+                // 核心運算：比對班表與賽程
+                scheduleData.forEach(s => {
+                    const key = (s.girl_name || '').trim() + "_" + (s.team || '').trim();
+                    if(!girlStats[key]) return; 
 
-        // 3. 計算核心排行榜資料
-        function calculateRanking() {
-            const selectedYear = document.getElementById('year-select').value;
-            allStats = [];
-
-            // 篩選女孩名單 (如果是全聯盟，就不篩選)
-            let targetGirls = rawData.girls;
-            if (currentTeam !== '全聯盟') {
-                targetGirls = rawData.girls.filter(g => g.team && g.team.trim() === currentTeam);
-            }
-
-            targetGirls.forEach(girl => {
-                const girlTeamName = girl.team ? girl.team.trim() : "";
-                const sched = rawData.schedule.find(s => s.girl_name && s.girl_name.trim() === girl.name && s.year === selectedYear);
-                if (!sched || !sched.working_dates) return; 
-
-                const workList = parseWorkingDate(sched.working_dates);
-                let w = 0, l = 0, d = 0, totalMin = 0;
-
-                workList.forEach(work => {
-                    // 🎀 這裡加入了防撞期機制：必須是同一年、同一天、且隊伍名稱相符！
-                    const m = rawData.matches.find(m => 
-                        m.date && m.date.trim() === work.date.trim() && 
-                        m.year === selectedYear &&
-                        m.team && m.team.trim() === girlTeamName
-                    );
-                    if (m) {
-                        const res = m.result ? m.result.trim() : "";
-                        if (res === '勝') w++; else if (res === '敗') l++; else if (res === '延賽') d++;
-                        totalMin += parseDuration(m.duration);
+                    if(s.working_dates) {
+                        const workList = parseWorkingDate(s.working_dates);
+                        workList.forEach(w => {
+                            // 尋找對應日期的比賽結果
+                            const match = matchesData.find(m => m.date === w.date && m.year === s.year && m.team === s.team);
+                            if(match && match.result) {
+                                const res = match.result.trim();
+                                if(res === '勝') girlStats[key].wins++;
+                                if(res === '敗') girlStats[key].losses++;
+                                if(res === '延賽') girlStats[key].delays++;
+                                if(res === '勝' || res === '敗') girlStats[key].games++; // 有勝敗才算實際出賽
+                            }
+                        });
                     }
                 });
 
-                const tGames = w + l;
-                const wRate = tGames > 0 ? parseFloat(((w / tGames) * 100).toFixed(1)) : 0; 
+                let validGirls = Object.values(girlStats);
 
-                allStats.push({ 
-                    name: girl.name, 
-                    team: girlTeamName,
-                    totalGames: tGames + d, 
-                    wins: w, 
-                    losses: l, 
-                    delays: d, 
-                    duration: totalMin, 
-                    winRate: wRate 
-                });
-            });
+                // 👑 排行榜 1: 勝利女神 (勝率最高，且至少出賽5場)
+                let winRateList = validGirls.filter(g => g.games >= 5).map(g => {
+                    g.winRate = (g.wins / g.games) * 100;
+                    return g;
+                }).sort((a,b) => b.winRate - a.winRate).slice(0, 10); // 取前 10 名
 
-            renderDashboard();
-            renderTable(allStats);
+                // 🔥 排行榜 2: 鐵人全勤 (出賽場次最多)
+                let ironList = validGirls.sort((a,b) => b.games - a.games).slice(0, 10);
+
+                // 🌧️ 排行榜 3: 雨神降臨 (延賽次數最多)
+                let rainList = validGirls.filter(g => g.delays > 0).sort((a,b) => b.delays - a.delays).slice(0, 5); // 取前 5 名
+
+                // 渲染畫面功能
+                function renderList(elementId, list, formatScoreHtml) {
+                    const container = document.getElementById(elementId);
+                    container.innerHTML = '';
+                    if(list.length === 0) {
+                        container.innerHTML = `<div class="card" style="padding:15px; color:var(--text-muted);">目前累積資料不足...</div>`;
+                        return;
+                    }
+                    list.forEach((g, index) => {
+                        let avatar = g.photo ? `<img src="${g.photo}" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid var(--theme-main);">` : `<div style="width:45px;height:45px;border-radius:50%;background:#ffe4e8;display:flex;align-items:center;justify-content:center;font-size:22px;">👱‍♀️</div>`;
+                        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `<span style="font-size:16px;">${index+1}</span>`;
+                        
+                        let html = `
+                        <div class="card" style="display:flex; align-items:center; padding:12px 15px; margin-bottom:5px; cursor:pointer;" onclick="window.location.href='detail.html?name=${encodeURIComponent(g.name)}&team=${encodeURIComponent(g.team)}'">
+                            <div style="font-size:24px; font-weight:900; width:40px; text-align:center; color:var(--theme-main);">${medal}</div>
+                            ${avatar}
+                            <div style="flex:1; text-align:left; margin-left:15px;">
+                                <div style="font-weight:900; font-size:18px;">${g.name}</div>
+                                <div style="font-size:11px; color:white; background:var(--text-muted); border-radius:10px; padding:2px 8px; display:inline-block; margin-top:3px;">${g.team.replace('桃猿','').replace('兄弟','').replace('悍將','').replace('雄鷹','')}</div>
+                            </div>
+                            <div style="text-align:right; font-size:20px;">
+                                ${formatScoreHtml(g)}
+                            </div>
+                        </div>`;
+                        container.innerHTML += html;
+                    });
+                }
+
+                // 注入三大榜單
+                renderList('winrate-list', winRateList, g => `<span style="color:#e74c3c; font-weight:900;">${g.winRate.toFixed(1)}%</span><br><span style="font-size:12px;color:var(--text-muted);">${g.wins}勝${g.losses}敗</span>`);
+                renderList('iron-list', ironList, g => `<span style="color:#e67e22; font-weight:900;">${g.games} 場</span>`);
+                renderList('rain-list', rainList, g => `<span style="color:#3498db; font-weight:900;">${g.delays} 次</span>`);
+
+            } catch (error) {
+                console.error(error);
+                document.querySelector('.container').innerHTML += '<p style="color:red; text-align:center;">排行榜載入失敗</p>';
+            } finally { hideLoading(); }
         }
 
-        // 產生隊伍專屬徽章
-        function getTeamBadge(teamName) {
-            let color = 'var(--theme-main)'; 
-            if(teamName.includes('兄弟')) color = '#f1c40f'; 
-            else if(teamName.includes('味全')) color = '#e74c3c'; 
-            else if(teamName.includes('統一')) color = '#e67e22'; 
-            else if(teamName.includes('富邦')) color = '#3498db'; 
-            else if(teamName.includes('台鋼')) color = '#2ecc71'; 
-            return `<span style="background:${color}; color:white; padding:4px 10px; border-radius:12px; font-size:12px; font-weight:bold; white-space:nowrap;">${teamName}</span>`;
-        }
-
-        function renderDashboard() {
-            // 清空舊資料
-            document.getElementById('top-winrate').innerText = '-';
-            document.getElementById('top-winrate-val').innerText = '-';
-            document.getElementById('low-winrate').innerText = '-';
-            document.getElementById('low-winrate-val').innerText = '-';
-            document.getElementById('top-delay').innerText = '-';
-            document.getElementById('top-delay-val').innerText = '-';
-            document.getElementById('top-duration').innerText = '-';
-            document.getElementById('top-duration-val').innerText = '-';
-
-            if (allStats.length === 0) return;
-            
-            const validWinRateStats = allStats.filter(s => (s.wins + s.losses) > 0);
-            if (validWinRateStats.length > 0) {
-                const topWin = [...validWinRateStats].sort((a, b) => b.winRate - a.winRate)[0];
-                document.getElementById('top-winrate').innerHTML = `${topWin.name} <div style="font-size:12px; font-weight:normal;">${topWin.team}</div>`;
-                document.getElementById('top-winrate-val').innerText = `${topWin.winRate}%`;
-                
-                const lowWin = [...validWinRateStats].sort((a, b) => a.winRate - b.winRate)[0];
-                document.getElementById('low-winrate').innerHTML = `${lowWin.name} <div style="font-size:12px; font-weight:normal;">${lowWin.team}</div>`;
-                document.getElementById('low-winrate-val').innerText = `${lowWin.winRate}%`;
-            }
-
-            const topDelay = [...allStats].sort((a, b) => b.delays - a.delays)[0];
-            if(topDelay && topDelay.delays > 0) {
-                document.getElementById('top-delay').innerHTML = `${topDelay.name} <div style="font-size:12px; font-weight:normal;">${topDelay.team}</div>`;
-                document.getElementById('top-delay-val').innerText = `${topDelay.delays} 場`;
-            }
-
-            const topTime = [...allStats].sort((a, b) => b.duration - a.duration)[0];
-            if(topTime && topTime.duration > 0) {
-                document.getElementById('top-duration').innerHTML = `${topTime.name} <div style="font-size:12px; font-weight:normal;">${topTime.team}</div>`;
-                document.getElementById('top-duration-val').innerText = formatMinutes(topTime.duration);
-            }
-        }
-
-        function renderTable(data) {
-            const tbody = document.getElementById('ranking-body');
-            tbody.innerHTML = '';
-            if (data.length === 0) return tbody.innerHTML = '<tr><td colspan="8">該隊伍尚無排班與比賽數據</td></tr>';
-            
-            data.forEach(s => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${getTeamBadge(s.team)}</td>
-                    <td><strong style="color: var(--text-main); font-size: 16px;">${s.name}</strong></td>
-                    <td>${s.totalGames}</td>
-                    <td>${s.wins}</td>
-                    <td>${s.losses}</td>
-                    <td style="color: var(--theme-main); font-weight: bold;">${s.winRate}%</td>
-                    <td>${s.delays}</td>
-                    <td>${formatMinutes(s.duration)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        let sortAsc = false;
-        function sortTable(key) {
-            sortAsc = !sortAsc;
-            renderTable([...allStats].sort((a, b) => sortAsc ? a[key] - b[key] : b[key] - a[key]));
-        }
-
-        // 啟動
-        initData();
-        // 🎀 加入隱藏功能
-        function hideLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            if(overlay) {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.display = 'none', 500);
-            }
-        }
-
-        async function initData() {
-            try {
-                const [girls, sched, matches] = await Promise.all([
-                    fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
-                ]);
-                rawData = { girls, schedule: sched, matches };
-                changeRankingTeam('全聯盟'); 
-            } catch (error) { 
-                console.error(error); 
-            } finally {
-                hideLoading(); // 🎀 算完之後關掉讀取畫面
-            }
-        }
+        initRanking();
     </script>
 </body>
 </html>
