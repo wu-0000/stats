@@ -23,6 +23,9 @@
             <div style="flex: 1; text-align: left; min-width: 0;">
                 <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 28px; font-weight: 900;"></h1>
                 <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 10px;"></div>
+                
+                <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;"></div>
+
                 <div id="ig-container"></div>
             </div>
         </div>
@@ -103,6 +106,23 @@
                 const badge = document.getElementById('team-badge');
                 badge.innerText = finalTeam || '自由球員';
                 badge.style.background = teamColor;
+
+                // 👇 新增的自動偵測魔法：抓取並顯示額外欄位 👇
+                if (girlInfo) {
+                    const extraContainer = document.getElementById('extra-info-container');
+                    extraContainer.innerHTML = ''; 
+                    
+                    // 把不需要顯示為小標籤的基本欄位排除
+                    const excludeKeys = ['name', 'team', 'photo', 'ig'];
+                    
+                    Object.keys(girlInfo).forEach(key => {
+                        // 如果該欄位不是基本資訊，而且裡面有寫東西
+                        if (!excludeKeys.includes(key) && girlInfo[key] && girlInfo[key].toString().trim() !== "") {
+                            extraContainer.innerHTML += `<span style="background: var(--bg-color); color: var(--text-main); padding: 4px 10px; border-radius: 10px; font-size: 13px; font-weight: 800; border: 1px solid #ffe4e8; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">${key}: ${girlInfo[key]}</span>`;
+                        }
+                    });
+                }
+                // 👆 自動偵測魔法結束 👆
 
                 const avatarContainer = document.getElementById('avatar-container');
                 if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
