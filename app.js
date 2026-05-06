@@ -33,8 +33,8 @@ async function fetchCSV(url) {
         return obj;
     });
 
-    // 💡 智慧翻譯：如果沒看到 "working_dates" 欄位，就代表它是新的「月曆網格」格式
-    if (parsedData.length > 0 && !parsedData[0].hasOwnProperty('working_dates')) {
+    // 💡 智慧翻譯：加上防護罩！必須同時符合「有 girl_name」且「沒有 working_dates」才翻譯！
+    if (parsedData.length > 0 && parsedData[0].hasOwnProperty('girl_name') && !parsedData[0].hasOwnProperty('working_dates')) {
         console.log("偵測到網格格式，啟動翻譯機...🚀");
         return parsedData.map(row => {
             let workingDatesArray = [];
