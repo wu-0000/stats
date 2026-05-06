@@ -232,3 +232,41 @@ th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
         font-size: 11px !important;
     }
 }
+
+/* =========================================
+   🌙 夜間模式 (Dark Mode) 終極覆蓋
+   ========================================= */
+/* 定義黑夜專屬色彩 */
+[data-theme="dark"] {
+    --bg-color: #121212; 
+    --card-bg: #1e1e1e;
+    --text-main: #f0f0f0; 
+    --text-muted: #a0a0a0;
+    --theme-light: #2a1118;
+}
+
+/* 加上滑順的漸變動畫，切換時不刺眼 */
+body, .card, .header, table, th, td, select, input, .profile-header-container, .profile-mini-item {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+/* 強制替換所有白底與邊框 */
+[data-theme="dark"] .card, 
+[data-theme="dark"] .header,
+[data-theme="dark"] .profile-header-container,
+[data-theme="dark"] .profile-mini-item,
+[data-theme="dark"] select, 
+[data-theme="dark"] input {
+    border-color: #333333 !important;
+    background: #1e1e1e !important;
+}
+
+/* 表格專屬黑化 */
+[data-theme="dark"] th { background-color: #252525 !important; }
+[data-theme="dark"] th, [data-theme="dark"] td { border-bottom: 1px solid #333333 !important; }
+
+/* 凍結窗格的夜間修復 (如果你有用的話) */
+[data-theme="dark"] #ranking-table th:nth-child(2), 
+[data-theme="dark"] #ranking-table td:nth-child(2) {
+    background: #252525 !important;
+}
