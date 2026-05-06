@@ -5,7 +5,7 @@ const CONFIG = {
     scheduleUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRZH16XqadNV3U1RnxqnX8vPaYVrR_oSci2R8QzZqcfhgTRuyNDkNbAUu6BCWiVPB8AVPpaqHmJVBQg/pub?gid=715298933&single=true&output=csv"
 };
 
-// ====== 2. 共用資料獲取工具 (防呆無敵版) ======
+// ====== 2. 共用資料獲取工具 (融合網格翻譯魔法) ======
 async function fetchCSV(url) {
     const response = await fetch(url);
     const data = await response.text();
@@ -33,7 +33,7 @@ async function fetchCSV(url) {
 
     const headers = parseCSVRow(rows[0]);
     
-    return rows.slice(1).map(row => {
+    let parsedData = rows.slice(1).map(row => {
         const values = parseCSVRow(row);
         let obj = {};
         headers.forEach((h, i) => {
@@ -41,6 +41,37 @@ async function fetchCSV(url) {
         });
         return obj;
     });
+
+    // ✨ 魔法發生在這裡：偵測是否為「月曆網格」格式
+    if (parsedData.length > 0 && parsedData[0].hasOwnProperty('girl_name') && !parsedData[0].hasOwnProperty('working_dates')) {
+        console.log("偵測到月曆網格格式，啟動自動翻譯機...🚀");
+        
+        parsedData = parsedData.map(row => {
+            let workingDatesArray = [];
+            
+            // 掃描這一行所有的格子
+            Object.keys(row).forEach(key => {
+                // 跳過基本資訊欄位，剩下的都是日期 (例如 04/01)
+                if (key !== 'year' && key !== 'girl_name' && key !== 'team' && row[key]) {
+                    const position = row[key].toString().trim();
+                    if (position !== "") {
+                        // 把格子裡的內容包成 04/01(站位) 的格式
+                        workingDatesArray.push(`${key}(${position})`);
+                    }
+                }
+            });
+
+            // 回傳網頁原本需要的格式
+            return {
+                year: row.year,
+                girl_name: row.girl_name,
+                team: row.team,
+                working_dates: workingDatesArray.join(',')
+            };
+        });
+    }
+
+    return parsedData;
 }
 
 // ====== 3. 欄位解析與換算工具 ======
@@ -98,6 +129,7 @@ function parseScoreForTeam(scoreStr, result) {
         return { scored: num1, allowed: num2 }; 
     }
 }
+
 // =========================================
 // 🌙 全域夜間模式切換魔法 (自動生成按鈕)
 // =========================================
