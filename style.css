@@ -111,8 +111,20 @@ select, input {
    5. 表格、IG、大頭貼、讀取畫面
    ========================================= */
 .table-responsive { width: 100%; overflow-x: auto; background: var(--card-bg); border-radius: var(--border-radius); padding: 10px; }
-table { width: 100%; border-collapse: separate; text-align: center; }
-th, td { padding: 16px 15px; border-bottom: 1px solid #fff0f5; }
+/* =========================================
+   🏆 表格專業對齊與防破版優化
+   ========================================= */
+table { 
+    width: 100%; 
+    border-collapse: separate; 
+}
+th, td { 
+    padding: 16px 15px; 
+    border-bottom: 1px solid #fff0f5; 
+    text-align: center !important;     /* 統計數據(如觀眾數、勝敗投)強制置中對齊 */
+    vertical-align: middle !important;
+    white-space: nowrap !important;    /* 關鍵：強制女孩名字與數據不准換行，防止破版 */
+}
 th { background-color: #fff7fa; color: var(--theme-main); font-weight: 900; }
 
 .win { background-color: #ff9a9e; color: #fff; padding: 6px 14px; border-radius: 20px; }
