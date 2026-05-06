@@ -95,7 +95,7 @@ function renderDaily() {
             const selectedDateStr = document.getElementById('date-select').value;
             if (!selectedDateStr) return;
 
-            // 1. 精準拆解使用者選的年、月、日 (例如 2026, 5, 5)
+            // 1. 精準拆解使用者選的年、月、日
             const dateParts = selectedDateStr.split('-');
             const targetYear = parseInt(dateParts[0], 10); 
             const targetM = parseInt(dateParts[1], 10); 
@@ -107,12 +107,12 @@ function renderDaily() {
             let foundCount = 0;
 
             allSchedule.forEach(s => {
-                // 🛡️ 終極防呆一：強制轉換年份數字（解決 Excel 偶爾變成 2026.0 的怪問題）
+                // 🛡️ 檢查年份
                 if (s.year) {
                     const sYearStr = s.year.toString().trim();
                     if (sYearStr !== '') {
                         const sYearNum = parseInt(sYearStr, 10);
-                        if (sYearNum !== targetYear) return; // 年份真的不一樣才跳過
+                        if (sYearNum !== targetYear) return; 
                     }
                 }
 
@@ -120,15 +120,14 @@ function renderDaily() {
                 
                 const girlTeam = s.team ? s.team.trim() : "";
                 
-                // 🛡️ 終極防呆二：隊伍過濾
+                // 🛡️ 隊伍過濾
                 if (currentTeamFilter !== '全聯盟' && !girlTeam.includes(currentTeamFilter)) return;
 
                 const workDates = parseWorkingDate(s.working_dates);
                 
-                // 🛡️ 終極防呆三：數字吸塵器（不管你打 4/5、04/05、4-5、4月5號，只要數字對就抓！）
+                // 🛡️ 數字吸塵器（精準抓日期）
                 const workToday = workDates.find(w => {
                     if (!w.date) return false;
-                    // 這行魔法會把字串裡的所有數字抓出來變成陣列
                     const nums = w.date.match(/\d+/g); 
                     if (nums && nums.length >= 2) {
                         const m = parseInt(nums[0], 10);
@@ -138,7 +137,7 @@ function renderDaily() {
                     return false;
                 });
 
-                // 如果今天有排班，就畫出卡片
+                // 如果今天有排班，就畫出「站位票根卡片」
                 if (workToday) {
                     foundCount++;
                     const girlName = s.girl_name ? s.girl_name.trim() : "";
@@ -147,19 +146,20 @@ function renderDaily() {
                     const card = document.createElement('div');
                     card.className = 'card';
                     card.style.cursor = 'pointer';
+                    // 讓整張卡片的內容置中
+                    card.style.display = 'flex';
+                    card.style.flexDirection = 'column';
+                    card.style.alignItems = 'center';
                     card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girlName)}&team=${encodeURIComponent(girlTeam)}`;
 
-                    let avatarHtml = '<div class="avatar-wrapper"><div class="avatar-fallback">👱‍♀️</div></div>';
-                    if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
-                        avatarHtml = `<div class="avatar-wrapper"><img src="${girlInfo.photo.trim()}" alt="${girlName}"></div>`;
-                    }
-
+                    // 📱 IG 按鈕 (如果有的話)
                     let igHtml = '';
                     if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
                         let igLink = girlInfo.ig.trim().startsWith('http') ? girlInfo.ig.trim() : `https://www.instagram.com/${girlInfo.ig.trim()}/`;
-                        igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin-top:5px;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
+                        igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin-top:auto;"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>`;
                     }
 
+                    // 🏷️ 球隊標籤顏色
                     let teamColor = 'var(--theme-main)';
                     if(girlTeam.includes('兄弟')) teamColor = '#f1c40f'; 
                     else if(girlTeam.includes('味全')) teamColor = '#e74c3c'; 
@@ -167,15 +167,23 @@ function renderDaily() {
                     else if(girlTeam.includes('富邦')) teamColor = '#3498db'; 
                     else if(girlTeam.includes('台鋼')) teamColor = '#2ecc71'; 
                     
-                    const teamBadge = `<div style="font-size:12px; color:white; background:${teamColor}; display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${girlTeam}</div>`;
+                    const teamBadge = `<div style="font-size:12px; color:white; background:${teamColor}; padding:4px 10px; border-radius:12px; margin-bottom:8px; font-weight:bold;">${girlTeam}</div>`;
 
-                    const positionTag = `<div style="background:var(--theme-light); color:var(--theme-main); padding:6px 14px; border-radius:15px; font-weight:900; display:inline-block; margin-bottom:12px; border:2px solid #ffe4e8; font-size: 15px;">📍 站位：${workToday.position || "未指定"}</div>`;
+                    // ✨ 究極放大版：站位專屬票根設計
+                    const positionTicket = `
+                        <div style="width: 100%; background: var(--theme-light); border: 2px dashed var(--theme-main); padding: 15px 5px; border-radius: 16px; margin: 12px 0; box-sizing: border-box;">
+                            <div style="font-size: 13px; color: var(--theme-main); font-weight: bold; margin-bottom: 5px;">📍 今日專屬站位</div>
+                            <div style="font-size: 26px; font-weight: 900; color: var(--theme-main); letter-spacing: 1px; line-height: 1.2;">
+                                ${workToday.position || "未指定"}
+                            </div>
+                        </div>
+                    `;
 
+                    // 組合卡片 (拿掉大頭貼)
                     card.innerHTML = `
                         ${teamBadge}
-                        ${avatarHtml}
-                        <div style="font-size: 19px; font-weight: 900; color: var(--text-main); margin-bottom: 8px;">${girlName}</div>
-                        ${positionTag}<br>
+                        <div style="font-size: 22px; font-weight: 900; color: var(--text-main); margin-top: 5px;">${girlName}</div>
+                        ${positionTicket}
                         ${igHtml}
                     `;
                     listContainer.appendChild(card);
