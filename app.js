@@ -98,3 +98,38 @@ function parseScoreForTeam(scoreStr, result) {
         return { scored: num1, allowed: num2 }; 
     }
 }
+// =========================================
+// 🌙 全域夜間模式切換魔法 (自動生成按鈕)
+// =========================================
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 讀取瀏覽器記憶的模式 (預設日間)
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // 2. 自動在畫面右下角加入浮動按鈕
+    const themeBtn = document.createElement('button');
+    themeBtn.id = 'theme-toggle-fab';
+    themeBtn.innerHTML = savedTheme === 'dark' ? '☀️' : '🌙';
+    
+    // 按鈕的高級質感 CSS
+    themeBtn.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+        width: 50px; height: 50px; border-radius: 50%;
+        background: var(--card-bg); border: 2px solid var(--theme-main);
+        font-size: 24px; cursor: pointer; color: var(--text-main);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: flex; justify-content: center; align-items: center;
+        transition: all 0.3s ease;
+    `;
+    
+    // 3. 點擊切換邏輯
+    themeBtn.onclick = () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme); // 永久記憶
+        themeBtn.innerHTML = newTheme === 'dark' ? '☀️' : '🌙';
+    };
+
+    document.body.appendChild(themeBtn);
+});
