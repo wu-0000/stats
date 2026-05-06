@@ -91,12 +91,13 @@
             renderDaily(); // 重新繪製畫面
         }
 
-        function renderDaily() {
+function renderDaily() {
             const selectedDateStr = document.getElementById('date-select').value;
             if (!selectedDateStr) return;
 
+            // 1. 精準拆解使用者選的年、月、日 (例如 2026, 5, 5)
             const dateParts = selectedDateStr.split('-');
-            const targetYear = dateParts[0]; 
+            const targetYear = parseInt(dateParts[0], 10); 
             const targetM = parseInt(dateParts[1], 10); 
             const targetD = parseInt(dateParts[2], 10); 
 
@@ -106,24 +107,38 @@
             let foundCount = 0;
 
             allSchedule.forEach(s => {
-                if (s.year && s.year.toString().trim() !== targetYear) return;
+                // 🛡️ 終極防呆一：強制轉換年份數字（解決 Excel 偶爾變成 2026.0 的怪問題）
+                if (s.year) {
+                    const sYearStr = s.year.toString().trim();
+                    if (sYearStr !== '') {
+                        const sYearNum = parseInt(sYearStr, 10);
+                        if (sYearNum !== targetYear) return; // 年份真的不一樣才跳過
+                    }
+                }
+
                 if (!s.working_dates) return;
                 
                 const girlTeam = s.team ? s.team.trim() : "";
                 
-                // 🛡️ 過濾機制：如果不是選「全聯盟」，且隊伍名字對不上，就跳過這位女孩
+                // 🛡️ 終極防呆二：隊伍過濾
                 if (currentTeamFilter !== '全聯盟' && !girlTeam.includes(currentTeamFilter)) return;
 
                 const workDates = parseWorkingDate(s.working_dates);
+                
+                // 🛡️ 終極防呆三：數字吸塵器（不管你打 4/5、04/05、4-5、4月5號，只要數字對就抓！）
                 const workToday = workDates.find(w => {
                     if (!w.date) return false;
-                    const wParts = w.date.split('/');
-                    if (wParts.length === 2) {
-                        return parseInt(wParts[0], 10) === targetM && parseInt(wParts[1], 10) === targetD;
+                    // 這行魔法會把字串裡的所有數字抓出來變成陣列
+                    const nums = w.date.match(/\d+/g); 
+                    if (nums && nums.length >= 2) {
+                        const m = parseInt(nums[0], 10);
+                        const d = parseInt(nums[1], 10);
+                        return m === targetM && d === targetD;
                     }
-                    return w.date.includes(`${targetM}/${targetD}`); 
+                    return false;
                 });
 
+                // 如果今天有排班，就畫出卡片
                 if (workToday) {
                     foundCount++;
                     const girlName = s.girl_name ? s.girl_name.trim() : "";
@@ -154,7 +169,6 @@
                     
                     const teamBadge = `<div style="font-size:12px; color:white; background:${teamColor}; display:inline-block; padding:2px 8px; border-radius:10px; margin-bottom:10px;">${girlTeam}</div>`;
 
-                    // ✨ 站位標籤放大升級版
                     const positionTag = `<div style="background:var(--theme-light); color:var(--theme-main); padding:6px 14px; border-radius:15px; font-weight:900; display:inline-block; margin-bottom:12px; border:2px solid #ffe4e8; font-size: 15px;">📍 站位：${workToday.position || "未指定"}</div>`;
 
                     card.innerHTML = `
@@ -168,15 +182,14 @@
                 }
             });
 
+            // 找不到資料的提示
             if (foundCount === 0) {
-                // 根據過濾狀態給予不同的提示文字
                 const emptyMsg = currentTeamFilter === '全聯盟' 
                     ? '這天沒有女孩排班喔！去別天看看吧🔍' 
                     : `這天【${currentTeamFilter}】沒有女孩排班喔！去別天看看吧🔍`;
                 listContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); margin-top: 20px; font-weight: bold; font-size: 16px;">${emptyMsg}</p>`;
             }
         }
-
         initDaily();
     </script>
 </body>
