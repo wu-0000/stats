@@ -39,14 +39,13 @@
             <table style="min-width: 100%;">
                 <thead>
                     <tr>
-                        <th style="width: 25%;">隊伍</th>
-                        <th style="width: 25%;">女孩</th>
-                        <th style="width: 30%;">📍 站位</th>
-                        <th style="width: 20%;">IG</th>
+                        <th style="width: 30%;">隊伍</th>
+                        <th style="width: 30%;">女孩</th>
+                        <th style="width: 40%;">📍 站位</th>
                     </tr>
                 </thead>
                 <tbody id="daily-list-body">
-                    <tr><td colspan="4" style="text-align: center;">資料載入中...</td></tr>
+                    <tr><td colspan="3" style="text-align: center;">資料載入中...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -80,7 +79,7 @@
                 renderDaily();
             } catch (error) {
                 console.error(error);
-                document.getElementById('daily-list-body').innerHTML = '<tr><td colspan="4" style="color:red;">資料載入失敗</td></tr>';
+                document.getElementById('daily-list-body').innerHTML = '<tr><td colspan="3" style="color:red;">資料載入失敗</td></tr>';
             } finally { hideLoading(); }
         }
 
@@ -106,13 +105,21 @@
             let foundCount = 0;
 
             allSchedule.forEach(s => {
+                // 檢查年份
                 if (s.year) {
                     const sYearStr = s.year.toString().trim();
                     if (sYearStr !== '' && parseInt(sYearStr, 10) !== targetYear) return; 
                 }
 
                 if (!s.working_dates) return;
-                const girlTeam = s.team ? s.team.trim() : "";
+                
+                const girlName = s.girl_name ? s.girl_name.trim() : "";
+                
+                // 🔥 核心修復：從女孩總表找出她的隊伍，避免班表沒填隊伍導致過濾失敗！
+                const girlInfo = allGirls.find(g => g.name && g.name.trim() === girlName);
+                const girlTeam = (girlInfo && girlInfo.team) ? girlInfo.team.trim() : (s.team ? s.team.trim() : "");
+                
+                // 過濾隊伍
                 if (currentTeamFilter !== '全聯盟' && !girlTeam.includes(currentTeamFilter)) return;
 
                 const workDates = parseWorkingDate(s.working_dates);
@@ -125,42 +132,35 @@
                     return false;
                 });
 
-                // 如果今天有上班，畫出「表格的橫列 (Row)」
+                // 如果今天有上班，畫出「表格橫列」
                 if (workToday) {
                     foundCount++;
-                    const girlName = s.girl_name ? s.girl_name.trim() : "";
-                    const girlInfo = allGirls.find(g => g.name && g.name.trim() === girlName && g.team && g.team.trim() === girlTeam);
                     
                     const tr = document.createElement('tr');
                     tr.style.cursor = 'pointer';
-                    // 點擊整排都可以進入女孩詳細頁面
+                    // 點擊整排直接進入女孩詳細頁面
                     tr.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girlName)}&team=${encodeURIComponent(girlTeam)}`;
 
-                    // 1. 隊伍標籤
+                    // 1. 隊伍標籤 (稍微把字體放大一點點)
                     let teamColor = 'var(--theme-main)';
                     if(girlTeam.includes('兄弟')) teamColor = '#f1c40f'; 
                     else if(girlTeam.includes('味全')) teamColor = '#e74c3c'; 
                     else if(girlTeam.includes('統一')) teamColor = '#e67e22'; 
                     else if(girlTeam.includes('富邦')) teamColor = '#3498db'; 
                     else if(girlTeam.includes('台鋼')) teamColor = '#2ecc71'; 
-                    const teamBadge = `<span style="font-size:12px; color:white; background:${teamColor}; padding:4px 10px; border-radius:12px; font-weight:bold; white-space:nowrap;">${girlTeam.replace('桃猿','').replace('兄弟','').replace('悍將','').replace('雄鷹','')}</span>`;
+                    
+                    // 簡化隊名，例如「樂天桃猿」變成「樂天」
+                    const shortTeam = girlTeam.replace('桃猿','').replace('兄弟','').replace('悍將','').replace('雄鷹','');
+                    const teamBadge = `<span style="font-size:13px; color:white; background:${teamColor}; padding:4px 12px; border-radius:12px; font-weight:bold; white-space:nowrap;">${shortTeam}</span>`;
 
-                    // 2. 迷你 IG 按鈕
-                    let igHtml = '-';
-                    if (girlInfo && girlInfo.ig && girlInfo.ig.trim() !== '') {
-                        let igLink = girlInfo.ig.trim().startsWith('http') ? girlInfo.ig.trim() : `https://www.instagram.com/${girlInfo.ig.trim()}/`;
-                        igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn" style="margin:0; padding:4px 10px; font-size:11px;"><svg viewBox="0 0 24 24" style="width:12px; height:12px;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg> IG</a>`;
-                    }
-
-                    // 3. 站位標記
+                    // 2. 站位標記
                     const posText = workToday.position || "未指定";
-                    const posTag = `<span style="color:var(--theme-main); font-weight:900; font-size:15px; white-space:nowrap;">📍 ${posText}</span>`;
+                    const posTag = `<span style="color:var(--theme-main); font-weight:900; font-size:16px; white-space:nowrap;">📍 ${posText}</span>`;
 
                     tr.innerHTML = `
                         <td>${teamBadge}</td>
-                        <td style="font-weight: 900; font-size: 16px; color: var(--text-main); white-space:nowrap;">${girlName}</td>
+                        <td style="font-weight: 900; font-size: 17px; color: var(--text-main); white-space:nowrap;">${girlName}</td>
                         <td>${posTag}</td>
-                        <td>${igHtml}</td>
                     `;
                     tbody.appendChild(tr);
                 }
@@ -170,7 +170,7 @@
                 const emptyMsg = currentTeamFilter === '全聯盟' 
                     ? '這天沒有女孩排班喔！' 
                     : `這天【${currentTeamFilter}】沒有女孩排班喔！`;
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted); font-weight: bold; padding: 30px;">${emptyMsg}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); font-weight: bold; padding: 30px;">${emptyMsg}</td></tr>`;
             }
         }
 
