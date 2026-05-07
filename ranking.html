@@ -6,44 +6,97 @@
     <title>📊 全聯盟數據排行榜</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* 🎀 標題漸層美化 */
+        .header h1 {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        /* 💊 排行榜切換按鈕 */
+        .sort-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .sort-tabs button {
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-size: 14px;
+            font-weight: 900;
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .sort-tabs button.active-sort {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            color: white;
+            border-color: #ff758c;
+            box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
+            transform: translateY(-2px);
+        }
+        .sort-tabs button.inactive-sort {
+            background: transparent;
+            color: var(--text-muted);
+            border-color: #ffccd5;
+        }
+        .sort-tabs button.inactive-sort:hover {
+            background: rgba(255, 117, 140, 0.08);
+            color: var(--theme-main);
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .sort-tabs button.inactive-sort { border-color: #555; color: #aaa; }
+        [data-theme="dark"] .sort-tabs button.inactive-sort:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
         /* 🏆 專業數據表格防破版對齊系統 */
+        .pro-table-wrapper {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255, 117, 140, 0.15);
+        }
+        [data-theme="dark"] .pro-table-wrapper { border-color: #333; }
+
         .pro-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
         .pro-table th {
-            background-color: rgba(255, 117, 140, 0.1);
+            background-color: rgba(255, 117, 140, 0.08);
             color: var(--theme-main);
             font-weight: 900;
-            padding: 15px 10px;
+            padding: 18px 10px;
+            font-size: 15px;
         }
         [data-theme="dark"] .pro-table th { background-color: #252525; }
         
-        /* 核心：保證名字與數據絕對不換行、完美置中 */
         .pro-table th, .pro-table td {
             white-space: nowrap !important;
             text-align: center;
             vertical-align: middle;
             border-bottom: 1px solid #fff0f5;
-            padding: 12px 10px;
+            padding: 15px 10px;
         }
         [data-theme="dark"] .pro-table td { border-bottom: 1px solid #333333; }
         
+        .pro-table tbody tr { transition: background 0.2s; }
         .pro-table tbody tr:hover {
             background-color: rgba(255, 117, 140, 0.05);
             cursor: pointer;
         }
+        [data-theme="dark"] .pro-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
         
         /* 排名數字樣式 */
         .rank-num { font-size: 16px; font-weight: 900; color: var(--text-muted); }
-        .rank-1 { color: #f1c40f; font-size: 20px; } /* 金 */
-        .rank-2 { color: #95a5a6; font-size: 18px; } /* 銀 */
-        .rank-3 { color: #d35400; font-size: 18px; } /* 銅 */
+        .rank-medal { font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
     </style>
 </head>
 <body>
@@ -53,30 +106,39 @@
     </div>
 
     <div class="container">
-        <div class="back-btn-container" style="margin-bottom: 20px;">
+        <div class="back-btn-container" style="margin-bottom: 15px;">
             <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div class="header" style="justify-content: center; text-align: center;">
-            <h1 style="margin: 0; color: var(--theme-main);">📊 全聯盟數據排行榜</h1>
+        <div class="header" style="justify-content: center; text-align: center; flex-direction: column;">
+            <h1>📊 全聯盟數據排行榜</h1>
+            <p style="color: var(--text-muted); font-size: 14px; font-weight: bold; margin-top: 0;">點擊下方按鈕切換排行項目</p>
         </div>
 
-        <div class="table-responsive" style="margin-top: 20px;">
+        <div class="sort-tabs">
+            <button class="active-sort" onclick="sortData('winRate')">👑 最高勝率</button>
+            <button class="inactive-sort" onclick="sortData('wins')">🔥 最多勝場</button>
+            <button class="inactive-sort" onclick="sortData('games')">👷‍♀️ 鐵人出勤</button>
+            <button class="inactive-sort" onclick="sortData('delays')">🌧️ 延賽/保留王</button>
+        </div>
+
+        <div class="table-responsive pro-table-wrapper">
             <table class="pro-table">
                 <thead>
                     <tr>
                         <th>名次</th>
                         <th>隊伍</th>
                         <th>女孩姓名</th>
-                        <th>出賽</th>
-                        <th>勝投</th>
-                        <th>敗投</th>
+                        <th>出勤</th>
+                        <th>勝場</th>
+                        <th>敗場</th>
+                        <th>和局</th>
                         <th>勝率</th>
-                        <th>延賽</th>
+                        <th>延賽/保留</th>
                     </tr>
                 </thead>
                 <tbody id="ranking-list-body">
-                    <tr><td colspan="8">資料載入中...</td></tr>
+                    <tr><td colspan="9" style="padding: 30px;">資料載入中...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -84,10 +146,23 @@
 
     <script src="app.js"></script>
     <script>
+        let allGirlsStatsArray = []; 
+        let currentSortType = 'winRate';
+
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
             if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
         }
+
+        // ⚾ 英文隊名對照表
+        const teamNamesMap = {
+            '樂天': 'Rakuten Girls',
+            '中信兄弟': 'Passion Sisters',
+            '味全龍': 'Dragon Beauties',
+            '統一獅': 'Uni Girls',
+            '富邦悍將': 'Fubon Angels',
+            '台鋼雄鷹': 'WING STARS'
+        };
 
         async function initProRanking() {
             try {
@@ -99,8 +174,9 @@
                 girlsData.forEach(g => {
                     const key = g.name.trim() + "_" + g.team.trim();
                     girlStats[key] = {
-                        name: g.name.trim(), team: g.team.trim(), 
-                        wins: 0, losses: 0, delays: 0, games: 0
+                        name: g.name.trim(), 
+                        team: g.team.trim(), 
+                        wins: 0, losses: 0, ties: 0, delays: 0, suspends: 0, games: 0
                     };
                 });
 
@@ -120,6 +196,9 @@
                             if (!wNums || wNums.length < 2) return;
                             const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
 
+                            // 只要班表有排，總出勤就 +1
+                            girlStats[key].games++;
+
                             const match = matchesData.find(m => {
                                 const mYearStr = m.year ? m.year.toString().trim() : '';
                                 if (sYearStr && mYearStr && sYearStr !== mYearStr) return false;
@@ -130,59 +209,102 @@
 
                             if(match && match.result) {
                                 const res = match.result.trim();
-                                if(res === '勝') { girlStats[key].wins++; girlStats[key].games++; }
-                                else if(res === '敗') { girlStats[key].losses++; girlStats[key].games++; }
-                                else if(res === '延賽') { girlStats[key].delays++; }
+                                // 🔥 支援和局與保留判定
+                                if(res.includes('勝')) { girlStats[key].wins++; }
+                                else if(res.includes('敗')) { girlStats[key].losses++; }
+                                else if(res.includes('和')) { girlStats[key].ties++; }
+                                else if(res.includes('保')) { girlStats[key].suspends++; }
+                                else if(res.includes('延')) { girlStats[key].delays++; }
                             }
                         });
                     }
                 });
 
-                // 轉為陣列並預設以「勝率」+「勝場數」排序
-                let sortedGirls = Object.values(girlStats)
+                // 轉為陣列並計算勝率
+                allGirlsStatsArray = Object.values(girlStats)
                     .filter(g => g.games > 0) // 有出賽才列入榜單
                     .map(g => {
-                        g.winRate = (g.wins / g.games) * 100;
+                        const totalDecisions = g.wins + g.losses;
+                        g.winRate = totalDecisions > 0 ? (g.wins / totalDecisions) * 100 : 0;
+                        g.totalDelays = g.delays + g.suspends; // 延賽與保留合併計算
                         return g;
-                    })
-                    .sort((a, b) => {
-                        if (b.winRate !== a.winRate) return b.winRate - a.winRate; // 先比勝率
-                        return b.wins - a.wins; // 勝率一樣比勝場
                     });
 
-                const tbody = document.getElementById('ranking-list-body');
-                tbody.innerHTML = '';
-
-                sortedGirls.forEach((g, index) => {
-                    const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : 'rank-num';
-                    const shortTeam = g.team.replace('桃猿','').replace('兄弟','').replace('悍將','').replace('雄鷹','');
-                    
-                    let teamColor = 'var(--text-muted)';
-                    if(g.team.includes('兄弟')) teamColor = '#f1c40f'; 
-                    else if(g.team.includes('味全')) teamColor = '#e74c3c'; 
-                    else if(g.team.includes('統一')) teamColor = '#e67e22'; 
-                    else if(g.team.includes('富邦')) teamColor = '#3498db'; 
-                    else if(g.team.includes('樂天')) teamColor = 'var(--theme-main)'; 
-
-                    const tr = document.createElement('tr');
-                    tr.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(g.name)}&team=${encodeURIComponent(g.team)}`;
-                    tr.innerHTML = `
-                        <td class="${rankClass}">${index + 1}</td>
-                        <td><span style="background:${teamColor}; color:white; padding:3px 8px; border-radius:8px; font-size:12px; font-weight:bold;">${shortTeam}</span></td>
-                        <td style="font-weight:900; font-size:16px;">${g.name}</td>
-                        <td style="font-weight:bold;">${g.games}</td>
-                        <td style="color:#e74c3c; font-weight:bold;">${g.wins}</td>
-                        <td style="color:#3498db; font-weight:bold;">${g.losses}</td>
-                        <td style="font-weight:900;">${g.winRate.toFixed(1)}%</td>
-                        <td style="color:var(--text-muted);">${g.delays}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+                sortData('winRate'); // 預設排序
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('ranking-list-body').innerHTML = '<tr><td colspan="8" style="color:red;">載入失敗</td></tr>';
+                document.getElementById('ranking-list-body').innerHTML = '<tr><td colspan="9" style="color:red; padding:30px;">資料載入失敗</td></tr>';
             } finally { hideLoading(); }
+        }
+
+        // 🔄 切換排序與渲染表格
+        window.sortData = function(sortType) {
+            currentSortType = sortType;
+
+            // 處理切換按鈕外觀
+            const buttons = document.querySelectorAll('.sort-tabs button');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(sortType)) {
+                    btn.className = 'active-sort';
+                } else {
+                    btn.className = 'inactive-sort';
+                }
+            });
+
+            // 執行排序邏輯
+            allGirlsStatsArray.sort((a, b) => {
+                if (sortType === 'winRate') {
+                    if (b.winRate !== a.winRate) return b.winRate - a.winRate; // 先比勝率
+                    return b.wins - a.wins; // 勝率一樣比勝場
+                } else if (sortType === 'wins') {
+                    if (b.wins !== a.wins) return b.wins - a.wins;
+                    return b.winRate - a.winRate;
+                } else if (sortType === 'games') {
+                    if (b.games !== a.games) return b.games - a.games;
+                    return b.wins - a.wins;
+                } else if (sortType === 'delays') {
+                    if (b.totalDelays !== a.totalDelays) return b.totalDelays - a.totalDelays;
+                    return b.games - a.games;
+                }
+            });
+
+            const tbody = document.getElementById('ranking-list-body');
+            tbody.innerHTML = '';
+
+            allGirlsStatsArray.forEach((g, index) => {
+                // 獎牌圖示
+                let rankDisplay = `<span class="rank-num">${index + 1}</span>`;
+                if (index === 0) rankDisplay = `<span class="rank-medal">🥇</span>`;
+                else if (index === 1) rankDisplay = `<span class="rank-medal">🥈</span>`;
+                else if (index === 2) rankDisplay = `<span class="rank-medal">🥉</span>`;
+
+                // 球隊顏色與英文名
+                let teamColor = 'var(--text-muted)';
+                let displayTeam = g.team;
+
+                if (g.team.includes('樂天')) { displayTeam = 'Rakuten Girls'; teamColor = 'var(--theme-main)'; }
+                else if (g.team.includes('兄弟')) { displayTeam = 'Passion Sisters'; teamColor = '#f1c40f'; }
+                else if (g.team.includes('味全')) { displayTeam = 'Dragon Beauties'; teamColor = '#e74c3c'; }
+                else if (g.team.includes('統一')) { displayTeam = 'Uni Girls'; teamColor = '#e67e22'; }
+                else if (g.team.includes('富邦')) { displayTeam = 'Fubon Angels'; teamColor = '#3498db'; }
+                else if (g.team.includes('台鋼')) { displayTeam = 'WING STARS'; teamColor = '#2ecc71'; }
+
+                const tr = document.createElement('tr');
+                tr.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(g.name)}&team=${encodeURIComponent(g.team)}`;
+                tr.innerHTML = `
+                    <td>${rankDisplay}</td>
+                    <td><span style="background:${teamColor}; color:white; padding:4px 12px; border-radius:12px; font-size:12px; font-weight:bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">${displayTeam}</span></td>
+                    <td style="font-weight:900; font-size:17px;">${g.name}</td>
+                    <td style="font-weight:bold;">${g.games}</td>
+                    <td style="color:#e74c3c; font-weight:bold;">${g.wins}</td>
+                    <td style="color:#3498db; font-weight:bold;">${g.losses}</td>
+                    <td style="color:#2ecc71; font-weight:bold;">${g.ties}</td>
+                    <td style="font-weight:900;">${g.winRate.toFixed(1)}%</td>
+                    <td style="color:var(--text-muted); font-weight:bold;">${g.totalDelays}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
         initProRanking();
