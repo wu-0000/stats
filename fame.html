@@ -3,38 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 聯盟風雲榜</title>
+    <title>聯盟風雲榜</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 🎀 標題漸層美化與 SVG 圖示對齊 */
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .header h1 {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-size: 2.2rem;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        /* ✨ 卡片懸浮光影特效 */
+        .fame-card {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 20px;
+            background: var(--card-bg, #fff);
+            border: 1px solid rgba(255, 117, 140, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .fame-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 117, 140, 0.2);
+            border-color: #ff758c;
+        }
+        [data-theme="dark"] .fame-card { border-color: #333; background: #2a2a2a; }
+        [data-theme="dark"] .fame-card:hover { border-color: #ff758c; box-shadow: 0 10px 25px rgba(255, 117, 140, 0.4); }
+
+        /* 🔥 立體漸層名次勳章 */
+        .rank-num { font-size: 18px; font-weight: 900; color: var(--text-muted); width: 32px; text-align: center; }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 900;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .rank-1 { background: linear-gradient(135deg, #FFD700 0%, #F39C12 100%); transform: scale(1.1); } 
+        .rank-2 { background: linear-gradient(135deg, #E0E0E0 0%, #95A5A6 100%); } 
+        .rank-3 { background: linear-gradient(135deg, #E67E22 0%, #D35400 100%); } 
+
+        /* 👑 榜單標題樣式 */
+        .board-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+        .board-title svg { width: 28px; height: 28px; fill: currentColor; }
+        .board-subtitle { font-size: 13px; color: var(--text-muted); font-weight: bold; margin-left: auto; }
+        
+        .team-badge-small {
+            font-size: 11px;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            display: inline-block;
+            margin-top: 4px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">🔥 正在為您計算聯盟排行榜...</div>
+        <div class="loading-text">正在計算聯盟風雲榜...</div>
     </div>
 
     <div class="container">
-        <div class="back-btn-container">
+        <div class="back-btn-container" style="margin-bottom: 15px;">
             <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div class="header" style="justify-content: center; text-align: center;">
-            <h1 style="margin: 0; color: var(--theme-main);">🏆 全聯盟榮譽風雲榜</h1>
+        <div class="header" style="justify-content: center; text-align: center; flex-direction: column;">
+            <div class="header-title-container">
+                <svg viewBox="0 0 24 24" width="36" height="36">
+                    <defs>
+                        <linearGradient id="trophy-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFD700" />
+                            <stop offset="100%" stop-color="#F39C12" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#trophy-grad)" d="M19 5h-2V3c0-.55-.45-1-1-1H8c-.55 0-1 .45-1 1v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/>
+                </svg>
+                <h1>全聯盟榮譽風雲榜</h1>
+            </div>
         </div>
 
-        <h2 style="color:var(--theme-main); margin-top:30px; display:flex; align-items:center; gap:8px;">
-            👑 勝利女神榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(出賽≥5場)</span>
+        <h2 class="board-title" style="color: var(--theme-main);">
+            <svg viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+            勝利女神榜
+            <span class="board-subtitle">最低門檻：出賽≥5場</span>
         </h2>
-        <div id="winrate-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="winrate-list" class="dashboard" style="display:flex; flex-direction:column; gap:2px;"></div>
 
-        <h2 style="color:#e67e22; margin-top:30px; display:flex; align-items:center; gap:8px;">
-            🔥 鐵人全勤榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(總出賽場數)</span>
+        <h2 class="board-title" style="color: #e67e22;">
+            <svg viewBox="0 0 24 24"><path d="M17.5 11.2c-.3 1.1-1 2.1-1.9 2.8.5-1.5.3-3.2-.8-4.5-.4-.4-.9-.7-1.4-.9C13 8 12.8 7.3 12.8 6.5c0-.6.1-1.2.3-1.8-.8.3-1.6.8-2.2 1.5-1.5 1.5-2.2 3.6-1.8 5.7.1.6.3 1.2.6 1.7-.8-.6-1.4-1.3-1.8-2.2-.4-.9-.5-1.9-.4-2.8-.2.2-.4.4-.6.6-1.3 1.5-2 3.5-1.8 5.6.2 2 1.3 3.8 3 4.9 1.7 1.1 3.8 1.4 5.8.9 2-.5 3.7-1.8 4.7-3.5 1-1.8 1.2-3.9.5-5.9z"/></svg>
+            鐵人全勤榜
+            <span class="board-subtitle">總出賽場數最多</span>
         </h2>
-        <div id="iron-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="iron-list" class="dashboard" style="display:flex; flex-direction:column; gap:2px;"></div>
 
-        <h2 style="color:#3498db; margin-top:30px; display:flex; align-items:center; gap:8px;">
-            🌧️ 呼風喚雨榜 <span style="font-size:12px; color:var(--text-muted); font-weight:normal;">(最常遇到延賽)</span>
+        <h2 class="board-title" style="color: #3498db;">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg>
+            呼風喚雨榜
+            <span class="board-subtitle">延賽與保留次數最多</span>
         </h2>
-        <div id="rain-list" class="dashboard" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div id="rain-list" class="dashboard" style="display:flex; flex-direction:column; gap:2px;"></div>
 
     </div>
 
@@ -45,27 +144,32 @@
             if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
         }
 
+        const teamNamesMap = {
+            '樂天': 'Rakuten Girls',
+            '中信兄弟': 'Passion Sisters',
+            '味全龍': 'Dragon Beauties',
+            '統一獅': 'Uni Girls',
+            '富邦悍將': 'Fubon Angels',
+            '台鋼雄鷹': 'WING STARS'
+        };
+
         async function initRanking() {
             try {
                 const [scheduleData, matchesData, girlsData] = await Promise.all([
                     fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
 
-                // 1. 初始化女孩統計資料庫
                 let girlStats = {};
                 girlsData.forEach(g => {
                     const key = g.name.trim() + "_" + g.team.trim();
                     girlStats[key] = {
                         name: g.name.trim(), team: g.team.trim(), photo: g.photo ? g.photo.trim() : '',
-                        wins: 0, losses: 0, delays: 0, games: 0
+                        wins: 0, losses: 0, ties: 0, delays: 0, suspends: 0, games: 0
                     };
                 });
 
-                // 2. 核心運算：比對班表與賽程 (已升級終極防呆比對)
                 scheduleData.forEach(s => {
                     const girlName = (s.girl_name || '').trim();
-                    
-                    // 跨表找隊伍，確保就算班表沒寫隊伍也不會漏掉
                     const girlInfo = girlsData.find(g => g.name && g.name.trim() === girlName);
                     const girlTeam = (girlInfo && girlInfo.team) ? girlInfo.team.trim() : (s.team || '').trim();
                     
@@ -77,20 +181,18 @@
                     if(s.working_dates) {
                         const workList = parseWorkingDate(s.working_dates);
                         workList.forEach(w => {
-                            // 拆解班表日期數字
                             const wNums = w.date ? w.date.match(/\d+/g) : null;
                             if (!wNums || wNums.length < 2) return;
                             const wMonth = parseInt(wNums[0], 10);
                             const wDay = parseInt(wNums[1], 10);
 
-                            // 尋找對應日期的比賽結果
+                            // 只要班表有日期就算出勤
+                            girlStats[key].games++;
+
                             const match = matchesData.find(m => {
-                                // 防呆年份與隊伍
                                 const mYearStr = m.year ? m.year.toString().trim() : '';
                                 if (sYearStr && mYearStr && sYearStr !== mYearStr) return false;
                                 if (m.team && m.team.trim() !== girlTeam) return false;
-                                
-                                // 防呆日期 (數字吸塵器)
                                 const mNums = m.date ? m.date.match(/\d+/g) : null;
                                 if (mNums && mNums.length >= 2) {
                                     return parseInt(mNums[0], 10) === wMonth && parseInt(mNums[1], 10) === wDay;
@@ -98,54 +200,75 @@
                                 return false;
                             });
 
-                            // 計算勝負
                             if(match && match.result) {
                                 const res = match.result.trim();
-                                if(res === '勝') girlStats[key].wins++;
-                                else if(res === '敗') girlStats[key].losses++;
-                                else if(res === '延賽') girlStats[key].delays++;
-                                
-                                if(res === '勝' || res === '敗') girlStats[key].games++; // 有勝負才算有效出賽
+                                if(res.includes('勝')) girlStats[key].wins++;
+                                else if(res.includes('敗')) girlStats[key].losses++;
+                                else if(res.includes('和')) girlStats[key].ties++;
+                                else if(res.includes('保')) girlStats[key].suspends++;
+                                else if(res.includes('延')) girlStats[key].delays++;
                             }
                         });
                     }
                 });
 
-                let validGirls = Object.values(girlStats);
-
-                // 👑 排行榜 1: 勝利女神 (勝率最高，且至少出賽 5 場防洗數據)
-                let winRateList = validGirls.filter(g => g.games >= 5).map(g => {
-                    g.winRate = (g.wins / g.games) * 100;
+                let validGirls = Object.values(girlStats).map(g => {
+                    const totalDecisions = g.wins + g.losses;
+                    g.winRate = totalDecisions > 0 ? (g.wins / totalDecisions) * 100 : 0;
+                    g.totalDelays = g.delays + g.suspends; // 延賽與保留合併
                     return g;
-                }).sort((a,b) => b.winRate - a.winRate).slice(0, 10);
+                });
 
-                // 🔥 排行榜 2: 鐵人全勤 (出賽場次最多)
-                let ironList = validGirls.filter(g => g.games > 0).sort((a,b) => b.games - a.games).slice(0, 10);
+                // 👑 排行榜 1: 勝利女神 (勝率最高 > 勝場最多)
+                let winRateList = validGirls.filter(g => g.games >= 5)
+                    .sort((a,b) => b.winRate !== a.winRate ? b.winRate - a.winRate : b.wins - a.wins)
+                    .slice(0, 10);
 
-                // 🌧️ 排行榜 3: 雨神降臨 (延賽次數最多)
-                let rainList = validGirls.filter(g => g.delays > 0).sort((a,b) => b.delays - a.delays).slice(0, 5);
+                // 🔥 排行榜 2: 鐵人全勤 (出勤最多 > 勝場最多)
+                let ironList = validGirls.filter(g => g.games > 0)
+                    .sort((a,b) => b.games !== a.games ? b.games - a.games : b.wins - a.wins)
+                    .slice(0, 10);
+
+                // 🌧️ 排行榜 3: 呼風喚雨 (延賽+保留最多 > 出勤最多)
+                let rainList = validGirls.filter(g => g.totalDelays > 0)
+                    .sort((a,b) => b.totalDelays !== a.totalDelays ? b.totalDelays - a.totalDelays : b.games - a.games)
+                    .slice(0, 5);
 
                 // 渲染畫面功能
                 function renderList(elementId, list, formatScoreHtml) {
                     const container = document.getElementById(elementId);
                     container.innerHTML = '';
                     if(list.length === 0) {
-                        container.innerHTML = `<div class="card" style="padding:15px; color:var(--text-muted); text-align:center; font-weight:bold;">目前累積資料不足...</div>`;
+                        container.innerHTML = `<div class="fame-card" style="justify-content:center; color:var(--text-muted); font-weight:bold;">目前累積資料不足...</div>`;
                         return;
                     }
                     list.forEach((g, index) => {
-                        let avatar = g.photo ? `<img src="${g.photo}" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid var(--theme-main); flex-shrink:0;">` : `<div style="width:45px;height:45px;border-radius:50%;background:#ffe4e8;display:flex;align-items:center;justify-content:center;font-size:22px; flex-shrink:0;">👱‍♀️</div>`;
-                        let medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `<span style="font-size:16px;">${index+1}</span>`;
+                        let avatar = g.photo ? `<img src="${g.photo}" style="width:50px;height:50px;border-radius:50%;object-fit:cover;border:3px solid var(--theme-main); flex-shrink:0;">` : `<div style="width:50px;height:50px;border-radius:50%;background:#ffe4e8;display:flex;align-items:center;justify-content:center;font-size:24px; flex-shrink:0;">👱‍♀️</div>`;
                         
+                        let rankHtml = `<span class="rank-num">${index+1}</span>`;
+                        if (index === 0) rankHtml = `<span class="rank-badge rank-1">1</span>`;
+                        else if (index === 1) rankHtml = `<span class="rank-badge rank-2">2</span>`;
+                        else if (index === 2) rankHtml = `<span class="rank-badge rank-3">3</span>`;
+                        
+                        // 球隊顏色與英文正名
+                        let teamColor = 'var(--text-muted)';
+                        let displayTeam = g.team;
+                        if (g.team.includes('樂天')) { displayTeam = 'Rakuten Girls'; teamColor = 'var(--theme-main)'; }
+                        else if (g.team.includes('兄弟')) { displayTeam = 'Passion Sisters'; teamColor = '#f1c40f'; }
+                        else if (g.team.includes('味全')) { displayTeam = 'Dragon Beauties'; teamColor = '#e74c3c'; }
+                        else if (g.team.includes('統一')) { displayTeam = 'Uni Girls'; teamColor = '#e67e22'; }
+                        else if (g.team.includes('富邦')) { displayTeam = 'Fubon Angels'; teamColor = '#3498db'; }
+                        else if (g.team.includes('台鋼')) { displayTeam = 'WING STARS'; teamColor = '#2ecc71'; }
+
                         let html = `
-                        <div class="card" style="display:flex; align-items:center; padding:12px 15px; margin-bottom:5px; cursor:pointer;" onclick="window.location.href='detail.html?name=${encodeURIComponent(g.name)}&team=${encodeURIComponent(g.team)}'">
-                            <div style="font-size:24px; font-weight:900; width:40px; text-align:center; color:var(--theme-main); flex-shrink:0;">${medal}</div>
+                        <div class="fame-card" onclick="window.location.href='detail.html?name=${encodeURIComponent(g.name)}&team=${encodeURIComponent(g.team)}'">
+                            <div style="width:45px; text-align:center; flex-shrink:0; margin-right:5px;">${rankHtml}</div>
                             ${avatar}
                             <div style="flex:1; text-align:left; margin-left:15px; min-width:0;">
-                                <div style="font-weight:900; font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
-                                <div style="font-size:11px; color:white; background:var(--text-muted); border-radius:10px; padding:2px 8px; display:inline-block; margin-top:3px;">${g.team.replace('桃猿','').replace('兄弟','').replace('悍將','').replace('雄鷹','')}</div>
+                                <div style="font-weight:900; font-size:18px; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                                <div class="team-badge-small" style="background:${teamColor};">${displayTeam}</div>
                             </div>
-                            <div style="text-align:right; font-size:20px; flex-shrink:0; margin-left:10px;">
+                            <div style="text-align:right; flex-shrink:0; margin-left:10px; line-height:1.4;">
                                 ${formatScoreHtml(g)}
                             </div>
                         </div>`;
@@ -154,13 +277,17 @@
                 }
 
                 // 注入三大榜單
-                renderList('winrate-list', winRateList, g => `<span style="color:#e74c3c; font-weight:900;">${g.winRate.toFixed(1)}%</span><br><span style="font-size:12px;color:var(--text-muted);">${g.wins}勝${g.losses}敗</span>`);
-                renderList('iron-list', ironList, g => `<span style="color:#e67e22; font-weight:900;">${g.games} 場</span>`);
-                renderList('rain-list', rainList, g => `<span style="color:#3498db; font-weight:900;">${g.delays} 次</span>`);
+                renderList('winrate-list', winRateList, g => {
+                    let recordStr = `${g.wins}勝${g.losses}敗`;
+                    if(g.ties > 0) recordStr += `${g.ties}和`;
+                    return `<span style="color:#e74c3c; font-weight:900; font-size:20px;">${g.winRate.toFixed(1)}%</span><br><span style="font-size:12px;color:var(--text-muted);font-weight:bold;">${recordStr}</span>`;
+                });
+                renderList('iron-list', ironList, g => `<span style="color:#e67e22; font-weight:900; font-size:22px;">${g.games} 場</span>`);
+                renderList('rain-list', rainList, g => `<span style="color:#3498db; font-weight:900; font-size:22px;">${g.totalDelays} 次</span>`);
 
             } catch (error) {
                 console.error(error);
-                document.querySelector('.container').innerHTML += '<p style="color:red; text-align:center; font-weight:bold;">排行榜載入失敗，請檢查資料表格式</p>';
+                document.querySelector('.container').innerHTML += '<p style="color:red; text-align:center; font-weight:bold;">風雲榜載入失敗，請檢查資料表格式</p>';
             } finally { hideLoading(); }
         }
 
