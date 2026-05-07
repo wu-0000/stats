@@ -20,7 +20,7 @@
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
 
-        /* 🍎 粉色圓角泡泡標籤 (台灣) */
+        /* 🍎 粉色圓角泡泡標籤 */
         .info-tag {
             display: inline-flex;
             align-items: center;
@@ -31,6 +31,7 @@
             gap: 8px;
             white-space: nowrap;
         }
+        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
@@ -117,13 +118,15 @@
         /* 📊 寬敞數據看板 */
         .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-        .dashboard-value { font-size: 20px; font-weight: 900; }
+        .dashboard-value { font-size: 18px; font-weight: 900; } /* 微調字體大小容納和局 */
 
-        /* 💊 勝負膠囊標籤 */
+        /* 💊 戰況膠囊標籤 (🔥 新增和局與保留) */
         .result-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px; }
-        .result-win { background-color: #ff9aa2; } 
-        .result-loss { background-color: #99c2ff; } 
-        .result-delay { background-color: #bdc3c7; } 
+        .result-win { background-color: #ff9aa2; } /* 柔粉勝 */
+        .result-loss { background-color: #99c2ff; } /* 柔藍敗 */
+        .result-tie { background-color: #2ecc71; } /* 翠綠和局 */
+        .result-delay { background-color: #bdc3c7; } /* 灰色延賽 */
+        .result-suspend { background-color: #f39c12; } /* 橘色保留 */
         .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
         
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
@@ -142,20 +145,16 @@
         </div>
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
-            
             <div class="profile-left">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 25px;"></div>
                 <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
-                    
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
-                    
                     <div>
                         <div id="team-badge" style="display: inline-block; padding: 6px 18px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px;"></div>
                     </div>
-                    
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div id="ig-container"></div>
                         <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
@@ -172,10 +171,10 @@
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
-            <div class="card dashboard-card"><div class="dashboard-label">總出賽</div><div class="dashboard-value" id="stat-games" style="color: var(--text-main);">0 場</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">戰績</div><div class="dashboard-value" id="stat-record" style="color: #e74c3c;">0勝 0敗</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">總出勤</div><div class="dashboard-value" id="stat-games" style="color: var(--text-main);">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">球隊戰績</div><div class="dashboard-value" id="stat-record" style="color: #e74c3c;">0勝0敗0和</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">勝率</div><div class="dashboard-value" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">延賽</div><div class="dashboard-value" id="stat-delay" style="color: #95a5a6;">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">延賽/保留</div><div class="dashboard-value" id="stat-delay" style="color: #95a5a6;">0 場</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">加班總計</div><div class="dashboard-value" id="stat-overtime" style="color: #6c5ce7;">0 場</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points" style="color: var(--text-main);">0 / 0</div></div>
         </div>
@@ -227,7 +226,6 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
-                // ⚾ 1. 處理名字與球隊
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
@@ -247,25 +245,17 @@
                 badge.innerText = displayTeam;
                 badge.style.background = teamColor;
 
-                // 📸 🔥 2. 重裝回歸！大頭貼照片渲染邏輯
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
                 if (photoUrl && photoUrl.trim() !== '') {
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 }
 
-                // 3. 處理並排 IG 按鈕
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
                 if (igAccount.trim() !== '') {
                     const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
-                    document.getElementById('ig-container').innerHTML = `
-                        <a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG">
-                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                            </svg>
-                        </a>`;
+                    document.getElementById('ig-container').innerHTML = `<a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`;
                 }
 
-                // 4. 情報方塊資料分配
                 const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
                 const dict = {
@@ -281,8 +271,8 @@
                     const label = dict[k.toLowerCase()] ? dict[k.toLowerCase()].label : k;
                     if (secretKeysOrder.includes(label)) { mappedData[label] = girlInfo[k]; } 
                     else if (!exclude.includes(k.toLowerCase()) && girlInfo[k] && girlInfo[k].trim() !== '') {
-                        const valText = label === '國籍' ? girlInfo[k] : `<span class="label">${label}</span><span class="value">${girlInfo[k]}</span>`;
-                        extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`;
+                        if (label === '國籍') { extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`; } 
+                        else { extraContainer.innerHTML += `<div class="info-tag"><span class="label">${label}</span><span class="value">${girlInfo[k]}</span></div>`; }
                     }
                 });
 
@@ -292,13 +282,12 @@
                     secretGrid.innerHTML += `<div class="secret-box"><div class="icon">${iconObj.icon}</div><div class="label">${title}</div><div class="value">${val}</div></div>`;
                 });
 
-                // 5. 班表與篩選渲染
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 schedules.forEach(s => {
                     if(!s.working_dates) return;
                     const sYear = s.year ? s.year.toString().trim() : '';
                     parseWorkingDate(s.working_dates).forEach(w => {
-                        let record = { date: w.date, year: sYear, month: '', gameNo: '-', opponent: '-', score: '-', winP: '-', lossP: '-', savP: '-', mvpP: '-', attP: '-', durP: '-', locP: '-', pos: w.position || '-', isWin: false, isLoss: false, isDelay: false, scored: 0, allowed: 0, overtimeGames: 0, resHtml: '<span style="color:var(--text-muted);">-</span>' };
+                        let record = { date: w.date, year: sYear, month: '', gameNo: '-', opponent: '-', score: '-', winP: '-', lossP: '-', savP: '-', mvpP: '-', attP: '-', durP: '-', locP: '-', pos: w.position || '-', isWin: false, isLoss: false, isTie: false, isDelay: false, isSuspend: false, scored: 0, allowed: 0, overtimeGames: 0, resHtml: '<span style="color:var(--text-muted);">-</span>' };
                         const wNums = w.date.match(/\d+/g);
                         if (wNums && wNums.length >= 2) {
                             record.month = wNums[0].padStart(2, '0');
@@ -315,11 +304,16 @@
                                 record.mvpP = match.mvp || '-'; record.attP = match.attendance || '-'; record.durP = match.duration || '-'; record.locP = match.location || '-';
                                 const inn = parseInt(match.innings || 9);
                                 if(inn > 9) { record.overtimeGames = 1; record.score += `<span class="overtime-badge">${inn}局</span>`; }
+                                
                                 const res = (match.result || '').trim();
                                 const scoreData = parseScoreForTeam(match.score, res);
                                 record.scored = scoreData.scored; record.allowed = scoreData.allowed;
+                                
+                                // 🔥 支援「和局」與「保留比賽」判定
                                 if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; }
                                 else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; }
+                                else if(res.includes('和')) { record.isTie = true; record.resHtml = `<span class="result-badge result-tie">和局</span>`; }
+                                else if(res.includes('保')) { record.isSuspend = true; record.resHtml = `<span class="result-badge result-suspend">保留</span>`; }
                                 else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span class="result-badge result-delay">延賽</span>`; }
                             }
                         }
@@ -344,19 +338,37 @@
         function renderFilteredData() {
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
-            let fWin = 0, fLoss = 0, fDelay = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0, historyHtml = '';
-            allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth)).forEach(r => {
+            
+            let fWin = 0, fLoss = 0, fTie = 0, fDelay = 0, fSuspend = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0, historyHtml = '';
+            
+            const filteredRecords = allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth));
+            
+            filteredRecords.forEach(r => {
                 if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; }
                 if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
+                if(r.isTie) { fTie++; fScored += r.scored; fAllowed += r.allowed; } // 和局的得分也要算進去
                 if(r.isDelay) fDelay++;
+                if(r.isSuspend) fSuspend++;
                 if(r.overtimeGames > 0) fOvertimeGames++;
+                
                 historyHtml += `<tr><td style="font-weight:bold;">${r.date}</td><td style="color:var(--text-muted);">${r.gameNo}</td><td>${r.opponent}</td><td style="font-weight:bold;">${r.score}</td><td>${r.resHtml}</td><td style="color:#e74c3c;">${r.winP}</td><td style="color:#3498db;">${r.lossP}</td><td style="color:#2ecc71;">${r.savP}</td><td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td><td style="font-weight:bold;">${r.attP}</td><td>${r.durP}</td><td>${r.locP}</td><td style="color:var(--theme-main); font-weight:900;">${r.pos}</td></tr>`;
             });
+
             document.getElementById('history-list').innerHTML = historyHtml || '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
-            document.getElementById('stat-games').innerText = `${fWin+fLoss} 場`;
-            document.getElementById('stat-record').innerText = `${fWin}勝 ${fLoss}敗`;
+            
+            // 🔥 總出勤 = 所有有上班的紀錄 (不管勝敗和延保)
+            document.getElementById('stat-games').innerText = `${filteredRecords.length} 場`;
+            
+            // 🔥 戰績加上和局顯示
+            let recordText = `${fWin}勝${fLoss}敗`;
+            if (fTie > 0) recordText += `${fTie}和`;
+            document.getElementById('stat-record').innerText = recordText;
+            
+            // 🔥 勝率計算 (和局不計入分母)
             document.getElementById('stat-winrate').innerText = (fWin+fLoss) > 0 ? `${((fWin/(fWin+fLoss))*100).toFixed(1)}%` : '0%';
-            document.getElementById('stat-delay').innerText = `${fDelay} 場`;
+            
+            // 🔥 將延賽與保留合併顯示
+            document.getElementById('stat-delay').innerText = `${fDelay + fSuspend} 場`;
             document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`;
             document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
         }
