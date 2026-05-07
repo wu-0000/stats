@@ -27,7 +27,7 @@
             background: transparent;
             border: 1px solid #ffccd5;
             border-radius: 20px;
-            padding: 5px 14px;
+            padding: 6px 14px;
             gap: 8px;
             white-space: nowrap;
         }
@@ -42,16 +42,17 @@
             justify-content: center;
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
             color: white !important;
-            width: 28px;
-            height: 28px;
+            width: 32px; /* 微調大小跟標籤更搭 */
+            height: 32px;
             border-radius: 50%;
             text-decoration: none;
             box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3);
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
         .ig-btn-custom:hover { transform: scale(1.1); }
 
-        /* 🆔 身分證左右佈局 */
+        /* 🆔 身分證左右佈局 (🔥 完美鎖定比例防破版) */
         .profile-layout {
             display: flex;
             align-items: center; 
@@ -59,12 +60,13 @@
         }
         .profile-left {
             flex: 0 0 auto; 
-            min-width: 250px;
+            min-width: 320px; /* 確保左邊空間充裕，不會被擠壓 */
             display: flex;
             align-items: center; 
         }
         .profile-right {
             flex: 1; 
+            min-width: 0; /* 防止子層 Grid 撐爆父容器 */
             border-left: 1px dashed rgba(255, 117, 140, 0.4);
             padding-left: 30px;
             display: flex;
@@ -94,8 +96,6 @@
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
-        
-        /* 🔥 移除 nowrap，讓過長的內容（如興趣）可以自然換行 */
         .secret-box .value { 
             font-size: 14px; 
             color: var(--text-main); 
@@ -103,13 +103,12 @@
             line-height: 1.4;
             word-break: break-word;
         }
-        
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
 
         /* 📱 平板與手機版適應 */
         @media (max-width: 1050px) {
             .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; }
-            .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; }
+            .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; min-width: auto; }
             .profile-right { 
                 border-left: none; 
                 border-top: 1px dashed rgba(255, 117, 140, 0.4); 
@@ -149,20 +148,25 @@
         </div>
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
+            
             <div class="profile-left">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 25px;"></div>
-                <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
+                <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                    
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 10px; margin: 12px 0;">
-                        <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px;"></div>
+                    <div>
+                        <div id="team-badge" style="display: inline-block; padding: 6px 18px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px;"></div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 12px;">
                         <div id="ig-container"></div>
+                        <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                     </div>
 
-                    <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px;"></div>
                 </div>
             </div>
 
@@ -267,13 +271,13 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // IG 按鈕
+                // 📸 IG 按鈕生成 (只顯示 Icon)
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
                 if (igAccount.trim() !== '') {
                     const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
                     document.getElementById('ig-container').innerHTML = `
                         <a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG">
-                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;">
+                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;">
                                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
                             </svg>
                         </a>`;
@@ -358,7 +362,7 @@
                                 record.score = match.score || match['比分'] || '-'; record.winP = match.win_pitcher || match['勝投'] || '-';
                                 record.lossP = match.loss_pitcher || match['敗投'] || '-'; record.savP = match.save || match['救援'] || '-';
                                 record.mvpP = match.mvp || match['MVP'] || '-'; record.attP = match.attendance || match['觀眾數'] || '-';
-                                record.durP = match.duration || match['比賽時間'] || '-'; record.locP = match.location || match['地點'] || '-';
+                                record.durP = match.duration || match['比赛時間'] || '-'; record.locP = match.location || match['地點'] || '-';
                                 
                                 const inn = parseInt(match.innings || match['局數'] || 9);
                                 if(inn > 9) {
@@ -457,4 +461,4 @@
         initDetail();
     </script>
 </body>
-</html>
+</html>ㄇ
