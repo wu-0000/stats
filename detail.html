@@ -118,15 +118,15 @@
         /* 📊 寬敞數據看板 */
         .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-        .dashboard-value { font-size: 18px; font-weight: 900; } /* 微調字體大小容納和局 */
+        .dashboard-value { font-size: 18px; font-weight: 900; } 
 
-        /* 💊 戰況膠囊標籤 (🔥 新增和局與保留) */
+        /* 💊 戰況膠囊標籤 */
         .result-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px; }
-        .result-win { background-color: #ff9aa2; } /* 柔粉勝 */
-        .result-loss { background-color: #99c2ff; } /* 柔藍敗 */
-        .result-tie { background-color: #2ecc71; } /* 翠綠和局 */
-        .result-delay { background-color: #bdc3c7; } /* 灰色延賽 */
-        .result-suspend { background-color: #f39c12; } /* 橘色保留 */
+        .result-win { background-color: #ff9aa2; } 
+        .result-loss { background-color: #99c2ff; } 
+        .result-tie { background-color: #2ecc71; } 
+        .result-delay { background-color: #bdc3c7; } 
+        .result-suspend { background-color: #f39c12; } 
         .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
         
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
@@ -146,7 +146,12 @@
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
             <div class="profile-left">
-                <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 25px;"></div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; margin-right: 25px; flex-shrink: 0;">
+                    <div id="avatar-container" class="profile-avatar-large"></div>
+                    <div id="photo-source" style="margin-top: 8px; font-size: 11px; color: var(--text-muted); font-weight: bold; display: none;"></div>
+                </div>
+
                 <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
@@ -245,9 +250,18 @@
                 badge.innerText = displayTeam;
                 badge.style.background = teamColor;
 
+                // 📸 渲染大頭貼
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
                 if (photoUrl && photoUrl.trim() !== '') {
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                }
+
+                // 📸 渲染照片出處 (抓取 照片出處、出處、photo_source)
+                const photoSource = girlInfo['照片出處'] || girlInfo['出處'] || girlInfo.photo_source || girlInfo.source || '';
+                if (photoSource.trim() !== '') {
+                    const sourceEl = document.getElementById('photo-source');
+                    sourceEl.innerHTML = `📸 ${photoSource.trim()}`;
+                    sourceEl.style.display = 'block';
                 }
 
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
@@ -264,7 +278,9 @@
                     'country': { label: '國籍', icon: '🇹🇼' }
                 };
                 const secretKeysOrder = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
-                const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'ig', 'IG', 'year', 'id', 'number'];
+                
+                // 🔥 排除陣列更新：確保不出現在泡泡區
+                const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'photo_url', 'ig', 'IG', 'year', 'id', 'number', 'photo_source', '照片出處', '出處', 'source'];
                 
                 let mappedData = {};
                 Object.keys(girlInfo).forEach(k => {
@@ -309,7 +325,6 @@
                                 const scoreData = parseScoreForTeam(match.score, res);
                                 record.scored = scoreData.scored; record.allowed = scoreData.allowed;
                                 
-                                // 🔥 支援「和局」與「保留比賽」判定
                                 if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; }
                                 else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; }
                                 else if(res.includes('和')) { record.isTie = true; record.resHtml = `<span class="result-badge result-tie">和局</span>`; }
@@ -346,7 +361,7 @@
             filteredRecords.forEach(r => {
                 if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; }
                 if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
-                if(r.isTie) { fTie++; fScored += r.scored; fAllowed += r.allowed; } // 和局的得分也要算進去
+                if(r.isTie) { fTie++; fScored += r.scored; fAllowed += r.allowed; } 
                 if(r.isDelay) fDelay++;
                 if(r.isSuspend) fSuspend++;
                 if(r.overtimeGames > 0) fOvertimeGames++;
@@ -356,18 +371,14 @@
 
             document.getElementById('history-list').innerHTML = historyHtml || '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
             
-            // 🔥 總出勤 = 所有有上班的紀錄 (不管勝敗和延保)
             document.getElementById('stat-games').innerText = `${filteredRecords.length} 場`;
             
-            // 🔥 戰績加上和局顯示
             let recordText = `${fWin}勝${fLoss}敗`;
             if (fTie > 0) recordText += `${fTie}和`;
             document.getElementById('stat-record').innerText = recordText;
             
-            // 🔥 勝率計算 (和局不計入分母)
             document.getElementById('stat-winrate').innerText = (fWin+fLoss) > 0 ? `${((fWin/(fWin+fLoss))*100).toFixed(1)}%` : '0%';
             
-            // 🔥 將延賽與保留合併顯示
             document.getElementById('stat-delay').innerText = `${fDelay + fSuspend} 場`;
             document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`;
             document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
