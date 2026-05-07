@@ -6,6 +6,47 @@
     <title>女孩專屬戰情報告</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 專屬高質感個人資料卡片 CSS */
+        .info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .info-tag {
+            background: rgba(255, 117, 140, 0.08);
+            border: 1px solid rgba(255, 117, 140, 0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-tag .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+        .info-tag .value {
+            font-size: 15px;
+            color: var(--text-main);
+            font-weight: 900;
+        }
+        /* 夜間模式支援 */
+        [data-theme="dark"] .info-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 表格防破版與專業對齊 */
+        #history-table th, #history-table td {
+            white-space: nowrap !important;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #history-table td:nth-child(2) { font-weight: 900; color: var(--theme-main); } /* 站位高亮 */
+    </style>
 </head>
 <body>
     <div id="loading-overlay">
@@ -18,15 +59,15 @@
             <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div class="profile-header-container card" id="profile-card" style="display: none;">
-            <div id="avatar-container" class="profile-avatar-large"></div>
+        <div class="profile-header-container card" id="profile-card" style="display: none; align-items: flex-start;">
+            <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0;"></div>
             <div style="flex: 1; text-align: left; min-width: 0;">
-                <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 28px; font-weight: 900;"></h1>
-                <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 10px;"></div>
+                <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
+                <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 12px;"></div>
                 
-                <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;"></div>
+                <div id="extra-info-container" class="info-grid"></div>
 
-                <div id="ig-container"></div>
+                <div id="ig-container" style="margin-top: 5px;"></div>
             </div>
         </div>
 
@@ -45,14 +86,17 @@
         </div>
 
         <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
-            <h3 style="margin: 20px; color: var(--theme-main); text-align: center;">📅 本季出勤紀錄</h3>
-            <table style="min-width: 100%; border-radius: var(--border-radius); overflow: hidden;">
+            <h3 style="margin: 20px; color: var(--theme-main); text-align: center;">📅 本季詳細出勤紀錄</h3>
+            <table id="history-table" style="min-width: 100%; border-radius: var(--border-radius); overflow: hidden;">
                 <thead>
                     <tr>
-                        <th style="width: 25%;">日期</th>
-                        <th style="width: 25%;">📍站位</th>
-                        <th style="width: 25%;">對手</th>
-                        <th style="width: 25%;">結果</th>
+                        <th>日期</th>
+                        <th>📍站位</th>
+                        <th>對手</th>
+                        <th>比分</th>
+                        <th>結果</th>
+                        <th>觀眾數</th>
+                        <th>MVP/勝投</th>
                     </tr>
                 </thead>
                 <tbody id="history-list"></tbody>
@@ -73,27 +117,22 @@
 
         async function initDetail() {
             try {
-                // 1. 取得網址列參數 (?name=琳妲&team=樂天桃猿)
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetName = urlParams.get('name');
                 const targetTeam = urlParams.get('team');
 
                 if (!targetName) {
                     document.getElementById('error-message').style.display = 'block';
-                    hideLoading();
-                    return;
+                    hideLoading(); return;
                 }
 
-                // 2. 獲取資料
                 const [girlsData, scheduleData, matchesData] = await Promise.all([
                     fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
                 ]);
 
-                // 3. 尋找女孩基本資料
                 const girlInfo = girlsData.find(g => g.name && g.name.trim() === targetName);
                 const finalTeam = targetTeam || (girlInfo ? girlInfo.team.trim() : "");
 
-                // 🌟 渲染上方大頭貼與基本資訊
                 document.getElementById('page-title').innerText = targetName;
                 
                 let teamColor = 'var(--theme-main)';
@@ -107,26 +146,34 @@
                 badge.innerText = finalTeam || '自由球員';
                 badge.style.background = teamColor;
 
-                // 👇 新增的自動偵測魔法：抓取並顯示額外欄位 👇
+                // 🌟 智慧字典：把醜醜的英文 key 翻譯成漂亮標籤
+                const keyDictionary = {
+                    'number': '背號', 'birthday': '生日', 'height': '身高', 
+                    'weight': '體重', 'blood_type': '血型', 'constellation': '星座', 'years': '年資'
+                };
+
                 if (girlInfo) {
                     const extraContainer = document.getElementById('extra-info-container');
                     extraContainer.innerHTML = ''; 
-                    
-                    // 把不需要顯示為小標籤的基本欄位排除
-                    const excludeKeys = ['name', 'team', 'photo', 'ig'];
+                    const excludeKeys = ['name', 'team', 'photo', 'ig', 'year'];
                     
                     Object.keys(girlInfo).forEach(key => {
-                        // 如果該欄位不是基本資訊，而且裡面有寫東西
-                        if (!excludeKeys.includes(key) && girlInfo[key] && girlInfo[key].toString().trim() !== "") {
-                            extraContainer.innerHTML += `<span style="background: var(--bg-color); color: var(--text-main); padding: 4px 10px; border-radius: 10px; font-size: 13px; font-weight: 800; border: 1px solid #ffe4e8; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">${key}: ${girlInfo[key]}</span>`;
+                        const val = girlInfo[key] ? girlInfo[key].toString().trim() : "";
+                        if (!excludeKeys.includes(key.toLowerCase()) && val !== "") {
+                            // 檢查字典，如果有對應就翻譯，沒有就保留原標題
+                            const prettyLabel = keyDictionary[key.toLowerCase()] || key;
+                            extraContainer.innerHTML += `
+                                <div class="info-tag">
+                                    <span class="label">${prettyLabel}</span>
+                                    <span class="value">${val}</span>
+                                </div>`;
                         }
                     });
                 }
-                // 👆 自動偵測魔法結束 👆
 
                 const avatarContainer = document.getElementById('avatar-container');
                 if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
-                    avatarContainer.innerHTML = `<img src="${girlInfo.photo.trim()}" alt="${targetName}">`;
+                    avatarContainer.innerHTML = `<img src="${girlInfo.photo.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 } else {
                     avatarContainer.innerHTML = `<div style="width:100%;height:100%;background:#ffe4e8;display:flex;align-items:center;justify-content:center;font-size:40px;">👱‍♀️</div>`;
                 }
@@ -136,12 +183,10 @@
                     document.getElementById('ig-container').innerHTML = `<a href="${igLink}" target="_blank" class="ig-btn"><svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>前往 IG</a>`;
                 }
 
-                // 4. 計算出勤與戰績資料
                 let win = 0, loss = 0, delay = 0;
                 let totalScored = 0, totalAllowed = 0;
                 let historyHtml = '';
                 
-                // 尋找班表
                 const schedules = scheduleData.filter(s => s.girl_name && s.girl_name.trim() === targetName && (!finalTeam || (s.team && s.team.trim() === finalTeam)));
                 
                 schedules.forEach(s => {
@@ -149,10 +194,12 @@
                     if(s.working_dates) {
                         const workList = parseWorkingDate(s.working_dates);
                         workList.forEach(w => {
-                            let matchResultHtml = '<span style="color:var(--text-muted);">無比賽資料</span>';
+                            let matchResultHtml = '<span style="color:var(--text-muted);">無比賽</span>';
                             let opponentText = '-';
+                            let scoreText = '-';
+                            let audienceText = '-';
+                            let mvpText = '-';
                             
-                            // 日期轉換吸塵器
                             const wNums = w.date ? w.date.match(/\d+/g) : null;
                             if (wNums && wNums.length >= 2) {
                                 const wM = parseInt(wNums[0], 10);
@@ -167,22 +214,23 @@
 
                                 if(match) {
                                     opponentText = match.opponent || '-';
+                                    scoreText = match.score || match['比分'] || '-';
+                                    
+                                    // 抓取觀眾數與 MVP (支援多種可能的欄位命名)
+                                    audienceText = match.audience || match['觀眾'] || match['觀眾數'] || '-';
+                                    mvpText = match.mvp || match['MVP'] || match['單場MVP'] || match['勝投'] || '-';
+
                                     const res = match.result ? match.result.trim() : '';
                                     const scoreData = parseScoreForTeam(match.score, res);
                                     
                                     if(res === '勝') {
-                                        win++;
-                                        totalScored += scoreData.scored;
-                                        totalAllowed += scoreData.allowed;
-                                        matchResultHtml = `<span class="win">勝 (${scoreData.scored}:${scoreData.allowed})</span>`;
+                                        win++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed;
+                                        matchResultHtml = `<span class="win">勝利</span>`;
                                     } else if(res === '敗') {
-                                        loss++;
-                                        totalScored += scoreData.scored;
-                                        totalAllowed += scoreData.allowed;
-                                        matchResultHtml = `<span class="loss">敗 (${scoreData.scored}:${scoreData.allowed})</span>`;
+                                        loss++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed;
+                                        matchResultHtml = `<span class="loss">落敗</span>`;
                                     } else if(res === '延賽') {
-                                        delay++;
-                                        matchResultHtml = `<span style="background:#bdc3c7; color:white; padding:4px 10px; border-radius:12px;">🌧️ 延賽</span>`;
+                                        delay++; matchResultHtml = `<span style="background:#bdc3c7; color:white; padding:4px 10px; border-radius:12px;">🌧️ 延賽</span>`;
                                     }
                                 }
                             }
@@ -190,17 +238,19 @@
                             const posText = w.position || '未指定';
                             historyHtml += `
                                 <tr>
-                                    <td style="font-weight:bold;">${w.date}</td>
-                                    <td style="color:var(--theme-main); font-weight:900;">${posText}</td>
+                                    <td>${w.date}</td>
+                                    <td>${posText}</td>
                                     <td>${opponentText}</td>
+                                    <td style="font-weight:bold; letter-spacing:1px;">${scoreText}</td>
                                     <td>${matchResultHtml}</td>
+                                    <td style="color:var(--text-muted);">${audienceText}</td>
+                                    <td style="font-size:13px; max-width:120px; overflow:hidden; text-overflow:ellipsis;">${mvpText}</td>
                                 </tr>
                             `;
                         });
                     }
                 });
 
-                // 5. 更新迷你看板
                 const totalValidGames = win + loss;
                 const totalShifts = totalValidGames + delay;
                 
@@ -209,31 +259,19 @@
                 document.getElementById('stat-winrate').innerText = totalValidGames > 0 ? `${((win/totalValidGames)*100).toFixed(1)}%` : '0%';
                 document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
 
-                if(historyHtml === '') historyHtml = '<tr><td colspan="4" style="text-align:center; padding:20px;">目前尚無出勤紀錄</td></tr>';
+                if(historyHtml === '') historyHtml = '<tr><td colspan="7" style="text-align:center; padding:20px;">目前尚無出勤紀錄</td></tr>';
                 document.getElementById('history-list').innerHTML = historyHtml;
 
-                // 🌟 6. 戰鬥力雷達圖核心運算 (遊戲化轉換) 🌟
-                // 計算 0-100 的五大能力值
+                // 戰鬥力雷達圖
                 const scoreWin = totalValidGames > 0 ? Math.round((win / totalValidGames) * 100) : 0;
-                
-                // 體力：假設 15 場算高出勤，滿分 100
                 const scoreStamina = Math.min(Math.round((totalShifts / 15) * 100), 100); 
-                
-                // 火力：平均得分越高越高分 (假設均得 6 分算滿分 100)
                 const avgScored = totalValidGames > 0 ? (totalScored / totalValidGames) : 0;
                 const scoreOffense = Math.min(Math.round((avgScored / 6) * 100), 100);
-                
-                // 鐵壁：平均失分越「少」越高分 (假設均失 1 分得 100 分，失 7 分得 0 分)
                 const avgAllowed = totalValidGames > 0 ? (totalAllowed / totalValidGames) : 7;
                 const scoreDefense = Math.max(Math.min(Math.round(100 - ((avgAllowed - 1) / 6) * 100), 100), 0);
-                
-                // 晴天：沒遇到延賽的比例
                 const scoreSun = totalShifts > 0 ? Math.round((totalValidGames / totalShifts) * 100) : 0;
 
-                // 繪製雷達圖
                 const ctx = document.getElementById('radarChart').getContext('2d');
-                
-                // 自動偵測是否為夜間模式以調整網格顏色
                 const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
                 const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
                 const labelColor = isDarkMode ? '#dddddd' : '#5c4b51';
@@ -243,44 +281,19 @@
                     data: {
                         labels: ['👑 勝運', '🔥 體力', '⚔️ 火力', '🛡️ 鐵壁', '☀️ 晴天'],
                         datasets: [{
-                            label: '綜合戰鬥力',
-                            data: [scoreWin, scoreStamina, scoreOffense, scoreDefense, scoreSun],
-                            backgroundColor: 'rgba(255, 117, 140, 0.3)', // 粉色半透明填滿
-                            borderColor: '#ff758c',
-                            pointBackgroundColor: '#ff758c',
-                            pointBorderColor: '#fff',
-                            pointHoverBackgroundColor: '#fff',
-                            pointHoverBorderColor: '#ff758c',
-                            borderWidth: 2,
-                            pointRadius: 4,
+                            label: '綜合戰鬥力', data: [scoreWin, scoreStamina, scoreOffense, scoreDefense, scoreSun],
+                            backgroundColor: 'rgba(255, 117, 140, 0.3)', borderColor: '#ff758c',
+                            pointBackgroundColor: '#ff758c', pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff', pointHoverBorderColor: '#ff758c', borderWidth: 2, pointRadius: 4,
                         }]
                     },
                     options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            r: {
-                                angleLines: { color: gridColor },
-                                grid: { color: gridColor },
-                                pointLabels: { 
-                                    font: { size: 13, weight: 'bold', family: 'Nunito, Noto Sans TC' }, 
-                                    color: labelColor 
-                                },
-                                ticks: { display: false, min: 0, max: 100, stepSize: 20 } // 隱藏醜醜的數字刻度
-                            }
-                        },
-                        plugins: { 
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) { return ` 能力值: ${context.raw} / 100`; }
-                                }
-                            }
-                        }
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { angleLines: { color: gridColor }, grid: { color: gridColor }, pointLabels: { font: { size: 13, weight: 'bold', family: 'Nunito, Noto Sans TC' }, color: labelColor }, ticks: { display: false, min: 0, max: 100, stepSize: 20 } } },
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return ` 能力值: ${context.raw} / 100`; } } } }
                     }
                 });
 
-                // 顯示所有區塊
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'grid';
                 document.getElementById('radar-card').style.display = 'block';
