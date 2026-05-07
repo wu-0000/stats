@@ -20,7 +20,7 @@
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
 
-        /* 🍎 粉色圓角泡泡標籤 */
+        /* 🍎 粉色圓角泡泡標籤 (台灣) */
         .info-tag {
             display: inline-flex;
             align-items: center;
@@ -31,7 +31,6 @@
             gap: 8px;
             white-space: nowrap;
         }
-        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
@@ -74,7 +73,7 @@
             justify-content: center;
         }
 
-        /* 🔍 女神情報局專屬方塊 (🔥 絕對正方形魔法 🔥) */
+        /* 🔍 女神情報局專屬方塊 (絕對正方形) */
         #secret-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr); 
@@ -92,7 +91,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05);
-            aspect-ratio: 1 / 1; /* 🔥 這行是神丹！強迫變成完美正方形，永不變形！ */
+            aspect-ratio: 1 / 1;
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
@@ -106,16 +105,11 @@
         }
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
 
-        /* 📱 平板與手機版適應 */
+        /* 📱 響應式適應 */
         @media (max-width: 1050px) {
             .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; }
             .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; min-width: auto; }
-            .profile-right { 
-                border-left: none; 
-                border-top: 1px dashed rgba(255, 117, 140, 0.4); 
-                padding-left: 0; 
-                padding-top: 25px; 
-            }
+            .profile-right { border-left: none; border-top: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 0; padding-top: 25px; }
         }
         @media (max-width: 850px) { #secret-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 480px) { #secret-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -132,7 +126,6 @@
         .result-delay { background-color: #bdc3c7; } 
         .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
         
-        /* 篩選器樣式 */
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
         [data-theme="dark"] .filter-select { border-color: #555; }
     </style>
@@ -167,7 +160,6 @@
                         <div id="ig-container"></div>
                         <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                     </div>
-
                 </div>
             </div>
 
@@ -196,7 +188,6 @@
                     <select id="filter-month" class="filter-select"><option value="all">所有月份</option></select>
                 </div>
             </div>
-
             <div style="width: 100%; overflow-x: auto;">
                 <table id="history-table" style="min-width: 100%;">
                     <thead>
@@ -236,43 +227,33 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
-                const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
+                // ⚾ 1. 處理名字與球隊
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
                 
+                const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
                 let teamColor = 'var(--theme-main)';
                 let displayTeam = finalTeam;
 
-                if (finalTeam.includes('樂天')) {
-                    displayTeam = 'Rakuten Girls';
-                } else if (finalTeam.includes('兄弟')) { 
-                    teamColor = '#f1c40f'; 
-                    displayTeam = 'Passion Sisters';
-                } else if (finalTeam.includes('味全')) { 
-                    teamColor = '#e74c3c'; 
-                    displayTeam = 'Dragon Beauties';
-                } else if (finalTeam.includes('統一')) { 
-                    teamColor = '#e67e22'; 
-                    displayTeam = 'Uni Girls';
-                } else if (finalTeam.includes('富邦')) { 
-                    teamColor = '#3498db'; 
-                    displayTeam = 'Fubon Angels';
-                } else if (finalTeam.includes('台鋼')) { 
-                    teamColor = '#2ecc71'; 
-                    displayTeam = 'WING STARS';
-                }
+                if (finalTeam.includes('樂天')) { displayTeam = 'Rakuten Girls'; }
+                else if (finalTeam.includes('兄弟')) { teamColor = '#f1c40f'; displayTeam = 'Passion Sisters'; }
+                else if (finalTeam.includes('味全')) { teamColor = '#e74c3c'; displayTeam = 'Dragon Beauties'; }
+                else if (finalTeam.includes('統一')) { teamColor = '#e67e22'; displayTeam = 'Uni Girls'; }
+                else if (finalTeam.includes('富邦')) { teamColor = '#3498db'; displayTeam = 'Fubon Angels'; }
+                else if (finalTeam.includes('台鋼')) { teamColor = '#2ecc71'; displayTeam = 'WING STARS'; }
 
                 const badge = document.getElementById('team-badge');
                 badge.innerText = displayTeam;
                 badge.style.background = teamColor;
 
-                const photoUrl = girlInfo.photo || girlInfo['圖片'];
-                if (photoUrl) {
-                    document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
+                // 📸 🔥 2. 重裝回歸！大頭貼照片渲染邏輯
+                const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
+                if (photoUrl && photoUrl.trim() !== '') {
+                    document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 }
 
-                // 📸 IG 按鈕生成 (只顯示 Icon)
+                // 3. 處理並排 IG 按鈕
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
                 if (igAccount.trim() !== '') {
                     const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
@@ -284,97 +265,59 @@
                         </a>`;
                 }
 
+                // 4. 情報方塊資料分配
                 const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
-                
                 const dict = {
-                    'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' },
-                    'favorite_player': { label: '最愛球員', icon: '⚾' },
-                    'food': { label: '最愛食物', icon: '🍰' },
-                    'hobby': { label: '興趣', icon: '🎨' },
-                    'birthday': { label: '生日', icon: '🎂' }, 
-                    'country': { label: '國籍', icon: '🇹🇼' },
-                    'height': { label: '身高', icon: '📏' },
-                    'weight': { label: '體重', icon: '⚖️' },
-                    'years': { label: '年資', icon: '⏳' }
+                    'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' },
+                    'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' },
+                    'country': { label: '國籍', icon: '🇹🇼' }
                 };
-
-                const secretKeys = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
-                const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'IG', 'year', 'id', 'number'];
+                const secretKeysOrder = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
+                const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'ig', 'IG', 'year', 'id', 'number'];
                 
                 let mappedData = {};
-
                 Object.keys(girlInfo).forEach(k => {
-                    const lk = k.toLowerCase();
-                    const label = dict[lk] ? dict[lk].label : k;
-
-                    if (secretKeys.includes(label)) {
-                        mappedData[label] = girlInfo[k];
-                    } 
-                    else if (!excludeKeys.includes(lk) && girlInfo[k] && girlInfo[k].toString().trim() !== '') {
-                        if (label === '國籍') {
-                            extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`;
-                        } else {
-                            extraContainer.innerHTML += `<div class="info-tag"><span class="label">${label}</span><span class="value">${girlInfo[k]}</span></div>`;
-                        }
+                    const label = dict[k.toLowerCase()] ? dict[k.toLowerCase()].label : k;
+                    if (secretKeysOrder.includes(label)) { mappedData[label] = girlInfo[k]; } 
+                    else if (!exclude.includes(k.toLowerCase()) && girlInfo[k] && girlInfo[k].trim() !== '') {
+                        const valText = label === '國籍' ? girlInfo[k] : `<span class="label">${label}</span><span class="value">${girlInfo[k]}</span>`;
+                        extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`;
                     }
                 });
 
-                secretKeys.forEach(title => {
+                secretKeysOrder.forEach(title => {
                     let iconObj = Object.values(dict).find(d => d.label === title);
-                    let icon = iconObj ? iconObj.icon : '✨';
-                    let val = mappedData[title] && mappedData[title].toString().trim() !== '' ? mappedData[title] : '保密中';
-                    let valStyle = val === '保密中' ? 'color: var(--text-muted);' : 'color: var(--text-main);';
-                    
-                    secretGrid.innerHTML += `
-                        <div class="secret-box">
-                            <div class="icon">${icon}</div>
-                            <div class="label">${title}</div>
-                            <div class="value" style="${valStyle}">${val}</div>
-                        </div>
-                    `;
+                    let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中';
+                    secretGrid.innerHTML += `<div class="secret-box"><div class="icon">${iconObj.icon}</div><div class="label">${title}</div><div class="value">${val}</div></div>`;
                 });
 
+                // 5. 班表與篩選渲染
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
-                
                 schedules.forEach(s => {
                     if(!s.working_dates) return;
                     const sYear = s.year ? s.year.toString().trim() : '';
-                    const workList = parseWorkingDate(s.working_dates);
-                    
-                    workList.forEach(w => {
+                    parseWorkingDate(s.working_dates).forEach(w => {
                         let record = { date: w.date, year: sYear, month: '', gameNo: '-', opponent: '-', score: '-', winP: '-', lossP: '-', savP: '-', mvpP: '-', attP: '-', durP: '-', locP: '-', pos: w.position || '-', isWin: false, isLoss: false, isDelay: false, scored: 0, allowed: 0, overtimeGames: 0, resHtml: '<span style="color:var(--text-muted);">-</span>' };
-                        
                         const wNums = w.date.match(/\d+/g);
                         if (wNums && wNums.length >= 2) {
                             record.month = wNums[0].padStart(2, '0');
-                            const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
-                            
                             const match = matchesData.find(m => {
                                 if(sYear && m.year && sYear !== m.year.toString()) return false;
                                 if(m.team && m.team.trim() !== finalTeam) return false;
                                 const mNums = m.date ? m.date.match(/\d+/g) : null;
-                                return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === wM && parseInt(mNums[1], 10) === wD;
+                                return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === parseInt(wNums[0], 10) && parseInt(mNums[1], 10) === parseInt(wNums[1], 10);
                             });
-
                             if(match) {
                                 record.year = match.year ? match.year.toString() : sYear;
-                                record.gameNo = match.game_no || '-'; record.opponent = match.opponent || match['對手'] || '-';
-                                record.score = match.score || match['比分'] || '-'; record.winP = match.win_pitcher || match['勝投'] || '-';
-                                record.lossP = match.loss_pitcher || match['敗投'] || '-'; record.savP = match.save || match['救援'] || '-';
-                                record.mvpP = match.mvp || match['MVP'] || '-'; record.attP = match.attendance || match['觀眾數'] || '-';
-                                record.durP = match.duration || match['比賽時間'] || '-'; record.locP = match.location || match['地點'] || '-';
-                                
-                                const inn = parseInt(match.innings || match['局數'] || 9);
-                                if(inn > 9) {
-                                    record.overtimeGames = 1; 
-                                    record.score += `<span class="overtime-badge">${inn}局</span>`;
-                                }
-
-                                const res = (match.result || match['結果'] || '').trim();
+                                record.gameNo = match.game_no || '-'; record.opponent = match.opponent || '-'; record.score = match.score || '-';
+                                record.winP = match.win_pitcher || '-'; record.lossP = match.loss_pitcher || '-'; record.savP = match.save || '-';
+                                record.mvpP = match.mvp || '-'; record.attP = match.attendance || '-'; record.durP = match.duration || '-'; record.locP = match.location || '-';
+                                const inn = parseInt(match.innings || 9);
+                                if(inn > 9) { record.overtimeGames = 1; record.score += `<span class="overtime-badge">${inn}局</span>`; }
+                                const res = (match.result || '').trim();
                                 const scoreData = parseScoreForTeam(match.score, res);
                                 record.scored = scoreData.scored; record.allowed = scoreData.allowed;
-                                
                                 if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; }
                                 else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; }
                                 else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span class="result-badge result-delay">延賽</span>`; }
@@ -386,79 +329,37 @@
 
                 const years = [...new Set(allMatchRecords.map(r => r.year).filter(y => y))].sort().reverse();
                 const months = [...new Set(allMatchRecords.map(r => r.month).filter(m => m))].sort();
-                
-                const yearSelect = document.getElementById('filter-year');
-                years.forEach(y => yearSelect.innerHTML += `<option value="${y}">${y} 年</option>`);
-                
-                const monthSelect = document.getElementById('filter-month');
-                months.forEach(m => monthSelect.innerHTML += `<option value="${m}">${m} 月</option>`);
-
-                yearSelect.addEventListener('change', renderFilteredData);
-                monthSelect.addEventListener('change', renderFilteredData);
+                years.forEach(y => document.getElementById('filter-year').innerHTML += `<option value="${y}">${y} 年</option>`);
+                months.forEach(m => document.getElementById('filter-month').innerHTML += `<option value="${m}">${m} 月</option>`);
+                document.getElementById('filter-year').addEventListener('change', renderFilteredData);
+                document.getElementById('filter-month').addEventListener('change', renderFilteredData);
 
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'flex';
                 document.getElementById('history-card').style.display = 'block';
-                
-                renderFilteredData(); 
-                hideLoading();
-
-            } catch (error) {
-                console.error(error);
-                document.getElementById('error-message').style.display = 'block';
-                hideLoading();
-            }
+                renderFilteredData(); hideLoading();
+            } catch (error) { console.error(error); hideLoading(); }
         }
 
         function renderFilteredData() {
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
-
-            let fWin = 0, fLoss = 0, fDelay = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0;
-            let historyHtml = '';
-
-            const filteredRecords = allMatchRecords.filter(r => {
-                const matchY = (selYear === 'all' || r.year === selYear);
-                const matchM = (selMonth === 'all' || r.month === selMonth);
-                return matchY && matchM;
-            });
-
-            filteredRecords.forEach(r => {
+            let fWin = 0, fLoss = 0, fDelay = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0, historyHtml = '';
+            allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth)).forEach(r => {
                 if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; }
                 if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
-                if(r.isDelay) { fDelay++; }
+                if(r.isDelay) fDelay++;
                 if(r.overtimeGames > 0) fOvertimeGames++;
-
-                historyHtml += `<tr>
-                    <td style="font-weight:bold;">${r.date}</td>
-                    <td style="color:var(--text-muted);">${r.gameNo}</td>
-                    <td>${r.opponent}</td>
-                    <td style="font-weight:bold;">${r.score}</td>
-                    <td>${r.resHtml}</td>
-                    <td style="color:#e74c3c;">${r.winP}</td>
-                    <td style="color:#3498db;">${r.lossP}</td>
-                    <td style="color:#2ecc71;">${r.savP}</td>
-                    <td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td>
-                    <td style="font-weight:bold;">${r.attP}</td>
-                    <td>${r.durP}</td>
-                    <td>${r.locP}</td>
-                    <td style="color:var(--theme-main); font-weight:900;">${r.pos}</td>
-                </tr>`;
+                historyHtml += `<tr><td style="font-weight:bold;">${r.date}</td><td style="color:var(--text-muted);">${r.gameNo}</td><td>${r.opponent}</td><td style="font-weight:bold;">${r.score}</td><td>${r.resHtml}</td><td style="color:#e74c3c;">${r.winP}</td><td style="color:#3498db;">${r.lossP}</td><td style="color:#2ecc71;">${r.savP}</td><td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td><td style="font-weight:bold;">${r.attP}</td><td>${r.durP}</td><td>${r.locP}</td><td style="color:var(--theme-main); font-weight:900;">${r.pos}</td></tr>`;
             });
-
-            if (historyHtml === '') {
-                historyHtml = '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
-            }
-
+            document.getElementById('history-list').innerHTML = historyHtml || '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
             document.getElementById('stat-games').innerText = `${fWin+fLoss} 場`;
             document.getElementById('stat-record').innerText = `${fWin}勝 ${fLoss}敗`;
             document.getElementById('stat-winrate').innerText = (fWin+fLoss) > 0 ? `${((fWin/(fWin+fLoss))*100).toFixed(1)}%` : '0%';
             document.getElementById('stat-delay').innerText = `${fDelay} 場`;
             document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`;
             document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
-            document.getElementById('history-list').innerHTML = historyHtml;
         }
-
         initDetail();
     </script>
 </body>
