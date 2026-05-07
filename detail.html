@@ -28,7 +28,7 @@
             border-radius: 16px;
             padding: 15px 5px;
             text-align: center;
-            background: var(--bg-color); /* 微調背景色讓它在白卡片中有層次 */
+            background: var(--bg-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -41,7 +41,7 @@
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
 
         /* 📊 寬敞數據看板 */
-        .dashboard-card { flex: 1; min-width: 100px; padding: 20px 5px; text-align: center; border-radius: 16px; }
+        .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         .dashboard-value { font-size: 20px; font-weight: 900; }
 
@@ -78,7 +78,6 @@
         </div>
 
         <div class="card" id="profile-card" style="display: none; padding: 25px; margin-bottom: 25px;">
-            
             <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 20px;"></div>
                 <div style="flex: 1; text-align: left; min-width: 0;">
@@ -99,15 +98,15 @@
                 </h3>
                 <div id="secret-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px;"></div>
             </div>
-
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
-            <div class="card dashboard-card"><div class="dashboard-label">總出賽</div><div class="dashboard-value" id="stat-games">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">總出賽</div><div class="dashboard-value" id="stat-games" style="color: var(--text-main);">0 場</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">戰績</div><div class="dashboard-value" id="stat-record" style="color: #e74c3c;">0勝 0敗</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">勝率</div><div class="dashboard-value" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">延賽</div><div class="dashboard-value" id="stat-delay" style="color: #95a5a6;">0 場</div></div>
             <div class="card dashboard-card"><div class="dashboard-label">加班總計</div><div class="dashboard-value" id="stat-overtime" style="color: #6c5ce7;">0 場</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points">0 / 0</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points" style="color: var(--text-main);">0 / 0</div></div>
         </div>
 
         <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
@@ -276,7 +275,6 @@
                 yearSelect.addEventListener('change', renderFilteredData);
                 monthSelect.addEventListener('change', renderFilteredData);
 
-                // 顯示合併後的大卡片
                 document.getElementById('profile-card').style.display = 'block';
                 document.getElementById('mini-dashboard').style.display = 'flex';
                 document.getElementById('history-card').style.display = 'block';
@@ -296,7 +294,7 @@
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
 
-            let fWin = 0, fLoss = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0;
+            let fWin = 0, fLoss = 0, fDelay = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0;
             let historyHtml = '';
 
             const filteredRecords = allMatchRecords.filter(r => {
@@ -308,6 +306,7 @@
             filteredRecords.forEach(r => {
                 if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; }
                 if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
+                if(r.isDelay) { fDelay++; }
                 if(r.overtimeGames > 0) fOvertimeGames++;
 
                 historyHtml += `<tr>
@@ -334,6 +333,7 @@
             document.getElementById('stat-games').innerText = `${fWin+fLoss} 場`;
             document.getElementById('stat-record').innerText = `${fWin}勝 ${fLoss}敗`;
             document.getElementById('stat-winrate').innerText = (fWin+fLoss) > 0 ? `${((fWin/(fWin+fLoss))*100).toFixed(1)}%` : '0%';
+            document.getElementById('stat-delay').innerText = `${fDelay} 場`;
             document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`;
             document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
             document.getElementById('history-list').innerHTML = historyHtml;
