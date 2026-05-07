@@ -22,7 +22,7 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 🍎 高質感資訊卡片樣式 */
+        /* 🍎 高質感資訊標籤樣式 */
         .info-tag {
             background: rgba(255, 117, 140, 0.08);
             border: 1px solid rgba(255, 117, 140, 0.2);
@@ -31,15 +31,25 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
         }
-        .info-tag .label { font-size: 12px; color: var(--text-muted); font-weight: bold; }
-        .info-tag .value { font-size: 15px; color: var(--text-main); font-weight: 900; }
+        .info-tag .label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 14px; color: var(--text-main); font-weight: 900; }
+
+        .overtime-badge {
+            background: #6c5ce7;
+            color: white;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
     </style>
 </head>
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">⚡ 正在載入女神戰情數據...</div>
+        <div class="loading-text">⚡ 正在運算女神戰鬥力數據...</div>
     </div>
 
     <div class="container">
@@ -52,8 +62,7 @@
             <div style="flex: 1; text-align: left; min-width: 0;">
                 <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                 <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 12px;"></div>
-                
-                <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;"></div>
+                <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
                 <div id="ig-container"></div>
             </div>
         </div>
@@ -97,7 +106,7 @@
         </div>
 
         <div id="error-message" style="text-align: center; color: red; display: none; font-weight: bold; margin-top: 50px;">
-            找不到該女孩的資料，請檢查 Google Sheets 欄位名稱是否正確！
+            找不到該女孩的資料，請回首頁重新選擇！
         </div>
     </div>
 
@@ -112,32 +121,18 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetName = urlParams.get('name');
-
-                if (!targetName) {
-                    document.getElementById('error-message').innerText = "未指定女孩名字，請回首頁重新選擇！";
-                    document.getElementById('error-message').style.display = 'block';
-                    hideLoading(); return;
-                }
+                if (!targetName) { hideLoading(); return; }
 
                 const [girlsData, scheduleData, matchesData] = await Promise.all([
                     fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
                 ]);
 
-                // 🔍 超強防呆尋找：自動支援 name, girl_name, 姓名 欄位
-                const girlInfo = girlsData.find(g => {
-                    const gName = g.name || g.girl_name || g['姓名'];
-                    return gName && gName.trim() === targetName;
-                });
-
-                if (!girlInfo) {
-                    document.getElementById('error-message').style.display = 'block';
-                    hideLoading(); return;
-                }
+                const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
+                if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
                 const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
                 document.getElementById('page-title').innerText = targetName;
                 
-                // 🎨 自動隊伍顏色
                 let teamColor = 'var(--theme-main)';
                 if(finalTeam.includes('兄弟')) teamColor = '#f1c40f'; 
                 else if(finalTeam.includes('味全')) teamColor = '#e74c3c'; 
@@ -149,46 +144,36 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 🏷️ 自動生成資料標籤
+                // 生成標籤
                 const extraContainer = document.getElementById('extra-info-container');
                 const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year'];
                 Object.keys(girlInfo).forEach(key => {
                     if (!excludeKeys.includes(key.toLowerCase()) && girlInfo[key]) {
-                        extraContainer.innerHTML += `
-                            <div class="info-tag">
-                                <span class="label">${key}</span>
-                                <span class="value">${girlInfo[key]}</span>
-                            </div>`;
+                        extraContainer.innerHTML += `<div class="info-tag"><span class="label">${key}</span><span class="value">${girlInfo[key]}</span></div>`;
                     }
                 });
 
-                const avatarContainer = document.getElementById('avatar-container');
                 const photoUrl = girlInfo.photo || girlInfo['圖片'];
                 if (photoUrl) {
-                    avatarContainer.innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
+                    document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // ⚾ 數據計算
+                // ⚾ 數據計算與表格填充
                 let win = 0, loss = 0, delay = 0, totalOvertime = 0, totalScored = 0, totalAllowed = 0, historyHtml = '';
                 
-                const schedules = scheduleData.filter(s => {
-                    const sName = s.girl_name || s.name || s['姓名'];
-                    return sName && sName.trim() === targetName;
-                });
+                const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 
                 schedules.forEach(s => {
                     if(!s.working_dates) return;
                     const workList = parseWorkingDate(s.working_dates);
                     workList.forEach(w => {
-                        let resHtml = '<span style="color:var(--text-muted);">-</span>';
-                        // 支援所有你提供的欄位名稱
-                        let gNo = '-', opp = '-', sco = '-', winP = '-', lossP = '-', savP = '-', mvpP = '-', attP = '-', durP = '-', locP = '-', innP = '9';
-                        
+                        let resHtml = '-', gNo = '-', opp = '-', sco = '-', winP = '-', lossP = '-', savP = '-', mvpP = '-', attP = '-', durP = '-', locP = '-';
                         const wNums = w.date.match(/\d+/g);
                         if (wNums && wNums.length >= 2) {
                             const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
                             const match = matchesData.find(m => {
                                 if(s.year && m.year && s.year.toString() !== m.year.toString()) return false;
+                                if(m.team && m.team.trim() !== finalTeam) return false;
                                 const mNums = m.date ? m.date.match(/\d+/g) : null;
                                 return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === wM && parseInt(mNums[1], 10) === wD;
                             });
@@ -204,9 +189,9 @@
                                 attP = match.attendance || match['觀眾數'] || '-';
                                 durP = match.duration || match['比賽時間'] || '-';
                                 locP = match.location || match['地點'] || '-';
-                                const innings = parseInt(match.innings || match['局數'] || 9);
-                                innP = innings > 9 ? `${innings}<span class="overtime-badge">加班+${innings-9}</span>` : '9';
-                                if(innings > 9) totalOvertime += (innings - 9);
+                                
+                                const inn = parseInt(match.innings || match['局數'] || 9);
+                                if(inn > 9) totalOvertime += (inn - 9);
 
                                 const res = (match.result || match['結果'] || '').trim();
                                 const scoreData = parseScoreForTeam(match.score, res);
@@ -216,42 +201,67 @@
                             }
                         }
                         
-                        historyHtml += `
-                            <tr>
-                                <td style="font-weight:bold;">${w.date}</td>
-                                <td style="font-size:12px; color:var(--text-muted);">${gNo}</td>
-                                <td>${opp}</td>
-                                <td style="font-weight:bold;">${sco}</td>
-                                <td>${resHtml}</td>
-                                <td style="color:#e74c3c;">${winP}</td>
-                                <td style="color:#3498db;">${lossP}</td>
-                                <td style="color:#2ecc71;">${savP}</td>
-                                <td style="color:#f39c12; font-weight:bold;">${mvpP}</td>
-                                <td style="font-weight:bold;">${attP}</td>
-                                <td style="font-size:12px;">${durP}</td>
-                                <td>${locP}</td>
-                                <td style="color:var(--theme-main); font-weight:900;">${w.position || '-'}</td>
-                            </tr>`;
+                        historyHtml += `<tr>
+                            <td style="font-weight:bold;">${w.date}</td>
+                            <td style="font-size:12px; color:var(--text-muted);">${gNo}</td>
+                            <td>${opp}</td>
+                            <td style="font-weight:bold;">${sco}</td>
+                            <td>${resHtml}</td>
+                            <td style="color:#e74c3c;">${winP}</td>
+                            <td style="color:#3498db;">${lossP}</td>
+                            <td style="color:#2ecc71;">${savP}</td>
+                            <td style="color:#f39c12; font-weight:bold;">${mvpP}</td>
+                            <td style="font-weight:bold;">${attP}</td>
+                            <td style="font-size:12px;">${durP}</td>
+                            <td>${locP}</td>
+                            <td style="color:var(--theme-main); font-weight:900;">${w.position || '-'}</td>
+                        </tr>`;
                     });
                 });
 
-                // 渲染迷你看板
                 document.getElementById('stat-games').innerText = `${win+loss} 場`;
                 document.getElementById('stat-winrate').innerText = (win+loss) > 0 ? `${((win/(win+loss))*100).toFixed(1)}%` : '0%';
                 document.getElementById('stat-overtime').innerText = `${totalOvertime} 局`;
                 document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
                 document.getElementById('history-list').innerHTML = historyHtml;
 
-                // 顯示介面
+                // ⚡ 繪製雷達圖 ⚡
+                const totalValid = win + loss;
+                const scoreWin = totalValid > 0 ? Math.round((win / totalValid) * 100) : 0;
+                const scoreStamina = Math.min(Math.round(((totalValid * 9 + totalOvertime) / 135) * 100), 100); 
+                const scoreOffense = totalValid > 0 ? Math.min(Math.round((totalScored / totalValid / 6) * 100), 100) : 0;
+                const scoreDefense = totalValid > 0 ? Math.max(Math.min(Math.round(100 - ((totalAllowed / totalValid - 1) / 6) * 100), 100), 0) : 0;
+                const scoreSun = (totalValid + delay) > 0 ? Math.round((totalValid / (totalValid + delay)) * 100) : 0;
+
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                const color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+                
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['👑 勝運', '🔥 體力', '⚔️ 火力', '🛡️ 鐵壁', '☀️ 晴天'],
+                        datasets: [{
+                            label: '能力值', data: [scoreWin, scoreStamina, scoreOffense, scoreDefense, scoreSun],
+                            backgroundColor: 'rgba(255, 117, 140, 0.3)', borderColor: '#ff758c', borderWidth: 2, pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { angleLines: { color: color }, grid: { color: color }, pointLabels: { font: { weight: 'bold' }, color: isDarkMode ? '#ddd' : '#555' }, ticks: { display: false, max: 100, min: 0, stepSize: 20 } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'grid';
+                document.getElementById('radar-card').style.display = 'block';
                 document.getElementById('history-card').style.display = 'block';
-
-                // 雷達圖 (略，已包含在 try 區塊中)
                 hideLoading();
             } catch (error) {
                 console.error(error);
                 document.getElementById('error-message').style.display = 'block';
+                hideLoading();
             }
         }
         initDetail();
