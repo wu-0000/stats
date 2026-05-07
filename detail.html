@@ -21,25 +21,23 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 🍎 高質感膠囊資訊標籤 (更名與美化) */
+        /* 🍎 高質感專業微型資訊卡 (洗刷泡泡廉價感) */
         .info-tag {
             display: inline-flex;
             align-items: center;
-            background: var(--card-bg);
-            border: 1px solid #ffe4e8;
-            border-radius: 20px;
-            padding: 5px 14px;
-            gap: 6px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 5px 10px;
+            gap: 8px;
             white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(255, 117, 140, 0.08);
         }
-        .info-tag .label { font-size: 12px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .label { font-size: 12px; color: #6c757d; font-weight: bold; }
         .info-tag .value { font-size: 14px; color: var(--theme-main); font-weight: 900; }
         
         [data-theme="dark"] .info-tag { 
             background: #2a2a2a; 
             border-color: #444; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
         }
 
         /* 加班紫色小標籤 */
@@ -145,18 +143,19 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 🌟 更新智慧字典：確保 id 會被翻譯成號碼
+                // 🌟 終極擴充字典：把所有你看得不順眼的英文全部抓出來翻譯
                 const keyDictionary = {
                     'id': '號碼', 'number': '號碼', 'no': '號碼',
                     'birthday': '生日', 'height': '身高', 'weight': '體重', 
-                    'blood_type': '血型', 'constellation': '星座', 'years': '年資'
+                    'blood_type': '血型', 'constellation': '星座', 'zodiac': '星座', 
+                    'years': '年資', 'favorite_player': '最愛球員', 
+                    'food': '喜愛美食', 'hobby': '興趣', 'country': '國籍'
                 };
 
                 const extraContainer = document.getElementById('extra-info-container');
                 const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year'];
                 Object.keys(girlInfo).forEach(key => {
                     if (!excludeKeys.includes(key.toLowerCase()) && girlInfo[key]) {
-                        // 透過字典翻譯標籤名稱
                         const prettyLabel = keyDictionary[key.toLowerCase()] || key;
                         extraContainer.innerHTML += `
                             <div class="info-tag">
