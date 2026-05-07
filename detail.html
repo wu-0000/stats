@@ -15,12 +15,25 @@
             border-bottom: 1px solid rgba(255, 117, 140, 0.1);
         }
         #history-table th { background-color: rgba(255, 117, 140, 0.05); color: var(--theme-main); font-weight: 900; }
-        
-        /* 🔥 統一表格內的所有字體大小 */
         #history-table td { font-size: 15px !important; color: var(--text-main); }
         
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
+
+        /* 🍎 粉色圓角泡泡標籤 (國籍、生日等) */
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            background: transparent;
+            border: 1px solid #ffccd5;
+            border-radius: 20px;
+            padding: 5px 14px;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
+        [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
         /* 🔍 女神情報局專屬方塊設計 */
         .secret-box {
@@ -45,7 +58,7 @@
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         .dashboard-value { font-size: 20px; font-weight: 900; }
 
-        /* 💊 完美還原：勝負膠囊標籤 */
+        /* 💊 勝負膠囊標籤 */
         .result-badge {
             display: inline-block;
             padding: 4px 14px;
@@ -57,8 +70,6 @@
         .result-win { background-color: #ff9aa2; } 
         .result-loss { background-color: #99c2ff; } 
         .result-delay { background-color: #bdc3c7; } 
-
-        /* 加班標籤 */
         .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
         
         /* 篩選器樣式 */
@@ -78,6 +89,7 @@
         </div>
 
         <div class="card" id="profile-card" style="display: none; padding: 25px; margin-bottom: 25px;">
+            
             <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 20px;"></div>
                 <div style="flex: 1; text-align: left; min-width: 0;">
@@ -86,7 +98,10 @@
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
                     <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
-                    <div id="ig-container" style="margin-top: 5px;"></div>
+                    
+                    <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
+                    
+                    <div id="ig-container" style="margin-top: 10px;"></div>
                 </div>
             </div>
 
@@ -176,8 +191,10 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // 2. 構建「🔍 女神情報局」專屬方塊
+                // 2. 處理資料分配 (情報局方塊 vs 粉色泡泡)
+                const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
+                
                 const dict = {
                     'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' },
                     'favorite_player': { label: '最愛球員', icon: '⚾' },
@@ -186,18 +203,36 @@
                     'birthday': { label: '生日', icon: '🎂' },
                     'country': { label: '國籍', icon: '🇹🇼' },
                     'height': { label: '身高', icon: '📏' },
-                    'weight': { label: '體重', icon: '⚖️' }
+                    'weight': { label: '體重', icon: '⚖️' },
+                    'years': { label: '年資', icon: '⏳' }
                 };
 
-                const coreKeys = ['星座', '最愛球員', '最愛食物', '興趣'];
+                const secretKeys = ['星座', '最愛球員', '最愛食物', '興趣'];
+                const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year', 'id', 'number'];
+                
                 let mappedData = {};
+
+                // 分配資料
                 Object.keys(girlInfo).forEach(k => {
                     const lk = k.toLowerCase();
-                    if(dict[lk]) mappedData[dict[lk].label] = girlInfo[k];
-                    else if (coreKeys.includes(k)) mappedData[k] = girlInfo[k]; 
+                    const label = dict[lk] ? dict[lk].label : k;
+
+                    // 如果是機密資料 -> 丟到情報局方塊
+                    if (secretKeys.includes(label)) {
+                        mappedData[label] = girlInfo[k];
+                    } 
+                    // 其他資料 (國籍、生日等) -> 丟到粉色泡泡區
+                    else if (!excludeKeys.includes(lk) && girlInfo[k] && girlInfo[k].trim() !== '') {
+                        extraContainer.innerHTML += `
+                            <div class="info-tag">
+                                <span class="label">${label}</span>
+                                <span class="value">${girlInfo[k]}</span>
+                            </div>`;
+                    }
                 });
 
-                coreKeys.forEach(title => {
+                // 渲染情報局方塊 (若無資料顯示保密中)
+                secretKeys.forEach(title => {
                     let iconObj = Object.values(dict).find(d => d.label === title);
                     let icon = iconObj ? iconObj.icon : '✨';
                     let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中';
