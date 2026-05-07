@@ -6,7 +6,7 @@
     <title>女神情報局</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 🏆 專業數據對齊防護罩 (完美不破版) */
+        /* 🏆 專業數據對齊防護罩 */
         #history-table th, #history-table td {
             white-space: nowrap !important; 
             text-align: center !important;  
@@ -35,20 +35,20 @@
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
-        /* 🆔 身分證左右佈局 (🔥 黃金比例完美修正 🔥) */
+        /* 🆔 身分證左右佈局 */
         .profile-layout {
             display: flex;
-            align-items: center; /* 讓左右兩邊完美垂直置中，不再亂拉長 */
-            gap: 40px; /* 增加呼吸空間 */
+            align-items: center; 
+            gap: 40px; 
         }
         .profile-left {
-            flex: 0 0 auto; /* 自動適應內容寬度，不再留一大塊太平洋 */
+            flex: 0 0 auto; 
             min-width: 250px;
             display: flex;
-            align-items: center; /* 頭像與文字置中 */
+            align-items: center; 
         }
         .profile-right {
-            flex: 1; /* 剩下的全部寬度都豪邁地讓給情報局 */
+            flex: 1; 
             border-left: 1px dashed rgba(255, 117, 140, 0.4);
             padding-left: 40px;
             display: flex;
@@ -56,7 +56,7 @@
             justify-content: center;
         }
 
-        /* 🔍 女神情報局專屬方塊 (強制 4 欄並排，高度正常！) */
+        /* 🔍 女神情報局專屬方塊 */
         #secret-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); 
@@ -66,7 +66,7 @@
         .secret-box {
             border: 1px solid #ffccd5;
             border-radius: 16px;
-            padding: 18px 5px; /* 微調內距，讓它變回好看的正方形 */
+            padding: 18px 5px; 
             text-align: center;
             background: var(--bg-color);
             display: flex;
@@ -124,7 +124,6 @@
         </div>
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
-            
             <div class="profile-left">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 25px;"></div>
                 <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
@@ -132,13 +131,10 @@
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
-                    
                     <div>
                         <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
                     </div>
-                    
                     <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px;"></div>
-                    
                     <div id="ig-container" style="margin-top: 10px;"></div>
                 </div>
             </div>
@@ -149,7 +145,6 @@
                 </h3>
                 <div id="secret-grid"></div>
             </div>
-            
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
@@ -161,8 +156,8 @@
             <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points" style="color: var(--text-main);">0 / 0</div></div>
         </div>
 
-        <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
-            <div style="padding: 20px; border-bottom: 1px solid rgba(255, 117, 140, 0.1);">
+        <div class="card" id="history-card" style="display: none; padding: 0; overflow: hidden;">
+            <div style="padding: 20px; border-bottom: 1px solid rgba(255, 117, 140, 0.1); background: var(--card-bg);">
                 <h3 style="margin: 0 0 15px 0; color: var(--theme-main); text-align: center;">📅 出勤歷史紀錄</h3>
                 <div style="display: flex; gap: 10px; justify-content: center;">
                     <select id="filter-year" class="filter-select"><option value="all">所有年度</option></select>
@@ -170,14 +165,16 @@
                 </div>
             </div>
 
-            <table id="history-table" style="min-width: 100%; overflow: hidden;">
-                <thead>
-                    <tr>
-                        <th>日期</th><th>場次</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>觀眾數</th><th>比賽時間</th><th>地點</th><th>📍站位</th>
-                    </tr>
-                </thead>
-                <tbody id="history-list"></tbody>
-            </table>
+            <div style="width: 100%; overflow-x: auto;">
+                <table id="history-table" style="min-width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>日期</th><th>場次</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>觀眾數</th><th>比賽時間</th><th>地點</th><th>📍站位</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-list"></tbody>
+                </table>
+            </div>
         </div>
 
         <div id="error-message" style="text-align: center; color: red; display: none; font-weight: bold; margin-top: 50px;">
@@ -207,7 +204,6 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
-                // 1. 設定基本資料
                 const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
@@ -228,7 +224,6 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // 2. 處理資料分配 (情報局方塊 vs 粉色泡泡)
                 const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
                 
@@ -249,7 +244,6 @@
                 
                 let mappedData = {};
 
-                // 分配資料
                 Object.keys(girlInfo).forEach(k => {
                     const lk = k.toLowerCase();
                     const label = dict[lk] ? dict[lk].label : k;
@@ -266,7 +260,6 @@
                     }
                 });
 
-                // 渲染情報局方塊
                 secretKeys.forEach(title => {
                     let iconObj = Object.values(dict).find(d => d.label === title);
                     let icon = iconObj ? iconObj.icon : '✨';
@@ -282,7 +275,6 @@
                     `;
                 });
 
-                // 3. 解析班表與比賽資料
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 
                 schedules.forEach(s => {
@@ -332,7 +324,6 @@
                     });
                 });
 
-                // 4. 設定篩選器
                 const years = [...new Set(allMatchRecords.map(r => r.year).filter(y => y))].sort().reverse();
                 const months = [...new Set(allMatchRecords.map(r => r.month).filter(m => m))].sort();
                 
@@ -359,7 +350,6 @@
             }
         }
 
-        // 🎯 渲染過濾數據
         function renderFilteredData() {
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
