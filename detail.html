@@ -20,7 +20,7 @@
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
 
-        /* 🍎 粉色圓角泡泡標籤 */
+        /* 🍎 粉色圓角泡泡標籤 (台灣) */
         .info-tag {
             display: inline-flex;
             align-items: center;
@@ -31,7 +31,6 @@
             gap: 8px;
             white-space: nowrap;
         }
-        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
@@ -118,9 +117,9 @@
         /* 📊 寬敞數據看板 */
         .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
-        .dashboard-value { font-size: 18px; font-weight: 900; } 
+        .dashboard-value { font-size: 20px; font-weight: 900; }
 
-        /* 💊 戰況膠囊標籤 */
+        /* 💊 勝負膠囊標籤 */
         .result-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px; }
         .result-win { background-color: #ff9aa2; } 
         .result-loss { background-color: #99c2ff; } 
@@ -145,21 +144,24 @@
         </div>
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
+            
             <div class="profile-left">
-                
                 <div style="display: flex; flex-direction: column; align-items: center; margin-right: 25px; flex-shrink: 0;">
                     <div id="avatar-container" class="profile-avatar-large"></div>
                     <div id="photo-source" style="margin-top: 8px; font-size: 11px; color: var(--text-muted); font-weight: bold; display: none;"></div>
                 </div>
 
                 <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                    
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
+                    
                     <div>
                         <div id="team-badge" style="display: inline-block; padding: 6px 18px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px;"></div>
                     </div>
+                    
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div id="ig-container"></div>
                         <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
@@ -231,6 +233,7 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
+                // 1. 處理名字與球隊
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
@@ -250,13 +253,13 @@
                 badge.innerText = displayTeam;
                 badge.style.background = teamColor;
 
-                // 📸 渲染大頭貼
+                // 2. 大頭貼渲染邏輯
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
                 if (photoUrl && photoUrl.trim() !== '') {
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
                 }
 
-                // 📸 渲染照片出處 (抓取 照片出處、出處、photo_source)
+                // 渲染照片出處
                 const photoSource = girlInfo['照片出處'] || girlInfo['出處'] || girlInfo.photo_source || girlInfo.source || '';
                 if (photoSource.trim() !== '') {
                     const sourceEl = document.getElementById('photo-source');
@@ -264,12 +267,19 @@
                     sourceEl.style.display = 'block';
                 }
 
+                // 3. 處理 IG 按鈕
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
                 if (igAccount.trim() !== '') {
                     const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
-                    document.getElementById('ig-container').innerHTML = `<a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`;
+                    document.getElementById('ig-container').innerHTML = `
+                        <a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG">
+                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                            </svg>
+                        </a>`;
                 }
 
+                // 4. 情報方塊資料分配
                 const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
                 const dict = {
@@ -278,8 +288,6 @@
                     'country': { label: '國籍', icon: '🇹🇼' }
                 };
                 const secretKeysOrder = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
-                
-                // 🔥 排除陣列更新：確保不出現在泡泡區
                 const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'photo_url', 'ig', 'IG', 'year', 'id', 'number', 'photo_source', '照片出處', '出處', 'source'];
                 
                 let mappedData = {};
@@ -298,6 +306,7 @@
                     secretGrid.innerHTML += `<div class="secret-box"><div class="icon">${iconObj.icon}</div><div class="label">${title}</div><div class="value">${val}</div></div>`;
                 });
 
+                // 5. 班表與篩選渲染
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 schedules.forEach(s => {
                     if(!s.working_dates) return;
@@ -366,7 +375,25 @@
                 if(r.isSuspend) fSuspend++;
                 if(r.overtimeGames > 0) fOvertimeGames++;
                 
-                historyHtml += `<tr><td style="font-weight:bold;">${r.date}</td><td style="color:var(--text-muted);">${r.gameNo}</td><td>${r.opponent}</td><td style="font-weight:bold;">${r.score}</td><td>${r.resHtml}</td><td style="color:#e74c3c;">${r.winP}</td><td style="color:#3498db;">${r.lossP}</td><td style="color:#2ecc71;">${r.savP}</td><td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td><td style="font-weight:bold;">${r.attP}</td><td>${r.durP}</td><td>${r.locP}</td><td style="color:var(--theme-main); font-weight:900;">${r.pos}</td></tr>`;
+                // 🔥 將年份與日期上下堆疊
+                historyHtml += `<tr>
+                    <td style="font-weight:bold;">
+                        <span style="font-size:12px; color:var(--text-muted); display:block; line-height:1;">${r.year || ''}</span>
+                        <span style="font-size:15px;">${r.date}</span>
+                    </td>
+                    <td style="color:var(--text-muted);">${r.gameNo}</td>
+                    <td>${r.opponent}</td>
+                    <td style="font-weight:bold;">${r.score}</td>
+                    <td>${r.resHtml}</td>
+                    <td style="color:#e74c3c;">${r.winP}</td>
+                    <td style="color:#3498db;">${r.lossP}</td>
+                    <td style="color:#2ecc71;">${r.savP}</td>
+                    <td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td>
+                    <td style="font-weight:bold;">${r.attP}</td>
+                    <td>${r.durP}</td>
+                    <td>${r.locP}</td>
+                    <td style="color:var(--theme-main); font-weight:900;">${r.pos}</td>
+                </tr>`;
             });
 
             document.getElementById('history-list').innerHTML = historyHtml || '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
