@@ -94,9 +94,23 @@
         }
         [data-theme="dark"] .pro-table tbody tr:hover { background-color: rgba(255, 255, 255, 0.03); }
         
-        /* 排名數字樣式 */
+        /* 🔥 立體漸層名次勳章 (取代看不見的 Emoji) */
         .rank-num { font-size: 16px; font-weight: 900; color: var(--text-muted); }
-        .rank-medal { font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
+        .rank-badge {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 900;
+            font-size: 14px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .rank-1 { background: linear-gradient(135deg, #FFD700 0%, #F39C12 100%); } /* 金牌漸層 */
+        .rank-2 { background: linear-gradient(135deg, #E0E0E0 0%, #95A5A6 100%); } /* 銀牌漸層 */
+        .rank-3 { background: linear-gradient(135deg, #E67E22 0%, #D35400 100%); } /* 銅牌漸層 */
     </style>
 </head>
 <body>
@@ -196,7 +210,6 @@
                             if (!wNums || wNums.length < 2) return;
                             const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
 
-                            // 只要班表有排，總出勤就 +1
                             girlStats[key].games++;
 
                             const match = matchesData.find(m => {
@@ -209,7 +222,6 @@
 
                             if(match && match.result) {
                                 const res = match.result.trim();
-                                // 🔥 支援和局與保留判定
                                 if(res.includes('勝')) { girlStats[key].wins++; }
                                 else if(res.includes('敗')) { girlStats[key].losses++; }
                                 else if(res.includes('和')) { girlStats[key].ties++; }
@@ -220,17 +232,16 @@
                     }
                 });
 
-                // 轉為陣列並計算勝率
                 allGirlsStatsArray = Object.values(girlStats)
-                    .filter(g => g.games > 0) // 有出賽才列入榜單
+                    .filter(g => g.games > 0)
                     .map(g => {
                         const totalDecisions = g.wins + g.losses;
                         g.winRate = totalDecisions > 0 ? (g.wins / totalDecisions) * 100 : 0;
-                        g.totalDelays = g.delays + g.suspends; // 延賽與保留合併計算
+                        g.totalDelays = g.delays + g.suspends; 
                         return g;
                     });
 
-                sortData('winRate'); // 預設排序
+                sortData('winRate'); 
 
             } catch (error) {
                 console.error(error);
@@ -242,7 +253,6 @@
         window.sortData = function(sortType) {
             currentSortType = sortType;
 
-            // 處理切換按鈕外觀
             const buttons = document.querySelectorAll('.sort-tabs button');
             buttons.forEach(btn => {
                 if (btn.getAttribute('onclick').includes(sortType)) {
@@ -252,11 +262,10 @@
                 }
             });
 
-            // 執行排序邏輯
             allGirlsStatsArray.sort((a, b) => {
                 if (sortType === 'winRate') {
-                    if (b.winRate !== a.winRate) return b.winRate - a.winRate; // 先比勝率
-                    return b.wins - a.wins; // 勝率一樣比勝場
+                    if (b.winRate !== a.winRate) return b.winRate - a.winRate; 
+                    return b.wins - a.wins; 
                 } else if (sortType === 'wins') {
                     if (b.wins !== a.wins) return b.wins - a.wins;
                     return b.winRate - a.winRate;
@@ -273,13 +282,12 @@
             tbody.innerHTML = '';
 
             allGirlsStatsArray.forEach((g, index) => {
-                // 獎牌圖示
+                // 🔥 獎牌改為立體圓形徽章，不再依賴 Emoji
                 let rankDisplay = `<span class="rank-num">${index + 1}</span>`;
-                if (index === 0) rankDisplay = `<span class="rank-medal">🥇</span>`;
-                else if (index === 1) rankDisplay = `<span class="rank-medal">🥈</span>`;
-                else if (index === 2) rankDisplay = `<span class="rank-medal">🥉</span>`;
+                if (index === 0) rankDisplay = `<span class="rank-badge rank-1">1</span>`;
+                else if (index === 1) rankDisplay = `<span class="rank-badge rank-2">2</span>`;
+                else if (index === 2) rankDisplay = `<span class="rank-badge rank-3">3</span>`;
 
-                // 球隊顏色與英文名
                 let teamColor = 'var(--text-muted)';
                 let displayTeam = g.team;
 
