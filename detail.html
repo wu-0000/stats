@@ -35,37 +35,38 @@
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
-        /* 🆔 身分證左右佈局 (神級比例鎖定) */
+        /* 🆔 身分證左右佈局 (🔥 黃金比例完美修正 🔥) */
         .profile-layout {
             display: flex;
-            align-items: stretch;
-            gap: 30px;
+            align-items: center; /* 讓左右兩邊完美垂直置中，不再亂拉長 */
+            gap: 40px; /* 增加呼吸空間 */
         }
         .profile-left {
-            flex: 0 0 350px; /* 固定左邊寬度，不讓它亂擠 */
+            flex: 0 0 auto; /* 自動適應內容寬度，不再留一大塊太平洋 */
+            min-width: 250px;
             display: flex;
-            align-items: flex-start;
+            align-items: center; /* 頭像與文字置中 */
         }
         .profile-right {
-            flex: 1; /* 剩下空間全部給右邊情報局 */
+            flex: 1; /* 剩下的全部寬度都豪邁地讓給情報局 */
             border-left: 1px dashed rgba(255, 117, 140, 0.4);
-            padding-left: 30px;
+            padding-left: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* 🔍 女神情報局專屬方塊 (強制 4 欄並排！) */
+        /* 🔍 女神情報局專屬方塊 (強制 4 欄並排，高度正常！) */
         #secret-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 永遠保持一列 4 個，不准掉下去 */
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px;
             width: 100%;
         }
         .secret-box {
             border: 1px solid #ffccd5;
             border-radius: 16px;
-            padding: 15px 5px;
+            padding: 18px 5px; /* 微調內距，讓它變回好看的正方形 */
             text-align: center;
             background: var(--bg-color);
             display: flex;
@@ -73,7 +74,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05);
-            height: 100%; /* 確保高度一致 */
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 13px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
@@ -82,8 +82,8 @@
 
         /* 📱 平板與手機版的完美適應 */
         @media (max-width: 950px) {
-            .profile-layout { flex-direction: column; }
-            .profile-left { flex: 1 1 auto; width: 100%; }
+            .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; }
+            .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; }
             .profile-right { 
                 border-left: none; 
                 border-top: 1px dashed rgba(255, 117, 140, 0.4); 
@@ -92,7 +92,7 @@
             }
         }
         @media (max-width: 600px) {
-            #secret-grid { grid-template-columns: repeat(2, 1fr); /* 手機變成完美的 2x2 */ }
+            #secret-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* 📊 寬敞數據看板 */
@@ -123,18 +123,21 @@
             <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div class="card profile-layout" id="profile-card" style="display: none; padding: 25px; margin-bottom: 25px;">
+        <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
             
             <div class="profile-left">
-                <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 20px;"></div>
-                <div style="flex: 1; text-align: left; min-width: 0;">
+                <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 25px;"></div>
+                <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center;">
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
-                    <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
                     
-                    <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
+                    <div>
+                        <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
+                    </div>
+                    
+                    <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px;"></div>
                     
                     <div id="ig-container" style="margin-top: 10px;"></div>
                 </div>
