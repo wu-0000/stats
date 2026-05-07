@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>女孩專屬戰情報告</title>
+    <title>女神情報局</title>
     <link rel="stylesheet" href="style.css">
     <style>
         /* 🏆 專業數據對齊防護罩 (完美不破版) */
@@ -21,19 +21,26 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 🍎 高質感資訊標籤樣式 */
+        /* 🍎 高質感膠囊資訊標籤 (更名與美化) */
         .info-tag {
-            background: rgba(255, 117, 140, 0.08);
-            border: 1px solid rgba(255, 117, 140, 0.2);
-            border-radius: 8px;
-            padding: 6px 12px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            background: var(--card-bg);
+            border: 1px solid #ffe4e8;
+            border-radius: 20px;
+            padding: 5px 14px;
             gap: 6px;
             white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(255, 117, 140, 0.08);
         }
-        .info-tag .label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
-        .info-tag .value { font-size: 14px; color: var(--text-main); font-weight: 900; }
+        .info-tag .label { font-size: 12px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 14px; color: var(--theme-main); font-weight: 900; }
+        
+        [data-theme="dark"] .info-tag { 
+            background: #2a2a2a; 
+            border-color: #444; 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+        }
 
         /* 加班紫色小標籤 */
         .overtime-badge {
@@ -49,7 +56,7 @@
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">⚡ 正在載入戰情報告...</div>
+        <div class="loading-text">⚡ 正在載入女神情報...</div>
     </div>
 
     <div class="container">
@@ -61,7 +68,7 @@
             <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0;"></div>
             <div style="flex: 1; text-align: left; min-width: 0;">
                 <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
-                <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 12px;"></div>
+                <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 15px;"></div>
                 <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
                 <div id="ig-container"></div>
             </div>
@@ -138,12 +145,24 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 生成標籤
+                // 🌟 更新智慧字典：確保 id 會被翻譯成號碼
+                const keyDictionary = {
+                    'id': '號碼', 'number': '號碼', 'no': '號碼',
+                    'birthday': '生日', 'height': '身高', 'weight': '體重', 
+                    'blood_type': '血型', 'constellation': '星座', 'years': '年資'
+                };
+
                 const extraContainer = document.getElementById('extra-info-container');
                 const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year'];
                 Object.keys(girlInfo).forEach(key => {
                     if (!excludeKeys.includes(key.toLowerCase()) && girlInfo[key]) {
-                        extraContainer.innerHTML += `<div class="info-tag"><span class="label">${key}</span><span class="value">${girlInfo[key]}</span></div>`;
+                        // 透過字典翻譯標籤名稱
+                        const prettyLabel = keyDictionary[key.toLowerCase()] || key;
+                        extraContainer.innerHTML += `
+                            <div class="info-tag">
+                                <span class="label">${prettyLabel}</span>
+                                <span class="value">${girlInfo[key]}</span>
+                            </div>`;
                     }
                 });
 
@@ -184,11 +203,10 @@
                                 durP = match.duration || match['比賽時間'] || '-';
                                 locP = match.location || match['地點'] || '-';
                                 
-                                // 判斷是否加班 (局數 > 9)
                                 const inn = parseInt(match.innings || match['局數'] || 9);
                                 if(inn > 9) {
-                                    totalOvertimeGames++; // 現在改為以「場」為單位計算
-                                    sco += `<span class="overtime-badge" style="font-size:10px;">${inn}局</span>`; // 把延長局數標註在比分旁邊
+                                    totalOvertimeGames++; 
+                                    sco += `<span class="overtime-badge" style="font-size:10px;">${inn}局</span>`;
                                 }
 
                                 const res = (match.result || match['結果'] || '').trim();
@@ -217,15 +235,13 @@
                     });
                 });
 
-                // 填入上方看板數據
                 document.getElementById('stat-games').innerText = `${win+loss} 場`;
-                document.getElementById('stat-record').innerText = `${win}勝 ${loss}敗`; // 勝敗場獨立回歸！
+                document.getElementById('stat-record').innerText = `${win}勝 ${loss}敗`;
                 document.getElementById('stat-winrate').innerText = (win+loss) > 0 ? `${((win/(win+loss))*100).toFixed(1)}%` : '0%';
-                document.getElementById('stat-overtime').innerText = `${totalOvertimeGames} 場`; // 改用場次計算
+                document.getElementById('stat-overtime').innerText = `${totalOvertimeGames} 場`;
                 document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
                 document.getElementById('history-list').innerHTML = historyHtml;
 
-                // 顯示介面 (已拔除雷達圖區塊)
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'grid';
                 document.getElementById('history-card').style.display = 'block';
