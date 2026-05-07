@@ -21,37 +21,29 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 📁 精緻個人資料清單 (取代原本的亂看泡泡) */
-        .profile-bio-list {
-            margin: 10px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .bio-item {
-            font-size: 15px;
-            color: var(--text-main);
-            display: flex;
+        /* 🍎 恢復你最滿意的：粉色圓角泡泡標籤 */
+        .info-tag {
+            display: inline-flex;
             align-items: center;
+            background: transparent;
+            border: 1px solid #ffccd5; /* 經典粉色邊框 */
+            border-radius: 20px; /* 圓角泡泡 */
+            padding: 5px 14px;
+            gap: 8px;
+            white-space: nowrap;
         }
-        .bio-label {
-            color: var(--text-muted);
-            font-weight: bold;
-            width: 80px; /* 固定寬度確保冒號對齊 */
-            flex-shrink: 0;
-        }
-        .bio-value {
-            font-weight: 900;
-            color: var(--theme-main);
-        }
+        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; } /* 經典粉色粗體數據 */
+        
+        [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
-        /* 📊 看板專屬樣式 (還原截圖的寬敞感) */
+        /* 📊 看板專屬樣式 (保留寬敞感) */
         .dashboard-card {
             flex: 1; 
             min-width: 120px;
             padding: 22px 10px;
             text-align: center;
-            border-radius: 20px; /* 圓潤圓角 */
+            border-radius: 20px;
         }
         .dashboard-label {
             color: var(--text-muted); 
@@ -95,7 +87,7 @@
                 
                 <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
                 
-                <div id="profile-bio-container" class="profile-bio-list"></div>
+                <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
 
                 <div id="ig-container" style="margin-top: 10px;"></div>
             </div>
@@ -146,7 +138,7 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
-                // 1. 處理名字與背號
+                // 1. 處理名字與背號 (完美結合)
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
@@ -163,22 +155,23 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 3. 處理個人資料清單 (翻譯英文欄位)
-                const bioContainer = document.getElementById('profile-bio-container');
+                // 3. 處理粉色泡泡資料 (翻譯英文，放進泡泡裡)
+                const extraContainer = document.getElementById('extra-info-container');
                 const dictionary = {
                     'birthday': '生日', 'zodiac': '星座', 'favorite_player': '喜愛球員',
                     'food': '喜愛美食', 'hobby': '興趣', 'country': '國籍',
                     'height': '身高', 'weight': '體重', 'years': '年資'
                 };
+                // 排除已經單獨顯示的項目
                 const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year', 'id', 'number'];
                 
                 Object.keys(girlInfo).forEach(key => {
                     if (!exclude.includes(key.toLowerCase()) && girlInfo[key]) {
                         const label = dictionary[key.toLowerCase()] || key;
-                        bioContainer.innerHTML += `
-                            <div class="bio-item">
-                                <span class="bio-label">${label}</span>
-                                <span class="bio-value">${girlInfo[key]}</span>
+                        extraContainer.innerHTML += `
+                            <div class="info-tag">
+                                <span class="label">${label}</span>
+                                <span class="value">${girlInfo[key]}</span>
                             </div>`;
                     }
                 });
