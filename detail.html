@@ -21,23 +21,22 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 🍎 高質感專業微型資訊卡 (洗刷泡泡廉價感) */
+        /* 🍎 恢復你最愛的：粉色圓角泡泡標籤 */
         .info-tag {
             display: inline-flex;
             align-items: center;
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid #ffccd5; /* 經典粉色邊框 */
+            border-radius: 20px; /* 圓角泡泡 */
+            padding: 5px 14px;
             gap: 8px;
             white-space: nowrap;
         }
-        .info-tag .label { font-size: 12px; color: #6c757d; font-weight: bold; }
-        .info-tag .value { font-size: 14px; color: var(--theme-main); font-weight: 900; }
+        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; } /* 經典粉色粗體數據 */
         
         [data-theme="dark"] .info-tag { 
-            background: #2a2a2a; 
-            border-color: #444; 
+            border-color: #ff758c; 
         }
 
         /* 加班紫色小標籤 */
@@ -143,7 +142,7 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 🌟 終極擴充字典：把所有你看得不順眼的英文全部抓出來翻譯
+                // 🌟 中文翻譯字典全保留！
                 const keyDictionary = {
                     'id': '號碼', 'number': '號碼', 'no': '號碼',
                     'birthday': '生日', 'height': '身高', 'weight': '體重', 
