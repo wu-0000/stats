@@ -94,7 +94,16 @@
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
-        .secret-box .value { font-size: 14px; color: var(--text-main); font-weight: 900; white-space: nowrap; }
+        
+        /* 🔥 移除 nowrap，讓過長的內容（如興趣）可以自然換行 */
+        .secret-box .value { 
+            font-size: 14px; 
+            color: var(--text-main); 
+            font-weight: 900; 
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
 
         /* 📱 平板與手機版適應 */
@@ -222,13 +231,11 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
 
-                // ⚾ 1. 取得原始球隊名稱 (供計算用)
                 const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
                 
-                // 💖 2. 啦啦隊專屬正名魔法
                 let teamColor = 'var(--theme-main)';
                 let displayTeam = finalTeam;
 
@@ -323,7 +330,6 @@
                     `;
                 });
 
-                // ⚾ 3. 解析比賽資料 (這裡仍然使用原本的 finalTeam 來做篩選，不受名稱轉換影響)
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 
                 schedules.forEach(s => {
@@ -341,7 +347,6 @@
                             
                             const match = matchesData.find(m => {
                                 if(sYear && m.year && sYear !== m.year.toString()) return false;
-                                // 🔥 在此處依然使用原本的 finalTeam 進行後台配對
                                 if(m.team && m.team.trim() !== finalTeam) return false;
                                 const mNums = m.date ? m.date.match(/\d+/g) : null;
                                 return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === wM && parseInt(mNums[1], 10) === wD;
