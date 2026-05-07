@@ -35,6 +35,23 @@
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
+        /* 📸 IG 漸層按鈕專屬樣式 */
+        .ig-btn-custom {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            color: white !important;
+            padding: 6px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3);
+            transition: transform 0.2s;
+        }
+        .ig-btn-custom:hover { transform: scale(1.05); }
+
         /* 🆔 身分證左右佈局 */
         .profile-layout {
             display: flex;
@@ -56,17 +73,18 @@
             justify-content: center;
         }
 
-        /* 🔍 女神情報局專屬方塊 (🔥 升級為 5 欄並排！) */
+        /* 🔍 女神情報局專屬方塊 (強制 5 欄，拔除自動拉長設定) */
         #secret-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 永遠保持 5 個並排 */
+            grid-template-columns: repeat(5, 1fr); 
             gap: 12px;
             width: 100%;
+            align-items: start; /* 🔥 關鍵修正：防止方塊被硬生生拉長 */
         }
         .secret-box {
             border: 1px solid #ffccd5;
             border-radius: 16px;
-            padding: 15px 5px; 
+            padding: 20px 5px; /* 🔥 固定內距，讓它維持可愛的方形 */
             text-align: center;
             background: var(--bg-color);
             display: flex;
@@ -74,7 +92,6 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05);
-            height: 100%;
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
@@ -92,7 +109,7 @@
                 padding-top: 25px; 
             }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
             #secret-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 480px) {
@@ -139,7 +156,7 @@
                         <div id="team-badge" style="display: inline-block; padding: 4px 15px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin: 12px 0;"></div>
                     </div>
                     <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px;"></div>
-                    <div id="ig-container" style="margin-top: 10px;"></div>
+                    <div id="ig-container" style="margin-top: 12px;"></div>
                 </div>
             </div>
 
@@ -228,6 +245,19 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
+                // 🔥 IG 按鈕神級回歸！(防呆支援 ig / IG)
+                const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
+                if (igAccount.trim() !== '') {
+                    const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
+                    document.getElementById('ig-container').innerHTML = `
+                        <a href="${igLink}" target="_blank" class="ig-btn-custom">
+                            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor;">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                            </svg>
+                            前往 IG
+                        </a>`;
+                }
+
                 const extraContainer = document.getElementById('extra-info-container');
                 const secretGrid = document.getElementById('secret-grid');
                 
@@ -236,16 +266,15 @@
                     'favorite_player': { label: '最愛球員', icon: '⚾' },
                     'food': { label: '最愛食物', icon: '🍰' },
                     'hobby': { label: '興趣', icon: '🎨' },
-                    'birthday': { label: '生日', icon: '🎂' }, // 生日加入圖示與對應
+                    'birthday': { label: '生日', icon: '🎂' }, 
                     'country': { label: '國籍', icon: '🇹🇼' },
                     'height': { label: '身高', icon: '📏' },
                     'weight': { label: '體重', icon: '⚖️' },
                     'years': { label: '年資', icon: '⏳' }
                 };
 
-                // 🔥 依照你的要求：設定 5 個方塊，並且是全新的順序
                 const secretKeys = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
-                const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year', 'id', 'number'];
+                const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'IG', 'year', 'id', 'number'];
                 
                 let mappedData = {};
 
@@ -253,11 +282,9 @@
                     const lk = k.toLowerCase();
                     const label = dict[lk] ? dict[lk].label : k;
 
-                    // 是專屬的 5 個項目 -> 塞進情報局陣列
                     if (secretKeys.includes(label)) {
                         mappedData[label] = girlInfo[k];
                     } 
-                    // 不是專屬的，且不是排除項目 -> 塞進左邊粉色泡泡區
                     else if (!excludeKeys.includes(lk) && girlInfo[k] && girlInfo[k].toString().trim() !== '') {
                         if (label === '國籍') {
                             extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`;
