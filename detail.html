@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>女孩專屬戰情報告</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 🏆 專業數據對齊防護罩 */
+        /* 🏆 專業數據對齊防護罩 (完美不破版) */
         #history-table th, #history-table td {
-            white-space: nowrap !important; /* 絕不換行 */
-            text-align: center !important;  /* 數據置中 */
+            white-space: nowrap !important; 
+            text-align: center !important;  
             vertical-align: middle !important;
             padding: 12px 10px;
             border-bottom: 1px solid rgba(255, 117, 140, 0.1);
@@ -36,6 +35,7 @@
         .info-tag .label { font-size: 11px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 14px; color: var(--text-main); font-weight: 900; }
 
+        /* 加班紫色小標籤 */
         .overtime-badge {
             background: #6c5ce7;
             color: white;
@@ -49,7 +49,7 @@
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">⚡ 正在運算女神戰鬥力數據...</div>
+        <div class="loading-text">⚡ 正在載入戰情報告...</div>
     </div>
 
     <div class="container">
@@ -67,18 +67,12 @@
             </div>
         </div>
 
-        <div class="dashboard" id="mini-dashboard" style="display: none; gap: 10px; margin-bottom: 20px;">
-            <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">總出賽</div><div class="p-value-mini" id="stat-games">0 場</div></div>
-            <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">勝率</div><div class="p-value-mini" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
-            <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">加班總計</div><div class="p-value-mini" id="stat-overtime" style="color: #6c5ce7;">0 局</div></div>
-            <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">得失分</div><div class="p-value-mini" id="stat-points">0 / 0</div></div>
-        </div>
-
-        <div class="card" id="radar-card" style="display: none; margin-bottom: 20px; padding: 20px;">
-            <h3 style="margin-top: 0; color: var(--theme-main); text-align: center; font-weight: 900; letter-spacing: 1px;">⚡ 綜合戰鬥力分析 ⚡</h3>
-            <div style="position: relative; height: 300px; width: 100%; margin: 0 auto; max-width: 400px;">
-                <canvas id="radarChart"></canvas>
-            </div>
+        <div class="dashboard" id="mini-dashboard" style="display: none; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px;">
+            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">總出賽</div><div class="p-value-mini" id="stat-games">0 場</div></div>
+            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">戰績</div><div class="p-value-mini" id="stat-record" style="color: #e74c3c;">0勝 0敗</div></div>
+            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">勝率</div><div class="p-value-mini" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
+            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">加班總計</div><div class="p-value-mini" id="stat-overtime" style="color: #6c5ce7;">0 場</div></div>
+            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">得失分</div><div class="p-value-mini" id="stat-points">0 / 0</div></div>
         </div>
 
         <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
@@ -159,7 +153,7 @@
                 }
 
                 // ⚾ 數據計算與表格填充
-                let win = 0, loss = 0, delay = 0, totalOvertime = 0, totalScored = 0, totalAllowed = 0, historyHtml = '';
+                let win = 0, loss = 0, delay = 0, totalOvertimeGames = 0, totalScored = 0, totalAllowed = 0, historyHtml = '';
                 
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 
@@ -190,8 +184,12 @@
                                 durP = match.duration || match['比賽時間'] || '-';
                                 locP = match.location || match['地點'] || '-';
                                 
+                                // 判斷是否加班 (局數 > 9)
                                 const inn = parseInt(match.innings || match['局數'] || 9);
-                                if(inn > 9) totalOvertime += (inn - 9);
+                                if(inn > 9) {
+                                    totalOvertimeGames++; // 現在改為以「場」為單位計算
+                                    sco += `<span class="overtime-badge" style="font-size:10px;">${inn}局</span>`; // 把延長局數標註在比分旁邊
+                                }
 
                                 const res = (match.result || match['結果'] || '').trim();
                                 const scoreData = parseScoreForTeam(match.score, res);
@@ -219,43 +217,17 @@
                     });
                 });
 
+                // 填入上方看板數據
                 document.getElementById('stat-games').innerText = `${win+loss} 場`;
+                document.getElementById('stat-record').innerText = `${win}勝 ${loss}敗`; // 勝敗場獨立回歸！
                 document.getElementById('stat-winrate').innerText = (win+loss) > 0 ? `${((win/(win+loss))*100).toFixed(1)}%` : '0%';
-                document.getElementById('stat-overtime').innerText = `${totalOvertime} 局`;
+                document.getElementById('stat-overtime').innerText = `${totalOvertimeGames} 場`; // 改用場次計算
                 document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
                 document.getElementById('history-list').innerHTML = historyHtml;
 
-                // ⚡ 繪製雷達圖 ⚡
-                const totalValid = win + loss;
-                const scoreWin = totalValid > 0 ? Math.round((win / totalValid) * 100) : 0;
-                const scoreStamina = Math.min(Math.round(((totalValid * 9 + totalOvertime) / 135) * 100), 100); 
-                const scoreOffense = totalValid > 0 ? Math.min(Math.round((totalScored / totalValid / 6) * 100), 100) : 0;
-                const scoreDefense = totalValid > 0 ? Math.max(Math.min(Math.round(100 - ((totalAllowed / totalValid - 1) / 6) * 100), 100), 0) : 0;
-                const scoreSun = (totalValid + delay) > 0 ? Math.round((totalValid / (totalValid + delay)) * 100) : 0;
-
-                const ctx = document.getElementById('radarChart').getContext('2d');
-                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-                const color = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-                
-                new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['👑 勝運', '🔥 體力', '⚔️ 火力', '🛡️ 鐵壁', '☀️ 晴天'],
-                        datasets: [{
-                            label: '能力值', data: [scoreWin, scoreStamina, scoreOffense, scoreDefense, scoreSun],
-                            backgroundColor: 'rgba(255, 117, 140, 0.3)', borderColor: '#ff758c', borderWidth: 2, pointRadius: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { r: { angleLines: { color: color }, grid: { color: color }, pointLabels: { font: { weight: 'bold' }, color: isDarkMode ? '#ddd' : '#555' }, ticks: { display: false, max: 100, min: 0, stepSize: 20 } } },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-
+                // 顯示介面 (已拔除雷達圖區塊)
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'grid';
-                document.getElementById('radar-card').style.display = 'block';
                 document.getElementById('history-card').style.display = 'block';
                 hideLoading();
             } catch (error) {
