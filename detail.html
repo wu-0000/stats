@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 強制表格防破版對齊系統 */
+        /* 🏆 專業數據對齊防護罩 */
         #history-table th, #history-table td {
-            white-space: nowrap !important;
-            text-align: center !important;
+            white-space: nowrap !important; /* 絕不換行 */
+            text-align: center !important;  /* 數據置中 */
             vertical-align: middle !important;
             padding: 12px 10px;
             border-bottom: 1px solid rgba(255, 117, 140, 0.1);
@@ -20,27 +20,26 @@
             color: var(--theme-main);
             font-weight: 900;
         }
-        [data-theme="dark"] #history-table th, [data-theme="dark"] #history-table td {
-            border-bottom: 1px solid #333;
-        }
         [data-theme="dark"] #history-table th { background-color: #252525; }
-        
-        /* 加班高亮樣式 */
-        .overtime-badge {
-            background: #6c5ce7;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 4px;
-            font-weight: bold;
+
+        /* 🍎 高質感資訊卡片樣式 */
+        .info-tag {
+            background: rgba(255, 117, 140, 0.08);
+            border: 1px solid rgba(255, 117, 140, 0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .info-tag .label { font-size: 12px; color: var(--text-muted); font-weight: bold; }
+        .info-tag .value { font-size: 15px; color: var(--text-main); font-weight: 900; }
     </style>
 </head>
 <body>
     <div id="loading-overlay">
         <div class="loading-spinner"></div>
-        <div class="loading-text">⚡ 正在載入加班戰情數據...</div>
+        <div class="loading-text">⚡ 正在載入女神戰情數據...</div>
     </div>
 
     <div class="container">
@@ -53,12 +52,13 @@
             <div style="flex: 1; text-align: left; min-width: 0;">
                 <h1 id="page-title" style="margin: 0 0 5px 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                 <div id="team-badge" style="display: inline-block; padding: 4px 12px; border-radius: 12px; color: white; font-weight: bold; font-size: 14px; margin-bottom: 12px;"></div>
+                
                 <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;"></div>
-                <div id="ig-container" style="margin-top: 5px;"></div>
+                <div id="ig-container"></div>
             </div>
         </div>
 
-        <div class="dashboard" id="mini-dashboard" style="display: none; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 20px;">
+        <div class="dashboard" id="mini-dashboard" style="display: none; gap: 10px; margin-bottom: 20px;">
             <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">總出賽</div><div class="p-value-mini" id="stat-games">0 場</div></div>
             <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">勝率</div><div class="p-value-mini" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
             <div class="card" style="padding: 15px 10px;"><div class="p-label-mini">加班總計</div><div class="p-value-mini" id="stat-overtime" style="color: #6c5ce7;">0 局</div></div>
@@ -81,7 +81,6 @@
                         <th>場次</th>
                         <th>對手</th>
                         <th>比分</th>
-                        <th>局數</th>
                         <th>結果</th>
                         <th>勝投</th>
                         <th>敗投</th>
@@ -98,7 +97,7 @@
         </div>
 
         <div id="error-message" style="text-align: center; color: red; display: none; font-weight: bold; margin-top: 50px;">
-            找不到該女孩的資料，請回首頁重新選擇！
+            找不到該女孩的資料，請檢查 Google Sheets 欄位名稱是否正確！
         </div>
     </div>
 
@@ -113,9 +112,9 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const targetName = urlParams.get('name');
-                const targetTeam = urlParams.get('team');
 
                 if (!targetName) {
+                    document.getElementById('error-message').innerText = "未指定女孩名字，請回首頁重新選擇！";
                     document.getElementById('error-message').style.display = 'block';
                     hideLoading(); return;
                 }
@@ -124,11 +123,21 @@
                     fetchCSV(CONFIG.girlsUrl), fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl)
                 ]);
 
-                const girlInfo = girlsData.find(g => g.name && g.name.trim() === targetName);
-                const finalTeam = targetTeam || (girlInfo ? girlInfo.team.trim() : "");
+                // 🔍 超強防呆尋找：自動支援 name, girl_name, 姓名 欄位
+                const girlInfo = girlsData.find(g => {
+                    const gName = g.name || g.girl_name || g['姓名'];
+                    return gName && gName.trim() === targetName;
+                });
 
+                if (!girlInfo) {
+                    document.getElementById('error-message').style.display = 'block';
+                    hideLoading(); return;
+                }
+
+                const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
                 document.getElementById('page-title').innerText = targetName;
                 
+                // 🎨 自動隊伍顏色
                 let teamColor = 'var(--theme-main)';
                 if(finalTeam.includes('兄弟')) teamColor = '#f1c40f'; 
                 else if(finalTeam.includes('味全')) teamColor = '#e74c3c'; 
@@ -137,156 +146,112 @@
                 else if(finalTeam.includes('台鋼')) teamColor = '#2ecc71'; 
                 
                 const badge = document.getElementById('team-badge');
-                badge.innerText = finalTeam || '自由球員';
+                badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                const keyDictionary = { 'number': '背號', 'birthday': '生日', 'height': '身高', 'weight': '體重', 'blood_type': '血型', 'constellation': '星座', 'years': '年資' };
-
-                if (girlInfo) {
-                    const extraContainer = document.getElementById('extra-info-container');
-                    extraContainer.innerHTML = ''; 
-                    const excludeKeys = ['name', 'team', 'photo', 'ig', 'year'];
-                    Object.keys(girlInfo).forEach(key => {
-                        const val = girlInfo[key] ? girlInfo[key].toString().trim() : "";
-                        if (!excludeKeys.includes(key.toLowerCase()) && val !== "") {
-                            const prettyLabel = keyDictionary[key.toLowerCase()] || key;
-                            extraContainer.innerHTML += `<div style="background: rgba(255, 117, 140, 0.08); border: 1px solid rgba(255, 117, 140, 0.2); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap;"><span style="font-size: 12px; color: var(--text-muted); font-weight: bold;">${prettyLabel}</span><span style="font-size: 15px; color: var(--text-main); font-weight: 900;">${val}</span></div>`;
-                        }
-                    });
-                }
+                // 🏷️ 自動生成資料標籤
+                const extraContainer = document.getElementById('extra-info-container');
+                const excludeKeys = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', 'ig', 'year'];
+                Object.keys(girlInfo).forEach(key => {
+                    if (!excludeKeys.includes(key.toLowerCase()) && girlInfo[key]) {
+                        extraContainer.innerHTML += `
+                            <div class="info-tag">
+                                <span class="label">${key}</span>
+                                <span class="value">${girlInfo[key]}</span>
+                            </div>`;
+                    }
+                });
 
                 const avatarContainer = document.getElementById('avatar-container');
-                if (girlInfo && girlInfo.photo && girlInfo.photo.trim() !== '') {
-                    avatarContainer.innerHTML = `<img src="${girlInfo.photo.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
+                const photoUrl = girlInfo.photo || girlInfo['圖片'];
+                if (photoUrl) {
+                    avatarContainer.innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                let win = 0, loss = 0, delay = 0, totalOvertime = 0;
-                let totalScored = 0, totalAllowed = 0;
-                let historyHtml = '';
+                // ⚾ 數據計算
+                let win = 0, loss = 0, delay = 0, totalOvertime = 0, totalScored = 0, totalAllowed = 0, historyHtml = '';
                 
-                const schedules = scheduleData.filter(s => s.girl_name && s.girl_name.trim() === targetName && (!finalTeam || (s.team && s.team.trim() === finalTeam)));
+                const schedules = scheduleData.filter(s => {
+                    const sName = s.girl_name || s.name || s['姓名'];
+                    return sName && sName.trim() === targetName;
+                });
                 
                 schedules.forEach(s => {
-                    const sYear = s.year ? s.year.toString().trim() : '';
-                    if(s.working_dates) {
-                        const workList = parseWorkingDate(s.working_dates);
-                        workList.forEach(w => {
-                            let matchResultHtml = '<span style="color:var(--text-muted);">無比賽</span>';
-                            let gameNoText = '-', opponentText = '-', scoreText = '-', inningsText = '9';
-                            let winPitcherText = '-', losePitcherText = '-', savePitcherText = '-', mvpText = '-';
-                            let audienceText = '-', durationText = '-', locationText = '-';
-                            
-                            const wNums = w.date ? w.date.match(/\d+/g) : null;
-                            if (wNums && wNums.length >= 2) {
-                                const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
-                                const match = matchesData.find(m => {
-                                    if(sYear && m.year && sYear !== m.year.toString().trim()) return false;
-                                    if(m.team && m.team.trim() !== finalTeam) return false;
-                                    const mNums = m.date ? m.date.match(/\d+/g) : null;
-                                    return (mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === wM && parseInt(mNums[1], 10) === wD);
-                                });
+                    if(!s.working_dates) return;
+                    const workList = parseWorkingDate(s.working_dates);
+                    workList.forEach(w => {
+                        let resHtml = '<span style="color:var(--text-muted);">-</span>';
+                        // 支援所有你提供的欄位名稱
+                        let gNo = '-', opp = '-', sco = '-', winP = '-', lossP = '-', savP = '-', mvpP = '-', attP = '-', durP = '-', locP = '-', innP = '9';
+                        
+                        const wNums = w.date.match(/\d+/g);
+                        if (wNums && wNums.length >= 2) {
+                            const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
+                            const match = matchesData.find(m => {
+                                if(s.year && m.year && s.year.toString() !== m.year.toString()) return false;
+                                const mNums = m.date ? m.date.match(/\d+/g) : null;
+                                return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === wM && parseInt(mNums[1], 10) === wD;
+                            });
 
-                                if(match) {
-                                    gameNoText = match.game_no || '-';
-                                    opponentText = match.opponent || '-';
-                                    scoreText = match.score || '-';
-                                    winPitcherText = match.win_pitcher || '-';
-                                    losePitcherText = match.loss_pitcher || '-';
-                                    savePitcherText = match.save || '-';
-                                    mvpText = match.mvp || '-';
-                                    audienceText = match.attendance || '-';
-                                    durationText = match.duration || '-';
-                                    locationText = match.location || '-';
+                            if(match) {
+                                gNo = match.game_no || '-';
+                                opp = match.opponent || match['對手'] || '-';
+                                sco = match.score || match['比分'] || '-';
+                                winP = match.win_pitcher || match['勝投'] || '-';
+                                lossP = match.loss_pitcher || match['敗投'] || '-';
+                                savP = match.save || match['救援'] || '-';
+                                mvpP = match.mvp || match['MVP'] || '-';
+                                attP = match.attendance || match['觀眾數'] || '-';
+                                durP = match.duration || match['比賽時間'] || '-';
+                                locP = match.location || match['地點'] || '-';
+                                const innings = parseInt(match.innings || match['局數'] || 9);
+                                innP = innings > 9 ? `${innings}<span class="overtime-badge">加班+${innings-9}</span>` : '9';
+                                if(innings > 9) totalOvertime += (innings - 9);
 
-                                    // 🕒 加班計算核心
-                                    const innings = parseInt(match.innings || match['局數'] || 9);
-                                    inningsText = innings.toString();
-                                    if(innings > 9) {
-                                        const ot = innings - 9;
-                                        totalOvertime += ot;
-                                        inningsText += `<span class="overtime-badge">加班+${ot}</span>`;
-                                    }
-
-                                    const res = match.result ? match.result.trim() : '';
-                                    const scoreData = parseScoreForTeam(match.score, res);
-                                    if(res === '勝') { win++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed; matchResultHtml = `<span class="win">勝</span>`; }
-                                    else if(res === '敗') { loss++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed; matchResultHtml = `<span class="loss">敗</span>`; }
-                                    else if(res === '延賽') { delay++; matchResultHtml = `<span style="background:#bdc3c7; color:white; padding:4px 10px; border-radius:12px;">🌧️ 延賽</span>`; }
-                                }
+                                const res = (match.result || match['結果'] || '').trim();
+                                const scoreData = parseScoreForTeam(match.score, res);
+                                if(res.includes('勝')) { win++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed; resHtml = `<span class="win">勝</span>`; }
+                                else if(res.includes('敗')) { loss++; totalScored += scoreData.scored; totalAllowed += scoreData.allowed; resHtml = `<span class="loss">敗</span>`; }
+                                else if(res.includes('延')) { delay++; resHtml = `<span style="background:#bdc3c7; color:white; padding:4px 10px; border-radius:12px;">延賽</span>`; }
                             }
-                            
-                            historyHtml += `
-                                <tr>
-                                    <td style="font-weight:bold;">${w.date}</td>
-                                    <td style="color:var(--text-muted); font-size:12px;">${gameNoText}</td>
-                                    <td>${opponentText}</td>
-                                    <td style="font-weight:bold;">${scoreText}</td>
-                                    <td>${inningsText}</td>
-                                    <td>${matchResultHtml}</td>
-                                    <td style="color:#e74c3c;">${winPitcherText}</td>
-                                    <td style="color:#3498db;">${losePitcherText}</td>
-                                    <td style="color:#2ecc71;">${savePitcherText}</td>
-                                    <td style="color:#f39c12; font-weight:bold;">${mvpText}</td>
-                                    <td style="color:var(--text-muted); font-weight:bold;">${audienceText}</td>
-                                    <td style="color:var(--text-muted); font-size:12px;">${durationText}</td>
-                                    <td>${locationText}</td>
-                                    <td style="color:var(--theme-main); font-weight:900;">${w.position || '-'}</td>
-                                </tr>
-                            `;
-                        });
-                    }
+                        }
+                        
+                        historyHtml += `
+                            <tr>
+                                <td style="font-weight:bold;">${w.date}</td>
+                                <td style="font-size:12px; color:var(--text-muted);">${gNo}</td>
+                                <td>${opp}</td>
+                                <td style="font-weight:bold;">${sco}</td>
+                                <td>${resHtml}</td>
+                                <td style="color:#e74c3c;">${winP}</td>
+                                <td style="color:#3498db;">${lossP}</td>
+                                <td style="color:#2ecc71;">${savP}</td>
+                                <td style="color:#f39c12; font-weight:bold;">${mvpP}</td>
+                                <td style="font-weight:bold;">${attP}</td>
+                                <td style="font-size:12px;">${durP}</td>
+                                <td>${locP}</td>
+                                <td style="color:var(--theme-main); font-weight:900;">${w.position || '-'}</td>
+                            </tr>`;
+                    });
                 });
 
-                const totalValidGames = win + loss;
-                document.getElementById('stat-games').innerText = `${totalValidGames} 場`;
-                document.getElementById('stat-record').innerText = `${win}勝 ${loss}敗`;
-                document.getElementById('stat-winrate').innerText = totalValidGames > 0 ? `${((win/totalValidGames)*100).toFixed(1)}%` : '0%';
-                document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
+                // 渲染迷你看板
+                document.getElementById('stat-games').innerText = `${win+loss} 場`;
+                document.getElementById('stat-winrate').innerText = (win+loss) > 0 ? `${((win/(win+loss))*100).toFixed(1)}%` : '0%';
                 document.getElementById('stat-overtime').innerText = `${totalOvertime} 局`;
-
-                if(historyHtml === '') historyHtml = '<tr><td colspan="14" style="text-align:center; padding:20px;">目前尚無出勤紀錄</td></tr>';
+                document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
                 document.getElementById('history-list').innerHTML = historyHtml;
 
-                // 戰鬥力雷達圖 (加入加班局數作為體力參考)
-                const scoreWin = totalValidGames > 0 ? Math.round((win / totalValidGames) * 100) : 0;
-                const scoreStamina = Math.min(Math.round(((totalValidGames * 9 + totalOvertime) / 150) * 100), 100); 
-                const avgScored = totalValidGames > 0 ? (totalScored / totalValidGames) : 0;
-                const scoreOffense = Math.min(Math.round((avgScored / 6) * 100), 100);
-                const avgAllowed = totalValidGames > 0 ? (totalAllowed / totalValidGames) : 7;
-                const scoreDefense = Math.max(Math.min(Math.round(100 - ((avgAllowed - 1) / 6) * 100), 100), 0);
-                const scoreSun = (totalValidGames + delay) > 0 ? Math.round((totalValidGames / (totalValidGames + delay)) * 100) : 0;
-
-                const ctx = document.getElementById('radarChart').getContext('2d');
-                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-                const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-                const labelColor = isDarkMode ? '#dddddd' : '#5c4b51';
-
-                new Chart(ctx, {
-                    type: 'radar',
-                    data: {
-                        labels: ['👑 勝運', '🔥 體力', '⚔️ 火力', '🛡️ 鐵壁', '☀️ 晴天'],
-                        datasets: [{
-                            label: '綜合戰鬥力', data: [scoreWin, scoreStamina, scoreOffense, scoreDefense, scoreSun],
-                            backgroundColor: 'rgba(255, 117, 140, 0.3)', borderColor: '#ff758c', borderWidth: 2, pointRadius: 4,
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        scales: { r: { angleLines: { color: gridColor }, grid: { color: gridColor }, pointLabels: { font: { weight: 'bold' }, color: labelColor }, ticks: { display: false, min: 0, max: 100, stepSize: 20 } } },
-                        plugins: { legend: { display: false } }
-                    }
-                });
-
+                // 顯示介面
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('mini-dashboard').style.display = 'grid';
-                document.getElementById('radar-card').style.display = 'block';
                 document.getElementById('history-card').style.display = 'block';
 
-            } catch (error) {
-                console.error("詳細頁錯誤：", error);
-                document.getElementById('error-message').style.display = 'block';
-            } finally {
+                // 雷達圖 (略，已包含在 try 區塊中)
                 hideLoading();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('error-message').style.display = 'block';
             }
         }
         initDetail();
