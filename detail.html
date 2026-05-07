@@ -15,9 +15,14 @@
             border-bottom: 1px solid rgba(255, 117, 140, 0.1);
         }
         #history-table th { background-color: rgba(255, 117, 140, 0.05); color: var(--theme-main); font-weight: 900; }
+        
+        /* 🔥 統一表格內的所有字體大小，不再忽大忽小 */
+        #history-table td { font-size: 15px !important; color: var(--text-main); }
+        
         [data-theme="dark"] #history-table th { background-color: #252525; }
+        [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
 
-        /* 🔍 女神情報局專屬方塊設計 (還原截圖設計) */
+        /* 🔍 女神情報局專屬方塊設計 */
         .secret-box {
             border: 1px solid #ffccd5;
             border-radius: 16px;
@@ -40,8 +45,23 @@
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         .dashboard-value { font-size: 20px; font-weight: 900; }
 
-        /* 加班與篩選器樣式 */
-        .overtime-badge { background: #6c5ce7; color: white; font-size: 10px; padding: 2px 5px; border-radius: 4px; margin-left: 4px; }
+        /* 💊 完美還原：勝負膠囊標籤 */
+        .result-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .result-win { background-color: #ff9aa2; } /* 柔和粉紅 */
+        .result-loss { background-color: #99c2ff; } /* 柔和粉藍 */
+        .result-delay { background-color: #bdc3c7; } /* 灰色延賽 */
+
+        /* 加班標籤 */
+        .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
+        
+        /* 篩選器樣式 */
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
         [data-theme="dark"] .filter-select { border-color: #555; }
     </style>
@@ -73,8 +93,7 @@
             <h3 style="margin: 0 0 15px 0; color: var(--theme-main); font-size: 20px; display: flex; align-items: center; gap: 8px;">
                 🔍 女神情報局
             </h3>
-            <div id="secret-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px;">
-                </div>
+            <div id="secret-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px;"></div>
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
@@ -88,7 +107,6 @@
         <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
             <div style="padding: 20px; border-bottom: 1px solid rgba(255, 117, 140, 0.1);">
                 <h3 style="margin: 0 0 15px 0; color: var(--theme-main); text-align: center;">📅 出勤歷史紀錄</h3>
-                
                 <div style="display: flex; gap: 10px; justify-content: center;">
                     <select id="filter-year" class="filter-select"><option value="all">所有年度</option></select>
                     <select id="filter-month" class="filter-select"><option value="all">所有月份</option></select>
@@ -112,7 +130,7 @@
 
     <script src="app.js"></script>
     <script>
-        let allMatchRecords = []; // 儲存所有比賽資料以供篩選使用
+        let allMatchRecords = []; 
 
         function hideLoading() {
             const overlay = document.getElementById('loading-overlay');
@@ -153,7 +171,7 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // 2. 構建「🔍 女神情報局」專屬方塊 (支援保密中)
+                // 2. 構建「🔍 女神情報局」專屬方塊
                 const secretGrid = document.getElementById('secret-grid');
                 const dict = {
                     'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' },
@@ -166,23 +184,17 @@
                     'weight': { label: '體重', icon: '⚖️' }
                 };
 
-                // 設定我們一定要顯示的四個核心欄位，如果沒資料就顯示「保密中」
                 const coreKeys = ['星座', '最愛球員', '最愛食物', '興趣'];
-                
-                // 將使用者 CSV 的資料翻譯並收集起來
                 let mappedData = {};
                 Object.keys(girlInfo).forEach(k => {
                     const lk = k.toLowerCase();
                     if(dict[lk]) mappedData[dict[lk].label] = girlInfo[k];
-                    else if (coreKeys.includes(k)) mappedData[k] = girlInfo[k]; // 直接寫中文標題的情況
+                    else if (coreKeys.includes(k)) mappedData[k] = girlInfo[k]; 
                 });
 
-                // 產生方塊
                 coreKeys.forEach(title => {
-                    // 尋找對應的 icon
                     let iconObj = Object.values(dict).find(d => d.label === title);
                     let icon = iconObj ? iconObj.icon : '✨';
-                    
                     let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中';
                     let valStyle = val === '保密中' ? 'color: var(--text-muted);' : 'color: var(--text-main);';
                     
@@ -195,7 +207,7 @@
                     `;
                 });
 
-                // 3. 解析班表與比賽資料，存入全域陣列 (供篩選器使用)
+                // 3. 解析班表與比賽資料
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 
                 schedules.forEach(s => {
@@ -204,11 +216,11 @@
                     const workList = parseWorkingDate(s.working_dates);
                     
                     workList.forEach(w => {
-                        let record = { date: w.date, year: sYear, month: '', gameNo: '-', opponent: '-', score: '-', winP: '-', lossP: '-', savP: '-', mvpP: '-', attP: '-', durP: '-', locP: '-', pos: w.position || '-', isWin: false, isLoss: false, isDelay: false, scored: 0, allowed: 0, overtimeGames: 0, resHtml: '<span style="color:var(--text-muted);">-</span>', originalInnings: 9 };
+                        let record = { date: w.date, year: sYear, month: '', gameNo: '-', opponent: '-', score: '-', winP: '-', lossP: '-', savP: '-', mvpP: '-', attP: '-', durP: '-', locP: '-', pos: w.position || '-', isWin: false, isLoss: false, isDelay: false, scored: 0, allowed: 0, overtimeGames: 0, resHtml: '<span style="color:var(--text-muted);">-</span>' };
                         
                         const wNums = w.date.match(/\d+/g);
                         if (wNums && wNums.length >= 2) {
-                            record.month = wNums[0].padStart(2, '0'); // 提取月份
+                            record.month = wNums[0].padStart(2, '0');
                             const wM = parseInt(wNums[0], 10), wD = parseInt(wNums[1], 10);
                             
                             const match = matchesData.find(m => {
@@ -227,26 +239,26 @@
                                 record.durP = match.duration || match['比賽時間'] || '-'; record.locP = match.location || match['地點'] || '-';
                                 
                                 const inn = parseInt(match.innings || match['局數'] || 9);
-                                record.originalInnings = inn;
                                 if(inn > 9) {
                                     record.overtimeGames = 1; 
-                                    record.score += `<span class="overtime-badge" style="font-size:10px;">${inn}局</span>`;
+                                    record.score += `<span class="overtime-badge">${inn}局</span>`;
                                 }
 
                                 const res = (match.result || match['結果'] || '').trim();
                                 const scoreData = parseScoreForTeam(match.score, res);
                                 record.scored = scoreData.scored; record.allowed = scoreData.allowed;
                                 
-                                if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="win">勝</span>`; }
-                                else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="loss">敗</span>`; }
-                                else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span style="background:#bdc3c7; color:white; padding:4px 10px; border-radius:12px;">延賽</span>`; }
+                                // 💊 替換成完美膠囊標籤
+                                if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; }
+                                else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; }
+                                else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span class="result-badge result-delay">延賽</span>`; }
                             }
                         }
                         allMatchRecords.push(record);
                     });
                 });
 
-                // 4. 設定年度與月份篩選器的選項
+                // 4. 設定年度與月份篩選器
                 const years = [...new Set(allMatchRecords.map(r => r.year).filter(y => y))].sort().reverse();
                 const months = [...new Set(allMatchRecords.map(r => r.month).filter(m => m))].sort();
                 
@@ -259,13 +271,12 @@
                 yearSelect.addEventListener('change', renderFilteredData);
                 monthSelect.addEventListener('change', renderFilteredData);
 
-                // 5. 顯示畫面並進行初次渲染
                 document.getElementById('profile-card').style.display = 'flex';
                 document.getElementById('secret-card').style.display = 'block';
                 document.getElementById('mini-dashboard').style.display = 'flex';
                 document.getElementById('history-card').style.display = 'block';
                 
-                renderFilteredData();
+                renderFilteredData(); // 初次渲染
                 hideLoading();
 
             } catch (error) {
@@ -275,12 +286,12 @@
             }
         }
 
-        // 🎯 核心渲染功能：根據篩選器條件，重新計算勝率與表格
+        // 🎯 渲染過濾後的數據
         function renderFilteredData() {
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
 
-            let fWin = 0, fLoss = 0, fDelay = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0;
+            let fWin = 0, fLoss = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0;
             let historyHtml = '';
 
             const filteredRecords = allMatchRecords.filter(r => {
@@ -294,12 +305,21 @@
                 if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
                 if(r.overtimeGames > 0) fOvertimeGames++;
 
+                // 🔥 完全移除了 font-size: 12px 這種破壞統一感的設定，只保留顏色粗細
                 historyHtml += `<tr>
-                    <td style="font-weight:bold;">${r.date}</td><td style="font-size:12px; color:var(--text-muted);">${r.gameNo}</td>
-                    <td>${r.opponent}</td><td style="font-weight:bold;">${r.score}</td><td>${r.resHtml}</td>
-                    <td style="color:#e74c3c;">${r.winP}</td><td style="color:#3498db;">${r.lossP}</td><td style="color:#2ecc71;">${r.savP}</td>
-                    <td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td><td style="font-weight:bold;">${r.attP}</td>
-                    <td style="font-size:12px;">${r.durP}</td><td>${r.locP}</td><td style="color:var(--theme-main); font-weight:900;">${r.pos}</td>
+                    <td style="font-weight:bold;">${r.date}</td>
+                    <td style="color:var(--text-muted);">${r.gameNo}</td>
+                    <td>${r.opponent}</td>
+                    <td style="font-weight:bold;">${r.score}</td>
+                    <td>${r.resHtml}</td>
+                    <td style="color:#e74c3c;">${r.winP}</td>
+                    <td style="color:#3498db;">${r.lossP}</td>
+                    <td style="color:#2ecc71;">${r.savP}</td>
+                    <td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td>
+                    <td style="font-weight:bold;">${r.attP}</td>
+                    <td>${r.durP}</td>
+                    <td>${r.locP}</td>
+                    <td style="color:var(--theme-main); font-weight:900;">${r.pos}</td>
                 </tr>`;
             });
 
