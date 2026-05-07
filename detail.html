@@ -20,7 +20,7 @@
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
 
-        /* 🍎 粉色圓角泡泡標籤 (國籍、生日等) */
+        /* 🍎 粉色圓角泡泡標籤 */
         .info-tag {
             display: inline-flex;
             align-items: center;
@@ -35,6 +35,36 @@
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
+        /* 🆔 身分證左右佈局 (神級排版) */
+        .profile-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            align-items: stretch; /* 讓左右等高 */
+        }
+        .profile-left {
+            flex: 1 1 320px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .profile-right {
+            flex: 1 1 350px;
+            border-left: 1px dashed rgba(255, 117, 140, 0.4);
+            padding-left: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        /* 手機版自動切換為上下排版 */
+        @media (max-width: 800px) {
+            .profile-right {
+                border-left: none;
+                border-top: 1px dashed rgba(255, 117, 140, 0.4);
+                padding-left: 0;
+                padding-top: 25px;
+            }
+        }
+
         /* 🔍 女神情報局專屬方塊設計 */
         .secret-box {
             border: 1px solid #ffccd5;
@@ -47,6 +77,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05);
+            height: 100%;
         }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 13px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
@@ -88,9 +119,9 @@
             <a href="index.html" class="btn btn-secondary">◀ 返回首頁</a>
         </div>
 
-        <div class="card" id="profile-card" style="display: none; padding: 25px; margin-bottom: 25px;">
+        <div class="card profile-layout" id="profile-card" style="display: none; padding: 25px; margin-bottom: 25px;">
             
-            <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+            <div class="profile-left">
                 <div id="avatar-container" class="profile-avatar-large" style="flex-shrink: 0; margin-right: 20px;"></div>
                 <div style="flex: 1; text-align: left; min-width: 0;">
                     <div style="display: flex; align-items: baseline; gap: 10px;">
@@ -105,14 +136,13 @@
                 </div>
             </div>
 
-            <div style="border-top: 1px dashed rgba(255, 117, 140, 0.4); margin-bottom: 20px;"></div>
-
-            <div>
+            <div class="profile-right">
                 <h3 style="margin: 0 0 15px 0; color: var(--theme-main); font-size: 18px; display: flex; align-items: center; gap: 8px;">
                     🔍 女神情報局
                 </h3>
-                <div id="secret-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 15px;"></div>
+                <div id="secret-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 15px; flex: 1; align-content: start;"></div>
             </div>
+            
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
@@ -221,13 +251,22 @@
                     if (secretKeys.includes(label)) {
                         mappedData[label] = girlInfo[k];
                     } 
-                    // 其他資料 (國籍、生日等) -> 丟到粉色泡泡區
-                    else if (!excludeKeys.includes(lk) && girlInfo[k] && girlInfo[k].trim() !== '') {
-                        extraContainer.innerHTML += `
-                            <div class="info-tag">
-                                <span class="label">${label}</span>
-                                <span class="value">${girlInfo[k]}</span>
-                            </div>`;
+                    // 其他資料 -> 丟到粉色泡泡區
+                    else if (!excludeKeys.includes(lk) && girlInfo[k] && girlInfo[k].toString().trim() !== '') {
+                        
+                        // 🔥 如果是「國籍」，就不顯示文字標題，只保留可愛的值 (如: 🇹🇼 台灣)
+                        if (label === '國籍') {
+                            extraContainer.innerHTML += `
+                                <div class="info-tag">
+                                    <span class="value">${girlInfo[k]}</span>
+                                </div>`;
+                        } else {
+                            extraContainer.innerHTML += `
+                                <div class="info-tag">
+                                    <span class="label">${label}</span>
+                                    <span class="value">${girlInfo[k]}</span>
+                                </div>`;
+                        }
                     }
                 });
 
@@ -235,7 +274,7 @@
                 secretKeys.forEach(title => {
                     let iconObj = Object.values(dict).find(d => d.label === title);
                     let icon = iconObj ? iconObj.icon : '✨';
-                    let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中';
+                    let val = mappedData[title] && mappedData[title].toString().trim() !== '' ? mappedData[title] : '保密中';
                     let valStyle = val === '保密中' ? 'color: var(--text-muted);' : 'color: var(--text-main);';
                     
                     secretGrid.innerHTML += `
@@ -310,7 +349,8 @@
                 yearSelect.addEventListener('change', renderFilteredData);
                 monthSelect.addEventListener('change', renderFilteredData);
 
-                document.getElementById('profile-card').style.display = 'block';
+                // 🔥 顯示左右並排佈局 (呼叫 class 名稱指定的 flex)
+                document.getElementById('profile-card').style.display = 'flex'; 
                 document.getElementById('mini-dashboard').style.display = 'flex';
                 document.getElementById('history-card').style.display = 'block';
                 
