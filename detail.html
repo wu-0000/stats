@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         #history-table th, #history-table td {
-            white-space: nowrap !important;
-            text-align: center !important;
+            white-space: nowrap !important; /* 絕對不換行，確保資料整齊 */
+            text-align: center !important;  
             vertical-align: middle !important;
             padding: 12px 10px;
             border-bottom: 1px solid rgba(255, 117, 140, 0.1);
@@ -66,16 +66,18 @@
                 <thead>
                     <tr>
                         <th>日期</th>
-                        <th>📍站位</th>
-                        <th>地點</th>
+                        <th>場次</th>
                         <th>對手</th>
                         <th>比分</th>
                         <th>結果</th>
-                        <th>觀眾數</th>
-                        <th>MVP</th>
                         <th>勝投</th>
                         <th>敗投</th>
                         <th>救援</th>
+                        <th>MVP</th>
+                        <th>觀眾數</th>
+                        <th>比賽時間</th>
+                        <th>地點</th>
+                        <th>📍站位</th>
                     </tr>
                 </thead>
                 <tbody id="history-list"></tbody>
@@ -170,14 +172,18 @@
                         const workList = parseWorkingDate(s.working_dates);
                         workList.forEach(w => {
                             let matchResultHtml = '<span style="color:var(--text-muted);">無比賽</span>';
+                            
+                            // 預設空值
+                            let gameNoText = '-';
                             let opponentText = '-';
                             let scoreText = '-';
-                            let locationText = '-';
-                            let audienceText = '-';
-                            let mvpText = '-';
                             let winPitcherText = '-';
                             let losePitcherText = '-';
                             let savePitcherText = '-';
+                            let mvpText = '-';
+                            let audienceText = '-';
+                            let durationText = '-';
+                            let locationText = '-';
                             
                             const wNums = w.date ? w.date.match(/\d+/g) : null;
                             if (wNums && wNums.length >= 2) {
@@ -192,14 +198,17 @@
                                 });
 
                                 if(match) {
+                                    // 抓取所有對應欄位 (完整對接)
+                                    gameNoText = match.game_no || '-';
                                     opponentText = match.opponent || '-';
                                     scoreText = match.score || '-';
-                                    locationText = match.location || '-';
-                                    audienceText = match.attendance || '-'; // 精準對接你的欄位
-                                    mvpText = match.mvp || '-';
                                     winPitcherText = match.win_pitcher || '-';
-                                    losePitcherText = match.loss_pitcher || '-'; // 精準對接你的欄位
-                                    savePitcherText = match.save || '-'; // 精準對接你的欄位
+                                    losePitcherText = match.loss_pitcher || '-';
+                                    savePitcherText = match.save || '-';
+                                    mvpText = match.mvp || '-';
+                                    audienceText = match.attendance || '-';
+                                    durationText = match.duration || '-';
+                                    locationText = match.location || '-';
 
                                     const res = match.result ? match.result.trim() : '';
                                     const scoreData = parseScoreForTeam(match.score, res);
@@ -217,19 +226,23 @@
                             }
                             
                             const posText = w.position || '未指定';
+                            
+                            // 按照你的要求排好的順序塞入：日期 場次 對手 比分 結果 勝投 敗投 救援 mvp 觀眾數 比賽時間 地點 站位
                             historyHtml += `
                                 <tr>
                                     <td style="font-weight:bold;">${w.date}</td>
-                                    <td style="color:var(--theme-main); font-weight:900;">${posText}</td>
-                                    <td>${locationText}</td>
+                                    <td style="color:var(--text-muted); font-size:13px;">${gameNoText}</td>
                                     <td>${opponentText}</td>
                                     <td style="font-weight:bold; letter-spacing:1px;">${scoreText}</td>
                                     <td>${matchResultHtml}</td>
-                                    <td style="color:var(--text-muted); font-weight:bold;">${audienceText}</td>
-                                    <td style="color:#f39c12; font-weight:bold;">${mvpText}</td>
                                     <td style="color:#e74c3c;">${winPitcherText}</td>
                                     <td style="color:#3498db;">${losePitcherText}</td>
                                     <td style="color:#2ecc71;">${savePitcherText}</td>
+                                    <td style="color:#f39c12; font-weight:bold;">${mvpText}</td>
+                                    <td style="color:var(--text-muted); font-weight:bold;">${audienceText}</td>
+                                    <td style="color:var(--text-muted); font-size:13px;">${durationText}</td>
+                                    <td>${locationText}</td>
+                                    <td style="color:var(--theme-main); font-weight:900;">${posText}</td>
                                 </tr>
                             `;
                         });
@@ -244,7 +257,7 @@
                 document.getElementById('stat-winrate').innerText = totalValidGames > 0 ? `${((win/totalValidGames)*100).toFixed(1)}%` : '0%';
                 document.getElementById('stat-points').innerText = `${totalScored} / ${totalAllowed}`;
 
-                if(historyHtml === '') historyHtml = '<tr><td colspan="11" style="text-align:center; padding:20px;">目前尚無出勤紀錄</td></tr>';
+                if(historyHtml === '') historyHtml = '<tr><td colspan="13" style="text-align:center; padding:20px;">目前尚無出勤紀錄</td></tr>';
                 document.getElementById('history-list').innerHTML = historyHtml;
 
                 const scoreWin = totalValidGames > 0 ? Math.round((win / totalValidGames) * 100) : 0;
