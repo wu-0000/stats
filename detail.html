@@ -6,7 +6,7 @@
     <title>女神情報局</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 🏆 專業數據對齊防護罩 (完美不破版) */
+        /* 🏆 專業數據對齊防護罩 */
         #history-table th, #history-table td {
             white-space: nowrap !important; 
             text-align: center !important;  
@@ -21,23 +21,21 @@
         }
         [data-theme="dark"] #history-table th { background-color: #252525; }
 
-        /* 🍎 恢復你最愛的：粉色圓角泡泡標籤 */
+        /* 🍎 粉色圓角泡泡標籤 */
         .info-tag {
             display: inline-flex;
             align-items: center;
             background: transparent;
-            border: 1px solid #ffccd5; /* 經典粉色邊框 */
-            border-radius: 20px; /* 圓角泡泡 */
+            border: 1px solid #ffccd5;
+            border-radius: 20px;
             padding: 5px 14px;
             gap: 8px;
             white-space: nowrap;
         }
         .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
-        .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; } /* 經典粉色粗體數據 */
+        .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         
-        [data-theme="dark"] .info-tag { 
-            border-color: #ff758c; 
-        }
+        [data-theme="dark"] .info-tag { border-color: #ff758c; }
 
         /* 加班紫色小標籤 */
         .overtime-badge {
@@ -47,6 +45,24 @@
             padding: 2px 5px;
             border-radius: 4px;
             margin-left: 4px;
+        }
+        
+        /* 📊 恢復寬敞質感的看板專屬樣式 */
+        .dashboard-card {
+            flex: 1; 
+            min-width: 120px; /* 確保卡片夠寬 */
+            padding: 20px 10px; /* 恢復上下寬敞的留白 */
+            text-align: center; /* 文字強制完美置中 */
+        }
+        .dashboard-label {
+            color: var(--text-muted); 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 8px; /* 標題與數字之間的距離 */
+        }
+        .dashboard-value {
+            font-size: 20px; 
+            font-weight: 900; 
         }
     </style>
 </head>
@@ -71,12 +87,27 @@
             </div>
         </div>
 
-        <div class="dashboard" id="mini-dashboard" style="display: none; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-bottom: 20px;">
-            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">總出賽</div><div class="p-value-mini" id="stat-games">0 場</div></div>
-            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">戰績</div><div class="p-value-mini" id="stat-record" style="color: #e74c3c;">0勝 0敗</div></div>
-            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">勝率</div><div class="p-value-mini" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
-            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">加班總計</div><div class="p-value-mini" id="stat-overtime" style="color: #6c5ce7;">0 場</div></div>
-            <div class="card" style="padding: 15px 5px;"><div class="p-label-mini">得失分</div><div class="p-value-mini" id="stat-points">0 / 0</div></div>
+        <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+            <div class="card dashboard-card">
+                <div class="dashboard-label">總出賽</div>
+                <div class="dashboard-value" id="stat-games" style="color: var(--text-main);">0 場</div>
+            </div>
+            <div class="card dashboard-card">
+                <div class="dashboard-label">戰績</div>
+                <div class="dashboard-value" id="stat-record" style="color: #e74c3c;">0勝 0敗</div>
+            </div>
+            <div class="card dashboard-card">
+                <div class="dashboard-label">勝率</div>
+                <div class="dashboard-value" id="stat-winrate" style="color: #e74c3c;">0%</div>
+            </div>
+            <div class="card dashboard-card">
+                <div class="dashboard-label">加班總計</div>
+                <div class="dashboard-value" id="stat-overtime" style="color: #6c5ce7;">0 場</div>
+            </div>
+            <div class="card dashboard-card">
+                <div class="dashboard-label">得失分</div>
+                <div class="dashboard-value" id="stat-points" style="color: var(--text-main);">0 / 0</div>
+            </div>
         </div>
 
         <div class="table-responsive card" id="history-card" style="display: none; padding: 0;">
@@ -142,7 +173,6 @@
                 badge.innerText = finalTeam;
                 badge.style.background = teamColor;
 
-                // 🌟 中文翻譯字典全保留！
                 const keyDictionary = {
                     'id': '號碼', 'number': '號碼', 'no': '號碼',
                     'birthday': '生日', 'height': '身高', 'weight': '體重', 
@@ -169,7 +199,6 @@
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;">`;
                 }
 
-                // ⚾ 數據計算與表格填充
                 let win = 0, loss = 0, delay = 0, totalOvertimeGames = 0, totalScored = 0, totalAllowed = 0, historyHtml = '';
                 
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
@@ -241,7 +270,10 @@
                 document.getElementById('history-list').innerHTML = historyHtml;
 
                 document.getElementById('profile-card').style.display = 'flex';
-                document.getElementById('mini-dashboard').style.display = 'grid';
+                
+                // 💡 將顯示模式改回 flex，恢復寬敞並排效果
+                document.getElementById('mini-dashboard').style.display = 'flex'; 
+                
                 document.getElementById('history-card').style.display = 'block';
                 hideLoading();
             } catch (error) {
