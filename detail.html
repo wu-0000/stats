@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* 🏆 專業數據對齊防護罩與原本的版面設計 (保留所有原功能) */
+        /* 🏆 專業數據對齊防護罩與原本的版面設計 */
         * { box-sizing: border-box; }
         #history-table th, #history-table td { white-space: nowrap !important; text-align: center !important; vertical-align: middle !important; padding: 12px 10px; border-bottom: 1px solid rgba(255, 117, 140, 0.1); }
         #history-table th { background-color: rgba(255, 117, 140, 0.05); color: var(--theme-main); font-weight: 900; }
@@ -40,7 +40,7 @@
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
 
         /* ==========================================
-           🩺 迷因：醫療處方箋 (熱感應紙風格)
+           🩺 迷因：醫療處方箋 
            ========================================== */
         .rx-btn {
             background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
@@ -65,21 +65,32 @@
             transform: translateY(50px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto;
         }
 
+        /* 🔥 修復手機打字黑屏問題 */
         .rx-input {
-            width: 100%; padding: 12px 15px; border: 2px solid #ccc;
+            width: 100%; padding: 12px 15px; border: 2px solid #ffccd5;
             border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
+            background-color: var(--card-bg); /* 強制背景跟隨主題 */
+            color: var(--text-main); /* 強制文字跟隨主題 */
+            outline: none;
+            transition: border-color 0.3s;
         }
+        .rx-input:focus { border-color: #ff758c; }
+        /* 暗黑模式強制設定 */
+        [data-theme="dark"] .rx-input { 
+            background-color: #222; 
+            color: #fff; 
+            border-color: #555; 
+        }
+        [data-theme="dark"] .rx-input::placeholder { color: #888; }
 
         /* 超逼真熱感應紙設計 */
         .receipt-paper {
-            background: #fffdf5; /* 微黃的熱感應紙色 */
-            color: #222; font-family: 'Courier New', Courier, monospace; /* 收據字體 */
+            background: #fffdf5; color: #222; font-family: 'Courier New', Courier, monospace; 
             padding: 25px 20px; width: 100%; max-width: 320px; margin: 0 auto;
             position: relative; text-align: left;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             border-top: 1px dashed #ddd; border-bottom: 1px dashed #ddd;
         }
-        /* 鋸齒邊緣偽元素 */
         .receipt-paper::before {
             content: ""; position: absolute; top: -5px; left: 0; width: 100%; height: 5px;
             background: linear-gradient(135deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent), linear-gradient(225deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent);
@@ -102,7 +113,6 @@
             font-family: 'Libre Barcode 39', cursive, sans-serif; opacity: 0.8; margin-top: 15px;
         }
 
-        /* 逼真的紅色印章 */
         .rx-stamp {
             position: absolute; right: 15px; bottom: 40px;
             border: 3px solid #e74c3c; color: #e74c3c;
@@ -214,9 +224,7 @@
                         ※ 此為急症，請勿拖延<br>
                         ※ 女神情報局認證，請按時服用
                     </div>
-
                     <div class="receipt-barcode">|||| ||||| | ||||| |||| </div>
-
                     <div class="rx-stamp">急件<br>藥到病除</div>
                 </div>
 
@@ -228,7 +236,7 @@
     <script src="app.js"></script>
     <script>
         let allMatchRecords = []; 
-        let currentGirlData = {}; // 儲存當前女孩資料供處方箋使用
+        let currentGirlData = {}; 
 
         function hideLoading() { const overlay = document.getElementById('loading-overlay'); if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); } }
 
@@ -245,7 +253,7 @@
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
                 
-                currentGirlData = girlInfo; // 存起來
+                currentGirlData = girlInfo;
 
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
@@ -317,9 +325,6 @@
             document.getElementById('stat-delay').innerText = `${fDelay + fSuspend} 場`; document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`; document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
         }
 
-        /* ==========================================
-           🩺 迷因：開立處方箋 JS 邏輯
-           ========================================== */
         function openRxModal() {
             const modal = document.getElementById('rx-modal');
             const content = document.querySelector('.rx-modal-content');
@@ -344,11 +349,9 @@
             const pName = document.getElementById('rx-patient-name').value.trim() || '無名鐵粉';
             const symptom = document.getElementById('rx-symptom').value.trim() || '重度星期一症候群';
             
-            // 抓當下日期
             const today = new Date();
             document.getElementById('rx-date').innerText = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
             
-            // 注入資料
             document.getElementById('rx-display-name').innerText = pName;
             document.getElementById('rx-display-symptom').innerText = symptom;
             
@@ -356,7 +359,6 @@
             document.getElementById('rx-ig-handle').innerText = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
             document.getElementById('rx-girl-name').innerText = currentGirlData.name;
             
-            // 根據球隊指派主場
             let stadium = '球場';
             const t = currentGirlData.team || '';
             if(t.includes('樂天')) stadium = '樂天桃園棒球場';
@@ -367,14 +369,12 @@
             else if(t.includes('台鋼')) stadium = '澄清湖棒球場';
             document.getElementById('rx-stadium').innerText = stadium;
 
-            // 切換畫面
             document.getElementById('rx-input-area').style.display = 'none';
             document.getElementById('rx-output-area').style.display = 'block';
         }
 
         function downloadRx() {
             const captureArea = document.getElementById('receipt-capture');
-            // 使用 html2canvas 截圖並下載
             html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `女神處方箋_${currentGirlData.name}.png`;
