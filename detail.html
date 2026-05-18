@@ -65,22 +65,16 @@
             transform: translateY(50px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto;
         }
 
-        /* 🔥 修復手機打字黑屏問題 */
         .rx-input {
             width: 100%; padding: 12px 15px; border: 2px solid #ffccd5;
             border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
-            background-color: var(--card-bg); /* 強制背景跟隨主題 */
-            color: var(--text-main); /* 強制文字跟隨主題 */
+            background-color: var(--card-bg); 
+            color: var(--text-main); 
             outline: none;
             transition: border-color 0.3s;
         }
         .rx-input:focus { border-color: #ff758c; }
-        /* 暗黑模式強制設定 */
-        [data-theme="dark"] .rx-input { 
-            background-color: #222; 
-            color: #fff; 
-            border-color: #555; 
-        }
+        [data-theme="dark"] .rx-input { background-color: #222; color: #fff; border-color: #555; }
         [data-theme="dark"] .rx-input::placeholder { color: #888; }
 
         /* 超逼真熱感應紙設計 */
@@ -197,7 +191,7 @@
 
             <div id="rx-output-area" style="display:none;">
                 <div id="receipt-capture" class="receipt-paper">
-                    <div class="receipt-title">🏥 女神情報局附設醫務所</div>
+                    <div class="receipt-title">🏥 女神情報局附設医務所</div>
                     <div class="receipt-subtitle">【門診掛號 / 處方箋】</div>
                     
                     <div class="receipt-row"><span>日期：</span><span id="rx-date"></span></div>
@@ -345,6 +339,9 @@
             }
         }
 
+        /* ==========================================
+           🎉 處方箋：動態捕捉班表地點 + 主場修正
+           ========================================== */
         function generateRx() {
             const pName = document.getElementById('rx-patient-name').value.trim() || '無名鐵粉';
             const symptom = document.getElementById('rx-symptom').value.trim() || '重度星期一症候群';
@@ -354,36 +351,25 @@
             
             document.getElementById('rx-display-name').innerText = pName;
             document.getElementById('rx-display-symptom').innerText = symptom;
-            
-            const igAccount = currentGirlData.ig || currentGirlData.IG || currentGirlData['IG'];
-            document.getElementById('rx-ig-handle').innerText = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
+            document.getElementById('rx-ig-handle').innerText = currentGirlData.name;
             document.getElementById('rx-girl-name').innerText = currentGirlData.name;
             
-            let stadium = '球場';
-            const t = currentGirlData.team || '';
-            if(t.includes('樂天')) stadium = '樂天桃園棒球場';
-            else if(t.includes('兄弟')) stadium = '臺中洲際棒球場';
-            else if(t.includes('味全')) stadium = '天母棒球場';
-            else if(t.includes('統一')) stadium = '臺南市立棒球場';
-            else if(t.includes('富邦')) stadium = '新莊棒球場';
-            else if(t.includes('台鋼')) stadium = '澄清湖棒球場';
-            document.getElementById('rx-stadium').innerText = stadium;
-
-            document.getElementById('rx-input-area').style.display = 'none';
-            document.getElementById('rx-output-area').style.display = 'block';
-        }
-
-        function downloadRx() {
-            const captureArea = document.getElementById('receipt-capture');
-            html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `女神處方箋_${currentGirlData.name}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
-        }
-
-        initDetail();
-    </script>
-</body>
-</html>
+            // 🔍 智慧動態球場判定
+            let stadium = '';
+            const selYear = document.getElementById('filter-year').value;
+            const selMonth = document.getElementById('filter-month').value;
+            
+            // 優先從當前篩選過後的班表紀錄中，抓取真實的比賽地點
+            const currentFiltered = allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth));
+            const hasRealLoc = currentFiltered.find(r => r.locP && r.locP !== '-');
+            
+            if (hasRealLoc) {
+                stadium = hasRealLoc.locP; // 抓到真實出勤地點！
+            } else {
+                // 如果篩選區間沒有，找全歷史紀錄中最近一次的真實球場
+                const anyRealLoc = allMatchRecords.find(r => r.locP && r.locP !== '-');
+                if (anyRealLoc) {
+                    stadium = anyRealLoc.locP;
+                } else {
+                    // 全部的班表都沒有賽事資料時，才啟用球隊防呆預設主場
+                    const t =
