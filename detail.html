@@ -68,10 +68,8 @@
         .rx-input {
             width: 100%; padding: 12px 15px; border: 2px solid #ffccd5;
             border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
-            background-color: var(--card-bg); 
-            color: var(--text-main); 
-            outline: none;
-            transition: border-color 0.3s;
+            background-color: var(--card-bg); color: var(--text-main); 
+            outline: none; transition: border-color 0.3s;
         }
         .rx-input:focus { border-color: #ff758c; }
         [data-theme="dark"] .rx-input { background-color: #222; color: #fff; border-color: #555; }
@@ -102,9 +100,17 @@
         .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; font-weight: bold; }
         .receipt-text { font-size: 14px; line-height: 1.6; font-weight: bold; margin-bottom: 10px; }
         
-        .receipt-barcode {
-            text-align: center; font-size: 40px; line-height: 1; letter-spacing: -2px;
-            font-family: 'Libre Barcode 39', cursive, sans-serif; opacity: 0.8; margin-top: 15px;
+        /* 🔥 純 CSS 繪製的不破版條碼 */
+        .receipt-barcode-css {
+            height: 40px; width: 90%; margin: 15px auto 0;
+            background: repeating-linear-gradient(
+                to right,
+                #222 0, #222 3px, transparent 3px, transparent 6px,
+                #222 6px, #222 8px, transparent 8px, transparent 11px,
+                #222 11px, #222 16px, transparent 16px, transparent 18px,
+                #222 18px, #222 20px, transparent 20px, transparent 24px
+            );
+            opacity: 0.85;
         }
 
         .rx-stamp {
@@ -185,41 +191,40 @@
             
             <div id="rx-input-area">
                 <input type="text" id="rx-patient-name" class="rx-input" placeholder="您的名字 (例如: 鐵粉小明)">
-                <input type="text" id="rx-symptom" class="rx-input" placeholder="今日症狀 (例如: 上班無力想罷工)">
+                <input type="text" id="rx-symptom" class="rx-input" placeholder="今日狀態 (例如: 上班無力想罷工)">
                 <button class="btn" style="width:100%; font-size:16px;" onclick="generateRx()">列印處方箋 🖨️</button>
             </div>
 
             <div id="rx-output-area" style="display:none;">
                 <div id="receipt-capture" class="receipt-paper">
-                    <div class="receipt-title">🏥 女神情報局附設医務所</div>
+                    <div class="receipt-title">🏥 女神情報局附設醫務所</div>
                     <div class="receipt-subtitle">【門診掛號 / 處方箋】</div>
                     
                     <div class="receipt-row"><span>日期：</span><span id="rx-date"></span></div>
                     <div class="receipt-row"><span>病患：</span><span id="rx-display-name"></span></div>
                     <div class="receipt-row"><span>主訴：</span><span id="rx-display-symptom"></span></div>
+                    <div class="receipt-row"><span>心跳：</span><span id="rx-vitals-hr" style="color:#e74c3c;"></span></div>
+                    <div class="receipt-row"><span>血壓：</span><span id="rx-vitals-bp" style="color:#e74c3c;"></span></div>
                     
                     <div class="receipt-line"></div>
                     <div style="font-weight:900; margin-bottom:5px;">【診斷結果】</div>
-                    <div class="receipt-text" style="color:#d35400;">
-                        經診斷患有「重度缺乏 <span id="rx-ig-handle"></span> 笑容能量症候群」。
-                    </div>
+                    <div class="receipt-text" style="color:#d35400;" id="rx-diagnosis">
+                        </div>
 
                     <div class="receipt-line"></div>
                     <div style="font-weight:900; margin-bottom:5px;">【處方醫囑】</div>
-                    <div class="receipt-text">
-                        Rx.<br>
-                        1. 立即前往 <span id="rx-stadium"></span><br>
-                        2. 攝取 <span id="rx-girl-name"></span> 專屬應援至少 3 個療程(局)<br>
-                        3. 按讚最新限動以穩定病情
-                    </div>
+                    <div class="receipt-text" id="rx-treatment">
+                        </div>
 
                     <div class="receipt-line"></div>
                     <div class="receipt-text" style="font-size:12px; color:#555;">
-                        ※ 此為急症，請勿拖延<br>
+                        ※ 醫師囑咐：<span id="rx-doctor-note"></span><br>
                         ※ 女神情報局認證，請按時服用
                     </div>
-                    <div class="receipt-barcode">|||| ||||| | ||||| |||| </div>
-                    <div class="rx-stamp">急件<br>藥到病除</div>
+                    
+                    <div class="receipt-barcode-css"></div>
+                    
+                    <div class="rx-stamp" id="rx-stamp-text">急件<br>藥到病除</div>
                 </div>
 
                 <button class="btn" style="width:100%; margin-top:20px; background:#e74c3c; border-color:#e74c3c;" onclick="downloadRx()">💾 下載處方箋發 IG</button>
@@ -340,55 +345,73 @@
         }
 
         /* ==========================================
-           🎉 處方箋：動態捕捉班表地點 + 主場修正
+           🎉 隨機迷因處方箋生成器
            ========================================== */
         function generateRx() {
             const pName = document.getElementById('rx-patient-name').value.trim() || '無名鐵粉';
             const symptom = document.getElementById('rx-symptom').value.trim() || '重度星期一症候群';
-            
             const today = new Date();
             document.getElementById('rx-date').innerText = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
-            
             document.getElementById('rx-display-name').innerText = pName;
             document.getElementById('rx-display-symptom').innerText = symptom;
-            document.getElementById('rx-ig-handle').innerText = currentGirlData.name;
-            document.getElementById('rx-girl-name').innerText = currentGirlData.name;
             
-            // 🔍 智慧動態球場判定
+            const igAccount = currentGirlData.ig || currentGirlData.IG || currentGirlData['IG'];
+            const igHandle = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
+            const girlName = currentGirlData.name;
+            
+            // 🏟️ 球場判定
             let stadium = '';
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
-            
-            // 優先從當前篩選過後的班表紀錄中，抓取真實的比賽地點
             const currentFiltered = allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth));
             const hasRealLoc = currentFiltered.find(r => r.locP && r.locP !== '-');
-            
-            if (hasRealLoc) {
-                stadium = hasRealLoc.locP; // 抓到真實出勤地點！
-            } else {
-                // 如果篩選區間沒有，找全歷史紀錄中最近一次的真實球場
+            if (hasRealLoc) { stadium = hasRealLoc.locP; } 
+            else {
                 const anyRealLoc = allMatchRecords.find(r => r.locP && r.locP !== '-');
-                if (anyRealLoc) {
-                    stadium = anyRealLoc.locP;
-                } else {
-                    // 全部的班表都沒有賽事資料時，才啟用球隊防呆預設主場
+                if (anyRealLoc) { stadium = anyRealLoc.locP; } 
+                else {
                     const t = currentGirlData.team || '';
                     if(t.includes('樂天')) stadium = '樂天桃園棒球場';
                     else if(t.includes('兄弟')) stadium = '臺中洲際棒球場';
                     else if(t.includes('味全')) stadium = '天母棒球場';
-                    else if(t.includes('統一')) stadium = '亞太國際棒球場'; // 🔥 完美正名：全面更新為亞太
+                    else if(t.includes('統一')) stadium = '亞太國際棒球場';
                     else if(t.includes('富邦')) stadium = '新莊棒球場';
                     else if(t.includes('台鋼')) stadium = '澄清湖棒球場';
                     else stadium = '棒球場';
                 }
             }
-            
-            // 如果球場名稱不包含「棒球場」或「球場」，幫它加上去讓格式更漂亮
-            if (stadium && !stadium.includes('場')) {
-                stadium += '棒球場';
-            }
-            
-            document.getElementById('rx-stadium').innerText = stadium;
+            if (stadium && !stadium.includes('場')) stadium += '棒球場';
+
+            // 🩺 隨機生理數值
+            const heartRates = ["180 BPM (極度興奮)", "心律不整 (被電到)", "飆升至危險邊緣", "撲通撲通狂跳中"];
+            const bps = ["看到女神就飆高", "血壓異常 (過度熱情)", "無法測量 (過嗨)"];
+            document.getElementById('rx-vitals-hr').innerText = heartRates[Math.floor(Math.random() * heartRates.length)];
+            document.getElementById('rx-vitals-bp').innerText = bps[Math.floor(Math.random() * bps.length)];
+
+            // 🩺 隨機診斷
+            const diagnoses = [
+                `經診斷患有「重度缺乏 ${igHandle} 笑容能量症候群」。`,
+                `經診斷為「急性 ${girlName} 應援戒斷發作」。`,
+                `確診為「${igHandle} 依存症末期」，併發上班無力。`,
+                `患者出現「慢性 ${girlName} 視線渴望症」狀。`
+            ];
+            document.getElementById('rx-diagnosis').innerHTML = diagnoses[Math.floor(Math.random() * diagnoses.length)];
+
+            // 💊 隨機處方
+            const treatments = [
+                `Rx.<br>1. 立即前往 ${stadium}<br>2. 攝取 ${girlName} 專屬應援至少 3 個療程(局)<br>3. 按讚最新限動以穩定病情`,
+                `Rx.<br>1. 每日定時觀看 ${igHandle} 限時動態 3 次<br>2. 購買周邊商品進行物理性信仰充值<br>3. 複診地點：${stadium}`,
+                `Rx.<br>1. 暫停工作，立刻去 ${stadium} 報到<br>2. 與 ${girlName} 進行高分貝大聲應援療法<br>3. 拍美照發限動有助於加速痊癒`
+            ];
+            document.getElementById('rx-treatment').innerHTML = treatments[Math.floor(Math.random() * treatments.length)];
+
+            // 👨‍⚕️ 隨機醫師備註
+            const doctorNotes = ["此為急症，請勿拖延", "建議攜帶大砲鏡頭協助治療", "毛巾與應援棒為必備處方藥"];
+            document.getElementById('rx-doctor-note').innerText = doctorNotes[Math.floor(Math.random() * doctorNotes.length)];
+
+            // 🔴 隨機印章
+            const stamps = ["急件<br>藥到病除", "絕症<br>沒救了", "快去<br>球場", "鐵粉<br>認證"];
+            document.getElementById('rx-stamp-text').innerHTML = stamps[Math.floor(Math.random() * stamps.length)];
 
             document.getElementById('rx-input-area').style.display = 'none';
             document.getElementById('rx-output-area').style.display = 'block';
