@@ -205,7 +205,6 @@
             border: 4px solid #FFD700;
             overflow: hidden;
         }
-        /* 發光掃過特效 */
         .lucky-card::after {
             content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
@@ -214,7 +213,6 @@
         }
         @keyframes sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
 
-        /* 關閉按鈕 */
         .close-lucky-btn {
             position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.1);
             border: none; width: 30px; height: 30px; border-radius: 50%;
@@ -301,14 +299,38 @@
             '台鋼雄鷹': 'WING STARS'
         };
 
-        // 幸運語錄庫
+// 幸運語錄庫 (豪華擴充版)
         const fortunes = [
             "今日大吉！活力滿滿度過這一天吧！",
             "元氣爆發！壞心情全部退散！",
             "超絕好運！今天下班去買張彩券吧！",
             "魅力四射！今天是你的主場！",
             "心想事成！女神為你強力應援！",
-            "神清氣爽！工作讀書效率大爆發！"
+            "神清氣爽！工作讀書效率大爆發！",
+            "戰力滿點！接收來自女神的專屬應援光波吧！⚡",
+            "幸運爆棚！出門過馬路全都是綠燈！",
+            "閃閃發光！今天走到哪你都是全場焦點！",
+            "靈感湧現！遇到什麼難題都能輕鬆解決！",
+            "桃花朵朵開！今天說不定會有超浪漫邂逅喔！",
+            "無敵星星狀態！今天沒有任何事能難倒你！",
+            "美食降臨！今天絕對會吃到超級好吃的東西！🤤",
+            "準時下班！今天的工作一定能光速處理完畢！",
+            "笑口常開！今天會有讓你嘴角失守的好事發生！",
+            "貴人相助！遇到困難肯定會有天使降臨幫忙！",
+            "好事連連！今天請期待一場美好的意外驚喜！",
+            "水逆退散！一切都會順順利利、平安過關！",
+            "財運亨通！說不定會有意想不到的小財進帳喔！💰",
+            "歐氣滿滿！今天玩手遊抽卡絕對一發入魂！",
+            "自信爆發！相信自己，你今天就是最棒的！",
+            "電力100%！今天就算不用喝咖啡也超有精神！",
+            "人見人愛！今天大家都會對你特別溫柔喔！",
+            "絕光好調！今天的所有會議和考試都能輕鬆通關！",
+            "幸運之神眷顧！猶豫不決的話，選第一個就對了！",
+            "火力全開！今天的你就像打出全壘打一樣帥氣！⚾",
+            "小確幸滿滿！今天會發現生活中的美好小細節！",
+            "氣場全開！勇敢去做你想做的事，絕對沒問題！",
+            "好運降臨！今天適合去吃一頓大餐犒賞自己！",
+            "專屬加持！有女神在背後幫你撐腰，放手去闖吧！"
         ];
 
         function hideLoading() {
@@ -319,7 +341,17 @@
         async function loadGirls() {
             try {
                 allGirlsData = await fetchCSV(CONFIG.girlsUrl);
-                changeTeam('樂天'); 
+                
+                // 🔥 記憶功能與隨機首頁邏輯
+                const teams = ['樂天', '中信兄弟', '味全龍', '統一獅', '富邦悍將', '台鋼雄鷹'];
+                const savedTeam = localStorage.getItem('lastSelectedTeam');
+                
+                // 如果有記憶就讀記憶，如果沒有（第一次開網站）就隨機抽一隊！
+                const defaultTeam = (savedTeam && teams.includes(savedTeam)) 
+                    ? savedTeam 
+                    : teams[Math.floor(Math.random() * teams.length)];
+                
+                changeTeam(defaultTeam); 
             } catch (error) {
                 console.error(error);
                 document.getElementById('girl-list').innerHTML = '<p style="color:red; text-align:center;">資料連線失敗！</p>';
@@ -328,7 +360,9 @@
 
         function changeTeam(teamName) {
             currentTeam = teamName;
+            localStorage.setItem('lastSelectedTeam', teamName); // 🔥 記住這次點擊的隊伍
             document.getElementById('search-input').value = ''; 
+            
             const tabs = document.querySelectorAll('#team-tabs button');
             tabs.forEach(tab => {
                 tab.className = tab.getAttribute('data-team') === teamName ? 'active-tab' : 'inactive-tab';
@@ -383,19 +417,10 @@
             });
         }
 
-        /* ==========================================
-           🎉 抽籤小遊戲邏輯
-           ========================================== */
         function drawLuckyGirl() {
-            if(allGirlsData.length === 0) {
-                alert("資料還在準備中，請稍後再抽喔！"); return;
-            }
-
-            // 1. 隨機抽選一位女孩與一句語錄
+            if(allGirlsData.length === 0) { alert("資料還在準備中，請稍後再抽喔！"); return; }
             const randomGirl = allGirlsData[Math.floor(Math.random() * allGirlsData.length)];
             const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-
-            // 2. 準備卡片資料
             const photoUrl = randomGirl.photo || randomGirl['圖片'] || randomGirl['image'] || randomGirl.photo_url;
             let avatarHtml = (photoUrl && photoUrl.trim() !== '') 
                 ? `<div class="avatar-wrapper-custom" style="width:140px; height:140px;"><img src="${photoUrl.trim()}" alt="${randomGirl.name}"></div>` 
@@ -410,7 +435,6 @@
             else if (displayTeamName.includes('富邦')) { displayTeamName = 'Fubon Angels'; teamColor = '#3498db'; }
             else if (displayTeamName.includes('台鋼')) { displayTeamName = 'WING STARS'; teamColor = '#2ecc71'; }
 
-            // 3. 注入資料到彈出視窗
             document.getElementById('lucky-avatar').innerHTML = avatarHtml;
             document.getElementById('lucky-name').innerText = randomGirl.name;
             const teamEl = document.getElementById('lucky-team');
@@ -418,26 +442,20 @@
             teamEl.style.background = teamColor;
             document.getElementById('lucky-fortune').innerText = randomFortune;
             
-            // 設定前往按鈕的連結
             document.getElementById('lucky-profile-btn').onclick = () => {
                 window.location.href = `detail.html?name=${encodeURIComponent(randomGirl.name)}&team=${encodeURIComponent(randomGirl.team || '')}`;
             };
 
-            // 4. 播放特效
             const modal = document.getElementById('lucky-modal');
             const card = document.getElementById('lucky-card-content');
             modal.style.display = 'flex';
-            
-            // 觸發重繪以啟動動畫
             void modal.offsetWidth; 
-            
             modal.style.opacity = '1';
             card.style.transform = 'scale(1) translateY(0)';
             card.style.opacity = '1';
         }
 
         function closeLuckyModal(event) {
-            // 點擊背景或關閉按鈕時觸發
             if(event.target.id === 'lucky-modal' || event.target.className === 'close-lucky-btn') {
                 const modal = document.getElementById('lucky-modal');
                 const card = document.getElementById('lucky-card-content');
