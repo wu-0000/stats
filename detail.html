@@ -372,4 +372,39 @@
                     stadium = anyRealLoc.locP;
                 } else {
                     // 全部的班表都沒有賽事資料時，才啟用球隊防呆預設主場
-                    const t =
+                    const t = currentGirlData.team || '';
+                    if(t.includes('樂天')) stadium = '樂天桃園棒球場';
+                    else if(t.includes('兄弟')) stadium = '臺中洲際棒球場';
+                    else if(t.includes('味全')) stadium = '天母棒球場';
+                    else if(t.includes('統一')) stadium = '亞太國際棒球場'; // 🔥 完美正名：全面更新為亞太
+                    else if(t.includes('富邦')) stadium = '新莊棒球場';
+                    else if(t.includes('台鋼')) stadium = '澄清湖棒球場';
+                    else stadium = '棒球場';
+                }
+            }
+            
+            // 如果球場名稱不包含「棒球場」或「球場」，幫它加上去讓格式更漂亮
+            if (stadium && !stadium.includes('場')) {
+                stadium += '棒球場';
+            }
+            
+            document.getElementById('rx-stadium').innerText = stadium;
+
+            document.getElementById('rx-input-area').style.display = 'none';
+            document.getElementById('rx-output-area').style.display = 'block';
+        }
+
+        function downloadRx() {
+            const captureArea = document.getElementById('receipt-capture');
+            html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `女神處方箋_${currentGirlData.name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        initDetail();
+    </script>
+</body>
+</html>
