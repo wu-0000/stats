@@ -388,12 +388,20 @@
             document.getElementById('rx-vitals-hr').innerText = heartRates[Math.floor(Math.random() * heartRates.length)];
             document.getElementById('rx-vitals-bp').innerText = bps[Math.floor(Math.random() * bps.length)];
 
-// 🩺 隨機診斷 (全中文名字正名版)
+            // 🩺 隨機診斷 (重度暈船迷因升級版)
             const diagnoses = [
                 `經診斷患有「重度缺乏 ${girlName} 笑容能量症候群」。`,
                 `經診斷為「急性 ${girlName} 應援戒斷發作」。`,
                 `確診為「${girlName} 依存症末期」，併發上班無力。`,
-                `患者出現「慢性 ${girlName} 視線渴望症」狀。`
+                `患者出現「慢性 ${girlName} 視線渴望症」狀。`,
+                `「原發性 ${girlName} 暈船症候群」，並伴隨嚴重的錢包萎縮現象。`,
+                `「大腦海馬迴 ${girlName} 佔據現象」，導致暫時性忘記老闆交代的工作。`,
+                `「病理性快門強迫症」，只要 ${girlName} 出現，食指就會不受控瘋狂抽搐。`,
+                `「${girlName} 專屬視野鎖定障礙」，眼球無法對焦於該病原體以外之物體。`,
+                `經診斷為「幻聽型 ${girlName} 應援曲迴盪症」，手部會不自覺揮舞。`,
+                `「急性非排班日憂鬱症」，唯有看到 ${girlName} 的限時動態才能勉強維持生命。`,
+                `確診「${girlName} 甜度攝取不足併發低血糖」，急需高濃度笑容立即補充。`,
+                `「重度 ${girlName} 缺乏症」，導致患者靈魂暫時性抽離，呈現喪屍狀態。`
             ];
             document.getElementById('rx-diagnosis').innerHTML = diagnoses[Math.floor(Math.random() * diagnoses.length)];
             
