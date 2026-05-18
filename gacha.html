@@ -6,13 +6,17 @@
     <title>🎁 女神盲盒抽卡機</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        body { background: #1a1a1a; color: white; min-height: 100vh; overflow-x: hidden; }
+        /* 🔥 核心修復：強制所有元素不要因為 padding 或 border 而撐破比例 */
+        * { box-sizing: border-box; }
+        
+        body { background: #1a1a1a; color: white; min-height: 100vh; overflow-x: hidden; margin: 0; }
         .header h1 {
             background: linear-gradient(135deg, #FFD700 0%, #ff7eb3 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
             font-size: 2.5rem;
+            margin-top: 20px;
             margin-bottom: 5px;
             letter-spacing: 2px;
             text-align: center;
@@ -25,11 +29,11 @@
             align-items: center;
             justify-content: center;
             margin-top: 20px;
-            min-height: 500px;
+            min-height: 480px;
             perspective: 1000px; /* 3D 景深 */
         }
 
-        /* 🎴 卡片容器 (負責 3D 翻轉) */
+        /* 🎴 卡片容器 (負責 3D 翻轉，鎖定絕對長寬) */
         .card-container {
             width: 280px;
             height: 420px;
@@ -56,7 +60,7 @@
             backface-visibility: hidden; border-radius: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            overflow: hidden;
+            /* 注意：這裡把原本的 overflow: hidden 拿掉，才不會切到凸出去的稀有度徽章 */
         }
 
         /* 🃏 卡背 (未抽卡的狀態) */
@@ -65,6 +69,7 @@
             border: 4px solid #f39c12;
             color: #f39c12;
             font-size: 60px;
+            overflow: hidden; /* 卡背的問號還是需要 hidden 防溢出 */
         }
         .card-back::after {
             content: '?'; font-weight: 900;
@@ -76,23 +81,25 @@
         /* 👸 卡片正面 (抽出來的女神) */
         .card-front {
             background: #fff;
-            transform: rotateY(180deg); /* 背對畫面 */
-            border: 6px solid #ccc;
-            padding: 15px;
-            text-align: center;
+            transform: rotateY(180deg);
+            border: 6px solid #ccc; /* 邊框厚度現在會被往內縮，不會撐爆卡片 */
+            padding: 20px 15px; /* 內部留白 */
+            justify-content: flex-start; /* 讓內容由上往下排 */
         }
 
         .gacha-photo {
-            width: 100%; height: 200px; object-fit: cover;
-            border-radius: 10px; margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            width: 100%; height: 180px; /* 微調高度給名字跟按鈕空間 */
+            object-fit: cover;
+            border-radius: 12px; 
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
 
-        .gacha-name { font-size: 24px; font-weight: 900; color: #333; margin-bottom: 5px; }
-        .gacha-team { font-size: 14px; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; margin-bottom: 15px; display: inline-block;}
-        .gacha-stats { font-size: 13px; color: #666; font-weight: bold; background: #f8f9fa; padding: 8px; border-radius: 10px; width: 100%; }
+        .gacha-name { font-size: 22px; font-weight: 900; color: #333; margin-bottom: 5px; }
+        .gacha-team { font-size: 13px; color: white; padding: 4px 12px; border-radius: 12px; font-weight: bold; margin-bottom: 15px; display: inline-block;}
+        .gacha-stats { font-size: 13px; color: #666; font-weight: bold; background: #f8f9fa; padding: 8px; border-radius: 10px; width: 100%; margin-bottom: 10px;}
 
-        /* 🔥 稀有度專屬樣式 */
+        /* 🔥 稀有度專屬樣式 (凸出卡片右上角) */
         .rarity-badge {
             position: absolute; top: -15px; right: -15px;
             width: 60px; height: 60px; border-radius: 50%;
@@ -102,7 +109,7 @@
         }
 
         /* UR (極限彩光) */
-        .card-UR { border-color: #ff00ff; box-shadow: 0 0 30px #ff00ff, inset 0 0 20px #ff00ff; animation: ur-glow 2s infinite; }
+        .card-UR { border-color: #ff00ff; box-shadow: 0 0 30px #ff00ff, inset 0 0 20px rgba(255,0,255,0.2); animation: ur-glow 2s infinite; }
         .badge-UR { background: linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff); background-size: 400% 400%; animation: rainbow 3s ease infinite; }
         
         /* SSR (閃光金) */
@@ -141,13 +148,13 @@
     </div>
 
     <div class="container" style="text-align: center;">
-        <div class="back-btn-container" style="margin-bottom: 20px; text-align: left;">
-            <a href="index.html" class="btn" style="background: rgba(255,255,255,0.2); color:white; border:none;">◀ 返回首頁</a>
+        <div class="back-btn-container" style="margin-bottom: 10px; text-align: left;">
+            <a href="index.html" class="btn" style="background: rgba(255,255,255,0.15); color:white; border:none; backdrop-filter: blur(5px);">◀ 返回首頁</a>
         </div>
 
         <div class="header">
             <h1>🎁 女神盲盒抽卡機</h1>
-            <p style="color: #ccc; font-weight: bold; font-size: 15px;">誰會是你今天的幸運女神？測試你的手氣吧！</p>
+            <p style="color: #aaa; font-weight: bold; font-size: 15px; margin-top:0;">誰會是你今天的幸運女神？測試你的手氣吧！</p>
         </div>
 
         <div class="gacha-stage">
@@ -160,8 +167,8 @@
             <button class="draw-btn" id="draw-button" onclick="startGacha()">✨ 點擊抽卡 ✨</button>
         </div>
 
-        <div style="margin-top: 30px; font-size: 13px; color: #888;">
-            卡池機率：UR (極速傳說) 5% | SSR (勝利女神) 15% | SR (中流砥柱) 30% | R (閃耀新星) 50%
+        <div style="margin-top: 25px; font-size: 13px; color: #888; font-weight: bold;">
+            👑 卡池機率：UR 5% | SSR 15% | SR 30% | R 50%
         </div>
     </div>
 
@@ -189,7 +196,7 @@
                     fetchCSV(CONFIG.scheduleUrl), fetchCSV(CONFIG.matchesUrl), fetchCSV(CONFIG.girlsUrl)
                 ]);
 
-                // 計算每位女孩的戰力 (為了分級)
+                // 計算每位女孩的戰力
                 let girlStats = {};
                 girlsData.forEach(g => {
                     const key = g.name.trim() + "_" + g.team.trim();
@@ -226,14 +233,12 @@
                     const winRate = (g.wins + g.losses) > 0 ? (g.wins / (g.wins + g.losses)) * 100 : 0;
                     g.winRateDisplay = winRate.toFixed(1);
                     
-                    // 動態稀有度判定
                     if (winRate >= 60 && g.games >= 10) { g.rarity = 'UR'; poolUR.push(g); }
                     else if ((winRate >= 50 && g.games >= 5) || g.games >= 15) { g.rarity = 'SSR'; poolSSR.push(g); }
                     else if (g.games >= 5 || winRate >= 40) { g.rarity = 'SR'; poolSR.push(g); }
                     else { g.rarity = 'R'; poolR.push(g); }
                 });
 
-                // 防呆：如果某個池子空了，從下一個池子抓人
                 if(poolUR.length === 0) poolUR = [...poolSSR, ...poolSR];
                 if(poolSSR.length === 0) poolSSR = [...poolSR, ...poolR];
 
@@ -247,32 +252,27 @@
             const btn = document.getElementById('draw-button');
             const card = document.getElementById('gacha-card');
             
-            // 1. 初始化狀態
             btn.disabled = true;
             btn.innerText = "抽卡中...";
-            card.className = "card-container"; // 移除翻轉狀態
+            card.className = "card-container"; // 重置翻轉
             
-            // 2. 開始震動特效
             setTimeout(() => { card.classList.add('shaking'); }, 100);
 
-            // 3. 抽卡邏輯 (RNG)
             setTimeout(() => {
                 card.classList.remove('shaking');
                 
                 const roll = Math.random() * 100;
                 let drawnGirl = null;
                 
-                if (roll < 5) drawnGirl = poolUR[Math.floor(Math.random() * poolUR.length)]; // 5% UR
-                else if (roll < 20) drawnGirl = poolSSR[Math.floor(Math.random() * poolSSR.length)]; // 15% SSR
-                else if (roll < 50) drawnGirl = poolSR[Math.floor(Math.random() * poolSR.length)]; // 30% SR
-                else drawnGirl = poolR[Math.floor(Math.random() * poolR.length)]; // 50% R
+                if (roll < 5) drawnGirl = poolUR[Math.floor(Math.random() * poolUR.length)];
+                else if (roll < 20) drawnGirl = poolSSR[Math.floor(Math.random() * poolSSR.length)];
+                else if (roll < 50) drawnGirl = poolSR[Math.floor(Math.random() * poolSR.length)];
+                else drawnGirl = poolR[Math.floor(Math.random() * poolR.length)];
 
-                // 萬一陣列出錯抓不到，隨機塞一隻 R
                 if(!drawnGirl) drawnGirl = poolR[0];
 
                 renderCard(drawnGirl);
 
-                // 4. 翻牌！
                 card.classList.add('flipped');
                 
                 setTimeout(() => {
@@ -280,23 +280,20 @@
                     btn.innerText = "再抽一次 🔄";
                 }, 800);
 
-            }, 1200); // 震動 1.2 秒後翻開
+            }, 1200); 
         }
 
         function renderCard(girl) {
             const front = document.getElementById('card-front-content');
             
-            // 設定顏色與隊名
             let displayTeam = girl.team;
             let tColor = '#333';
             Object.keys(teamNamesMap).forEach(k => { if(girl.team.includes(k)) displayTeam = teamNamesMap[k]; });
             Object.keys(teamColorsMap).forEach(k => { if(girl.team.includes(k)) tColor = teamColorsMap[k]; });
 
-            // 照片
             const photoUrl = girl.photo || girl['圖片'] || girl['image'] || girl.photo_url || '';
             const photoHtml = photoUrl ? `<img src="${photoUrl}" class="gacha-photo">` : `<div class="gacha-photo" style="background:#eee;display:flex;align-items:center;justify-content:center;font-size:40px;">👱‍♀️</div>`;
 
-            // 設定稀有度外框
             front.className = `card-face card-front card-${girl.rarity}`;
 
             front.innerHTML = `
@@ -305,10 +302,9 @@
                 <div class="gacha-team" style="background:${tColor}">${displayTeam}</div>
                 <div class="gacha-name">${girl.name}</div>
                 <div class="gacha-stats">
-                    出勤：${girl.games} 場<br>
-                    勝率：${girl.winRateDisplay}%
+                    出勤：${girl.games} 場 &nbsp;|&nbsp; 勝率：${girl.winRateDisplay}%
                 </div>
-                <button onclick="window.location.href='detail.html?name=${encodeURIComponent(girl.name)}&team=${encodeURIComponent(girl.team)}'" style="margin-top:10px; padding:5px 15px; border-radius:15px; background:#333; color:white; border:none; cursor:pointer;">情報 🔍</button>
+                <button onclick="window.location.href='detail.html?name=${encodeURIComponent(girl.name)}&team=${encodeURIComponent(girl.team)}'" style="margin-top:auto; padding:8px 20px; font-weight:bold; border-radius:15px; background:#333; color:white; border:none; cursor:pointer; width:100%; transition: background 0.2s;">情報 🔍</button>
             `;
         }
 
