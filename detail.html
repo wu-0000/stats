@@ -388,11 +388,11 @@
             document.getElementById('rx-vitals-hr').innerText = heartRates[Math.floor(Math.random() * heartRates.length)];
             document.getElementById('rx-vitals-bp').innerText = bps[Math.floor(Math.random() * bps.length)];
 
-            // 🩺 隨機診斷
+// 🩺 隨機診斷 (全中文名字正名版)
             const diagnoses = [
-                `經診斷患有「重度缺乏 ${igHandle} 笑容能量症候群」。`,
+                `經診斷患有「重度缺乏 ${girlName} 笑容能量症候群」。`,
                 `經診斷為「急性 ${girlName} 應援戒斷發作」。`,
-                `確診為「${igHandle} 依存症末期」，併發上班無力。`,
+                `確診為「${girlName} 依存症末期」，併發上班無力。`,
                 `患者出現「慢性 ${girlName} 視線渴望症」狀。`
             ];
             document.getElementById('rx-diagnosis').innerHTML = diagnoses[Math.floor(Math.random() * diagnoses.length)];
