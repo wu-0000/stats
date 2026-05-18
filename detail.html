@@ -5,138 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>女神情報局</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* 🏆 專業數據對齊防護罩 */
-        #history-table th, #history-table td {
-            white-space: nowrap !important; 
-            text-align: center !important;  
-            vertical-align: middle !important;
-            padding: 12px 10px;
-            border-bottom: 1px solid rgba(255, 117, 140, 0.1);
-        }
+        /* 🏆 專業數據對齊防護罩與原本的版面設計 (保留所有原功能) */
+        * { box-sizing: border-box; }
+        #history-table th, #history-table td { white-space: nowrap !important; text-align: center !important; vertical-align: middle !important; padding: 12px 10px; border-bottom: 1px solid rgba(255, 117, 140, 0.1); }
         #history-table th { background-color: rgba(255, 117, 140, 0.05); color: var(--theme-main); font-weight: 900; }
         #history-table td { font-size: 15px !important; color: var(--text-main); }
-        
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
-
-        /* 🍎 粉色圓角泡泡標籤 (台灣) */
-        .info-tag {
-            display: inline-flex;
-            align-items: center;
-            background: transparent;
-            border: 1px solid #ffccd5;
-            border-radius: 20px;
-            padding: 6px 14px;
-            gap: 8px;
-            white-space: nowrap;
-        }
+        .info-tag { display: inline-flex; align-items: center; background: transparent; border: 1px solid #ffccd5; border-radius: 20px; padding: 6px 14px; gap: 8px; white-space: nowrap; }
+        .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
-
-        /* 📸 IG 純 Icon 圓形按鈕 */
-        .ig-btn-custom {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            color: white !important;
-            width: 32px; 
-            height: 32px;
-            border-radius: 50%;
-            text-decoration: none;
-            box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3);
-            transition: transform 0.2s;
-            flex-shrink: 0;
-        }
+        .ig-btn-custom { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white !important; width: 32px; height: 32px; border-radius: 50%; text-decoration: none; box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3); transition: transform 0.2s; flex-shrink: 0; }
         .ig-btn-custom:hover { transform: scale(1.1); }
-
-        /* 🆔 身分證左右佈局 */
-        .profile-layout {
-            display: flex;
-            align-items: center; 
-            gap: 30px; 
-        }
-        .profile-left {
-            flex: 0 0 auto; 
-            min-width: 320px; 
-            display: flex;
-            align-items: center; 
-        }
-        .profile-right {
-            flex: 1; 
-            min-width: 0; 
-            border-left: 1px dashed rgba(255, 117, 140, 0.4);
-            padding-left: 30px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        /* 🔍 女神情報局專屬方塊 (絕對正方形) */
-        #secret-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 12px;
-            width: 100%;
-        }
-        .secret-box {
-            border: 1px solid #ffccd5;
-            border-radius: 16px;
-            padding: 5px; 
-            text-align: center;
-            background: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05);
-            aspect-ratio: 1 / 1;
-        }
+        .profile-layout { display: flex; align-items: center; gap: 30px; }
+        .profile-left { flex: 0 0 auto; min-width: 320px; display: flex; align-items: center; }
+        .profile-right { flex: 1; min-width: 0; border-left: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 30px; display: flex; flex-direction: column; justify-content: center; }
+        #secret-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; }
+        .secret-box { border: 1px solid #ffccd5; border-radius: 16px; padding: 5px; text-align: center; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05); aspect-ratio: 1 / 1; }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
-        .secret-box .value { 
-            font-size: 14px; 
-            color: var(--text-main); 
-            font-weight: 900; 
-            line-height: 1.3;
-            word-break: break-word;
-            padding: 0 5px;
-        }
+        .secret-box .value { font-size: 14px; color: var(--text-main); font-weight: 900; line-height: 1.3; word-break: break-word; padding: 0 5px; }
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
-
-        /* 📱 響應式適應 */
-        @media (max-width: 1050px) {
-            .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; }
-            .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; min-width: auto; }
-            .profile-right { border-left: none; border-top: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 0; padding-top: 25px; }
-        }
+        @media (max-width: 1050px) { .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; } .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; min-width: auto; } .profile-right { border-left: none; border-top: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 0; padding-top: 25px; } }
         @media (max-width: 850px) { #secret-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 480px) { #secret-grid { grid-template-columns: repeat(2, 1fr); } }
-
-        /* 📊 寬敞數據看板 */
         .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         .dashboard-value { font-size: 20px; font-weight: 900; }
-
-        /* 💊 勝負膠囊標籤 */
         .result-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px; }
-        .result-win { background-color: #ff9aa2; } 
-        .result-loss { background-color: #99c2ff; } 
-        .result-tie { background-color: #2ecc71; } 
-        .result-delay { background-color: #bdc3c7; } 
-        .result-suspend { background-color: #f39c12; } 
-        .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
-        
+        .result-win { background-color: #ff9aa2; } .result-loss { background-color: #99c2ff; } .result-tie { background-color: #2ecc71; } .result-delay { background-color: #bdc3c7; } .result-suspend { background-color: #f39c12; } .overtime-badge { background: #6c5ce7; color: white; font-size: 11px; padding: 2px 6px; border-radius: 6px; margin-left: 6px; }
         .filter-select { padding: 8px 15px; border-radius: 12px; border: 1px solid #ffccd5; background: var(--bg-color); color: var(--text-main); font-weight: bold; outline: none; cursor: pointer; font-family: 'Nunito', 'Noto Sans TC'; }
-        [data-theme="dark"] .filter-select { border-color: #555; }
+
+        /* ==========================================
+           🩺 迷因：醫療處方箋 (熱感應紙風格)
+           ========================================== */
+        .rx-btn {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white; font-size: 15px; font-weight: 900;
+            padding: 8px 18px; border: none; border-radius: 20px;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(26, 188, 156, 0.4);
+            display: inline-flex; align-items: center; gap: 6px;
+            transition: transform 0.2s; margin-top: 10px; width: 100%; justify-content: center;
+        }
+        .rx-btn:hover { transform: scale(1.05); }
+
+        .rx-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 9999; opacity: 0; transition: opacity 0.3s;
+        }
+
+        .rx-modal-content {
+            background: var(--bg-color); border-radius: 20px; padding: 25px;
+            width: 90%; max-width: 400px; text-align: center; position: relative;
+            transform: translateY(50px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto;
+        }
+
+        .rx-input {
+            width: 100%; padding: 12px 15px; border: 2px solid #ccc;
+            border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
+        }
+
+        /* 超逼真熱感應紙設計 */
+        .receipt-paper {
+            background: #fffdf5; /* 微黃的熱感應紙色 */
+            color: #222; font-family: 'Courier New', Courier, monospace; /* 收據字體 */
+            padding: 25px 20px; width: 100%; max-width: 320px; margin: 0 auto;
+            position: relative; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-top: 1px dashed #ddd; border-bottom: 1px dashed #ddd;
+        }
+        /* 鋸齒邊緣偽元素 */
+        .receipt-paper::before {
+            content: ""; position: absolute; top: -5px; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(135deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent), linear-gradient(225deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent);
+            background-size: 10px 10px; background-position: -5px 0;
+        }
+        .receipt-paper::after {
+            content: ""; position: absolute; bottom: -5px; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(135deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5), linear-gradient(225deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5);
+            background-size: 10px 10px; background-position: -5px 0;
+        }
+        
+        .receipt-title { text-align: center; font-size: 20px; font-weight: 900; letter-spacing: 2px; }
+        .receipt-subtitle { text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 10px; }
+        .receipt-line { border-bottom: 2px dashed #666; margin: 10px 0; }
+        .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; font-weight: bold; }
+        .receipt-text { font-size: 14px; line-height: 1.6; font-weight: bold; margin-bottom: 10px; }
+        
+        .receipt-barcode {
+            text-align: center; font-size: 40px; line-height: 1; letter-spacing: -2px;
+            font-family: 'Libre Barcode 39', cursive, sans-serif; opacity: 0.8; margin-top: 15px;
+        }
+
+        /* 逼真的紅色印章 */
+        .rx-stamp {
+            position: absolute; right: 15px; bottom: 40px;
+            border: 3px solid #e74c3c; color: #e74c3c;
+            width: 70px; height: 70px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; text-align: center;
+            font-weight: 900; font-size: 14px; line-height: 1.1;
+            transform: rotate(-15deg); opacity: 0.85; pointer-events: none;
+            box-shadow: inset 0 0 2px #e74c3c;
+        }
     </style>
 </head>
 <body>
-    <div id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">⚡ 正在調閱女神機密檔案...</div>
-    </div>
+    <div id="loading-overlay"><div class="loading-spinner"></div><div class="loading-text">⚡ 正在調閱女神機密檔案...</div></div>
 
     <div class="container">
         <div class="back-btn-container" style="margin-bottom: 20px;">
@@ -144,7 +123,6 @@
         </div>
 
         <div class="card profile-layout" id="profile-card" style="display: none; padding: 30px; margin-bottom: 25px;">
-            
             <div class="profile-left">
                 <div style="display: flex; flex-direction: column; align-items: center; margin-right: 25px; flex-shrink: 0;">
                     <div id="avatar-container" class="profile-avatar-large"></div>
@@ -152,38 +130,31 @@
                 </div>
 
                 <div style="flex: 1; text-align: left; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
-                    
                     <div style="display: flex; align-items: baseline; gap: 10px;">
                         <h1 id="page-title" style="margin: 0; color: var(--theme-main); font-size: 32px; font-weight: 900;"></h1>
                         <span id="girl-number" style="font-size: 18px; color: var(--text-muted); font-weight: 800;"></span>
                     </div>
-                    
-                    <div>
-                        <div id="team-badge" style="display: inline-block; padding: 6px 18px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px;"></div>
-                    </div>
-                    
+                    <div><div id="team-badge" style="display: inline-block; padding: 6px 18px; border-radius: 20px; color: white; font-weight: bold; font-size: 14px;"></div></div>
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div id="ig-container"></div>
                         <div id="extra-info-container" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
                     </div>
+                    <button class="rx-btn" onclick="openRxModal()">🩺 開立專屬處方箋</button>
                 </div>
             </div>
-
             <div class="profile-right">
-                <h3 style="margin: 0 0 15px 0; color: var(--theme-main); font-size: 18px; display: flex; align-items: center; gap: 8px;">
-                    🔍 女神情報局
-                </h3>
+                <h3 style="margin: 0 0 15px 0; color: var(--theme-main); font-size: 18px; display: flex; align-items: center; gap: 8px;">🔍 女神情報局</h3>
                 <div id="secret-grid"></div>
             </div>
         </div>
 
         <div class="dashboard" id="mini-dashboard" style="display: none; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
-            <div class="card dashboard-card"><div class="dashboard-label">總出勤</div><div class="dashboard-value" id="stat-games" style="color: var(--text-main);">0 場</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">球隊戰績</div><div class="dashboard-value" id="stat-record" style="color: #e74c3c;">0勝0敗0和</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">勝率</div><div class="dashboard-value" id="stat-winrate" style="color: #e74c3c;">0%</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">延賽/保留</div><div class="dashboard-value" id="stat-delay" style="color: #95a5a6;">0 場</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">加班總計</div><div class="dashboard-value" id="stat-overtime" style="color: #6c5ce7;">0 場</div></div>
-            <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points" style="color: var(--text-main);">0 / 0</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">總出勤</div><div class="dashboard-value" id="stat-games">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">球隊戰績</div><div class="dashboard-value" id="stat-record" style="color:#e74c3c;">0勝0敗0和</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">勝率</div><div class="dashboard-value" id="stat-winrate" style="color:#e74c3c;">0%</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">延賽/保留</div><div class="dashboard-value" id="stat-delay">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">加班總計</div><div class="dashboard-value" id="stat-overtime" style="color:#6c5ce7;">0 場</div></div>
+            <div class="card dashboard-card"><div class="dashboard-label">得失分</div><div class="dashboard-value" id="stat-points">0 / 0</div></div>
         </div>
 
         <div class="card" id="history-card" style="display: none; padding: 0; overflow: hidden;">
@@ -196,29 +167,70 @@
             </div>
             <div style="width: 100%; overflow-x: auto;">
                 <table id="history-table" style="min-width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>日期</th><th>場次</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>觀眾數</th><th>比賽時間</th><th>地點</th><th>📍站位</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>日期</th><th>場次</th><th>對手</th><th>比分</th><th>結果</th><th>勝投</th><th>敗投</th><th>救援</th><th>MVP</th><th>觀眾數</th><th>比賽時間</th><th>地點</th><th>📍站位</th></tr></thead>
                     <tbody id="history-list"></tbody>
                 </table>
             </div>
         </div>
+    </div>
 
-        <div id="error-message" style="text-align: center; color: red; display: none; font-weight: bold; margin-top: 50px;">
-            找不到該女孩的資料，請回首頁重新選擇！
+    <div id="rx-modal" class="rx-modal-overlay" onclick="closeRxModal(event)">
+        <div class="rx-modal-content" onclick="event.stopPropagation()">
+            <h2 style="color:var(--theme-main); margin-top:0;">📋 掛號中心</h2>
+            <p style="color:var(--text-muted); font-weight:bold; font-size:14px; margin-bottom:20px;">請輸入您的資料，系統將為您開立處方箋。</p>
+            
+            <div id="rx-input-area">
+                <input type="text" id="rx-patient-name" class="rx-input" placeholder="您的名字 (例如: 鐵粉小明)">
+                <input type="text" id="rx-symptom" class="rx-input" placeholder="今日症狀 (例如: 上班無力想罷工)">
+                <button class="btn" style="width:100%; font-size:16px;" onclick="generateRx()">列印處方箋 🖨️</button>
+            </div>
+
+            <div id="rx-output-area" style="display:none;">
+                <div id="receipt-capture" class="receipt-paper">
+                    <div class="receipt-title">🏥 女神情報局附設醫務所</div>
+                    <div class="receipt-subtitle">【門診掛號 / 處方箋】</div>
+                    
+                    <div class="receipt-row"><span>日期：</span><span id="rx-date"></span></div>
+                    <div class="receipt-row"><span>病患：</span><span id="rx-display-name"></span></div>
+                    <div class="receipt-row"><span>主訴：</span><span id="rx-display-symptom"></span></div>
+                    
+                    <div class="receipt-line"></div>
+                    <div style="font-weight:900; margin-bottom:5px;">【診斷結果】</div>
+                    <div class="receipt-text" style="color:#d35400;">
+                        經診斷患有「重度缺乏 <span id="rx-ig-handle"></span> 笑容能量症候群」。
+                    </div>
+
+                    <div class="receipt-line"></div>
+                    <div style="font-weight:900; margin-bottom:5px;">【處方醫囑】</div>
+                    <div class="receipt-text">
+                        Rx.<br>
+                        1. 立即前往 <span id="rx-stadium"></span><br>
+                        2. 攝取 <span id="rx-girl-name"></span> 專屬應援至少 3 個療程(局)<br>
+                        3. 按讚最新限動以穩定病情
+                    </div>
+
+                    <div class="receipt-line"></div>
+                    <div class="receipt-text" style="font-size:12px; color:#555;">
+                        ※ 此為急症，請勿拖延<br>
+                        ※ 女神情報局認證，請按時服用
+                    </div>
+
+                    <div class="receipt-barcode">|||| ||||| | ||||| |||| </div>
+
+                    <div class="rx-stamp">急件<br>藥到病除</div>
+                </div>
+
+                <button class="btn" style="width:100%; margin-top:20px; background:#e74c3c; border-color:#e74c3c;" onclick="downloadRx()">💾 下載處方箋發 IG</button>
+            </div>
         </div>
     </div>
 
     <script src="app.js"></script>
     <script>
         let allMatchRecords = []; 
+        let currentGirlData = {}; // 儲存當前女孩資料供處方箋使用
 
-        function hideLoading() {
-            const overlay = document.getElementById('loading-overlay');
-            if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); }
-        }
+        function hideLoading() { const overlay = document.getElementById('loading-overlay'); if(overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 500); } }
 
         async function initDetail() {
             try {
@@ -232,81 +244,35 @@
 
                 const girlInfo = girlsData.find(g => (g.name || g.girl_name || g['姓名'] || "").trim() === targetName);
                 if (!girlInfo) { document.getElementById('error-message').style.display = 'block'; hideLoading(); return; }
+                
+                currentGirlData = girlInfo; // 存起來
 
-                // 1. 處理名字與球隊
                 document.getElementById('page-title').innerText = targetName;
                 const gNum = girlInfo.number || girlInfo.id || girlInfo['號碼'] || "";
                 if (gNum) document.getElementById('girl-number').innerText = `No.${gNum}`;
                 
                 const finalTeam = girlInfo.team || girlInfo['球隊'] || "自由球員";
-                let teamColor = 'var(--theme-main)';
-                let displayTeam = finalTeam;
+                let teamColor = 'var(--theme-main)'; let displayTeam = finalTeam;
+                if (finalTeam.includes('樂天')) { displayTeam = 'Rakuten Girls'; } else if (finalTeam.includes('兄弟')) { teamColor = '#f1c40f'; displayTeam = 'Passion Sisters'; } else if (finalTeam.includes('味全')) { teamColor = '#e74c3c'; displayTeam = 'Dragon Beauties'; } else if (finalTeam.includes('統一')) { teamColor = '#e67e22'; displayTeam = 'Uni Girls'; } else if (finalTeam.includes('富邦')) { teamColor = '#3498db'; displayTeam = 'Fubon Angels'; } else if (finalTeam.includes('台鋼')) { teamColor = '#2ecc71'; displayTeam = 'WING STARS'; }
+                const badge = document.getElementById('team-badge'); badge.innerText = displayTeam; badge.style.background = teamColor;
 
-                if (finalTeam.includes('樂天')) { displayTeam = 'Rakuten Girls'; }
-                else if (finalTeam.includes('兄弟')) { teamColor = '#f1c40f'; displayTeam = 'Passion Sisters'; }
-                else if (finalTeam.includes('味全')) { teamColor = '#e74c3c'; displayTeam = 'Dragon Beauties'; }
-                else if (finalTeam.includes('統一')) { teamColor = '#e67e22'; displayTeam = 'Uni Girls'; }
-                else if (finalTeam.includes('富邦')) { teamColor = '#3498db'; displayTeam = 'Fubon Angels'; }
-                else if (finalTeam.includes('台鋼')) { teamColor = '#2ecc71'; displayTeam = 'WING STARS'; }
-
-                const badge = document.getElementById('team-badge');
-                badge.innerText = displayTeam;
-                badge.style.background = teamColor;
-
-                // 2. 大頭貼渲染邏輯
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
-                if (photoUrl && photoUrl.trim() !== '') {
-                    document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-                }
-
-                // 渲染照片出處
+                if (photoUrl && photoUrl.trim() !== '') { document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; }
                 const photoSource = girlInfo['照片出處'] || girlInfo['出處'] || girlInfo.photo_source || girlInfo.source || '';
-                if (photoSource.trim() !== '') {
-                    const sourceEl = document.getElementById('photo-source');
-                    sourceEl.innerHTML = `📸 ${photoSource.trim()}`;
-                    sourceEl.style.display = 'block';
-                }
+                if (photoSource.trim() !== '') { const sourceEl = document.getElementById('photo-source'); sourceEl.innerHTML = `📸 ${photoSource.trim()}`; sourceEl.style.display = 'block'; }
 
-                // 3. 處理 IG 按鈕
                 const igAccount = girlInfo.ig || girlInfo.IG || girlInfo['IG'] || '';
-                if (igAccount.trim() !== '') {
-                    const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`;
-                    document.getElementById('ig-container').innerHTML = `
-                        <a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG">
-                            <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-                            </svg>
-                        </a>`;
-                }
+                if (igAccount.trim() !== '') { const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`; document.getElementById('ig-container').innerHTML = `<a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`; }
 
-                // 4. 情報方塊資料分配
-                const extraContainer = document.getElementById('extra-info-container');
-                const secretGrid = document.getElementById('secret-grid');
-                const dict = {
-                    'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' },
-                    'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' },
-                    'country': { label: '國籍', icon: '🇹🇼' }
-                };
+                const extraContainer = document.getElementById('extra-info-container'); const secretGrid = document.getElementById('secret-grid');
+                const dict = { 'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' }, 'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' }, 'country': { label: '國籍', icon: '🇹🇼' } };
                 const secretKeysOrder = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
                 const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'photo_url', 'ig', 'IG', 'year', 'id', 'number', 'photo_source', '照片出處', '出處', 'source'];
                 
                 let mappedData = {};
-                Object.keys(girlInfo).forEach(k => {
-                    const label = dict[k.toLowerCase()] ? dict[k.toLowerCase()].label : k;
-                    if (secretKeysOrder.includes(label)) { mappedData[label] = girlInfo[k]; } 
-                    else if (!exclude.includes(k.toLowerCase()) && girlInfo[k] && girlInfo[k].trim() !== '') {
-                        if (label === '國籍') { extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`; } 
-                        else { extraContainer.innerHTML += `<div class="info-tag"><span class="label">${label}</span><span class="value">${girlInfo[k]}</span></div>`; }
-                    }
-                });
+                Object.keys(girlInfo).forEach(k => { const label = dict[k.toLowerCase()] ? dict[k.toLowerCase()].label : k; if (secretKeysOrder.includes(label)) { mappedData[label] = girlInfo[k]; } else if (!exclude.includes(k.toLowerCase()) && girlInfo[k] && girlInfo[k].trim() !== '') { if (label === '國籍') { extraContainer.innerHTML += `<div class="info-tag"><span class="value">${girlInfo[k]}</span></div>`; } else { extraContainer.innerHTML += `<div class="info-tag"><span class="label">${label}</span><span class="value">${girlInfo[k]}</span></div>`; } } });
+                secretKeysOrder.forEach(title => { let iconObj = Object.values(dict).find(d => d.label === title); let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中'; secretGrid.innerHTML += `<div class="secret-box"><div class="icon">${iconObj.icon}</div><div class="label">${title}</div><div class="value">${val}</div></div>`; });
 
-                secretKeysOrder.forEach(title => {
-                    let iconObj = Object.values(dict).find(d => d.label === title);
-                    let val = mappedData[title] && mappedData[title].trim() !== '' ? mappedData[title] : '保密中';
-                    secretGrid.innerHTML += `<div class="secret-box"><div class="icon">${iconObj.icon}</div><div class="label">${title}</div><div class="value">${val}</div></div>`;
-                });
-
-                // 5. 班表與篩選渲染
                 const schedules = scheduleData.filter(s => (s.girl_name || s.name || s['姓名'] || "").trim() === targetName);
                 schedules.forEach(s => {
                     if(!s.working_dates) return;
@@ -316,100 +282,107 @@
                         const wNums = w.date.match(/\d+/g);
                         if (wNums && wNums.length >= 2) {
                             record.month = wNums[0].padStart(2, '0');
-                            const match = matchesData.find(m => {
-                                if(sYear && m.year && sYear !== m.year.toString()) return false;
-                                if(m.team && m.team.trim() !== finalTeam) return false;
-                                const mNums = m.date ? m.date.match(/\d+/g) : null;
-                                return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === parseInt(wNums[0], 10) && parseInt(mNums[1], 10) === parseInt(wNums[1], 10);
-                            });
+                            const match = matchesData.find(m => { if(sYear && m.year && sYear !== m.year.toString()) return false; if(m.team && m.team.trim() !== finalTeam) return false; const mNums = m.date ? m.date.match(/\d+/g) : null; return mNums && mNums.length >= 2 && parseInt(mNums[0], 10) === parseInt(wNums[0], 10) && parseInt(mNums[1], 10) === parseInt(wNums[1], 10); });
                             if(match) {
-                                record.year = match.year ? match.year.toString() : sYear;
-                                record.gameNo = match.game_no || '-'; record.opponent = match.opponent || '-'; record.score = match.score || '-';
-                                record.winP = match.win_pitcher || '-'; record.lossP = match.loss_pitcher || '-'; record.savP = match.save || '-';
-                                record.mvpP = match.mvp || '-'; record.attP = match.attendance || '-'; record.durP = match.duration || '-'; record.locP = match.location || '-';
-                                const inn = parseInt(match.innings || 9);
-                                if(inn > 9) { record.overtimeGames = 1; record.score += `<span class="overtime-badge">${inn}局</span>`; }
-                                
-                                const res = (match.result || '').trim();
-                                const scoreData = parseScoreForTeam(match.score, res);
-                                record.scored = scoreData.scored; record.allowed = scoreData.allowed;
-                                
-                                if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; }
-                                else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; }
-                                else if(res.includes('和')) { record.isTie = true; record.resHtml = `<span class="result-badge result-tie">和局</span>`; }
-                                else if(res.includes('保')) { record.isSuspend = true; record.resHtml = `<span class="result-badge result-suspend">保留</span>`; }
-                                else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span class="result-badge result-delay">延賽</span>`; }
+                                record.year = match.year ? match.year.toString() : sYear; record.gameNo = match.game_no || '-'; record.opponent = match.opponent || '-'; record.score = match.score || '-'; record.winP = match.win_pitcher || '-'; record.lossP = match.loss_pitcher || '-'; record.savP = match.save || '-'; record.mvpP = match.mvp || '-'; record.attP = match.attendance || '-'; record.durP = match.duration || '-'; record.locP = match.location || '-';
+                                const inn = parseInt(match.innings || 9); if(inn > 9) { record.overtimeGames = 1; record.score += `<span class="overtime-badge">${inn}局</span>`; }
+                                const res = (match.result || '').trim(); const scoreData = parseScoreForTeam(match.score, res); record.scored = scoreData.scored; record.allowed = scoreData.allowed;
+                                if(res.includes('勝')) { record.isWin = true; record.resHtml = `<span class="result-badge result-win">勝</span>`; } else if(res.includes('敗')) { record.isLoss = true; record.resHtml = `<span class="result-badge result-loss">敗</span>`; } else if(res.includes('和')) { record.isTie = true; record.resHtml = `<span class="result-badge result-tie">和局</span>`; } else if(res.includes('保')) { record.isSuspend = true; record.resHtml = `<span class="result-badge result-suspend">保留</span>`; } else if(res.includes('延')) { record.isDelay = true; record.resHtml = `<span class="result-badge result-delay">延賽</span>`; }
                             }
                         }
                         allMatchRecords.push(record);
                     });
                 });
 
-                const years = [...new Set(allMatchRecords.map(r => r.year).filter(y => y))].sort().reverse();
-                const months = [...new Set(allMatchRecords.map(r => r.month).filter(m => m))].sort();
-                years.forEach(y => document.getElementById('filter-year').innerHTML += `<option value="${y}">${y} 年</option>`);
-                months.forEach(m => document.getElementById('filter-month').innerHTML += `<option value="${m}">${m} 月</option>`);
-                document.getElementById('filter-year').addEventListener('change', renderFilteredData);
-                document.getElementById('filter-month').addEventListener('change', renderFilteredData);
-
-                document.getElementById('profile-card').style.display = 'flex';
-                document.getElementById('mini-dashboard').style.display = 'flex';
-                document.getElementById('history-card').style.display = 'block';
+                const years = [...new Set(allMatchRecords.map(r => r.year).filter(y => y))].sort().reverse(); const months = [...new Set(allMatchRecords.map(r => r.month).filter(m => m))].sort();
+                years.forEach(y => document.getElementById('filter-year').innerHTML += `<option value="${y}">${y} 年</option>`); months.forEach(m => document.getElementById('filter-month').innerHTML += `<option value="${m}">${m} 月</option>`);
+                document.getElementById('filter-year').addEventListener('change', renderFilteredData); document.getElementById('filter-month').addEventListener('change', renderFilteredData);
+                document.getElementById('profile-card').style.display = 'flex'; document.getElementById('mini-dashboard').style.display = 'flex'; document.getElementById('history-card').style.display = 'block';
                 renderFilteredData(); hideLoading();
             } catch (error) { console.error(error); hideLoading(); }
         }
 
         function renderFilteredData() {
-            const selYear = document.getElementById('filter-year').value;
-            const selMonth = document.getElementById('filter-month').value;
-            
+            const selYear = document.getElementById('filter-year').value; const selMonth = document.getElementById('filter-month').value;
             let fWin = 0, fLoss = 0, fTie = 0, fDelay = 0, fSuspend = 0, fOvertimeGames = 0, fScored = 0, fAllowed = 0, historyHtml = '';
-            
             const filteredRecords = allMatchRecords.filter(r => (selYear === 'all' || r.year === selYear) && (selMonth === 'all' || r.month === selMonth));
-            
             filteredRecords.forEach(r => {
-                if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; }
-                if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; }
-                if(r.isTie) { fTie++; fScored += r.scored; fAllowed += r.allowed; } 
-                if(r.isDelay) fDelay++;
-                if(r.isSuspend) fSuspend++;
-                if(r.overtimeGames > 0) fOvertimeGames++;
-                
-                // 🔥 將年份與日期上下堆疊
-                historyHtml += `<tr>
-                    <td style="font-weight:bold;">
-                        <span style="font-size:12px; color:var(--text-muted); display:block; line-height:1;">${r.year || ''}</span>
-                        <span style="font-size:15px;">${r.date}</span>
-                    </td>
-                    <td style="color:var(--text-muted);">${r.gameNo}</td>
-                    <td>${r.opponent}</td>
-                    <td style="font-weight:bold;">${r.score}</td>
-                    <td>${r.resHtml}</td>
-                    <td style="color:#e74c3c;">${r.winP}</td>
-                    <td style="color:#3498db;">${r.lossP}</td>
-                    <td style="color:#2ecc71;">${r.savP}</td>
-                    <td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td>
-                    <td style="font-weight:bold;">${r.attP}</td>
-                    <td>${r.durP}</td>
-                    <td>${r.locP}</td>
-                    <td style="color:var(--theme-main); font-weight:900;">${r.pos}</td>
-                </tr>`;
+                if(r.isWin) { fWin++; fScored += r.scored; fAllowed += r.allowed; } if(r.isLoss) { fLoss++; fScored += r.scored; fAllowed += r.allowed; } if(r.isTie) { fTie++; fScored += r.scored; fAllowed += r.allowed; } if(r.isDelay) fDelay++; if(r.isSuspend) fSuspend++; if(r.overtimeGames > 0) fOvertimeGames++;
+                historyHtml += `<tr><td style="font-weight:bold;"><span style="font-size:12px; color:var(--text-muted); display:block; line-height:1;">${r.year || ''}</span><span style="font-size:15px;">${r.date}</span></td><td style="color:var(--text-muted);">${r.gameNo}</td><td>${r.opponent}</td><td style="font-weight:bold;">${r.score}</td><td>${r.resHtml}</td><td style="color:#e74c3c;">${r.winP}</td><td style="color:#3498db;">${r.lossP}</td><td style="color:#2ecc71;">${r.savP}</td><td style="color:#f39c12; font-weight:bold;">${r.mvpP}</td><td style="font-weight:bold;">${r.attP}</td><td>${r.durP}</td><td>${r.locP}</td><td style="color:var(--theme-main); font-weight:900;">${r.pos}</td></tr>`;
             });
-
             document.getElementById('history-list').innerHTML = historyHtml || '<tr><td colspan="13" style="text-align:center; padding:30px; color:var(--text-muted);">此區間尚無出勤紀錄</td></tr>';
-            
             document.getElementById('stat-games').innerText = `${filteredRecords.length} 場`;
-            
-            let recordText = `${fWin}勝${fLoss}敗`;
-            if (fTie > 0) recordText += `${fTie}和`;
-            document.getElementById('stat-record').innerText = recordText;
-            
+            let recordText = `${fWin}勝${fLoss}敗`; if (fTie > 0) recordText += `${fTie}和`; document.getElementById('stat-record').innerText = recordText;
             document.getElementById('stat-winrate').innerText = (fWin+fLoss) > 0 ? `${((fWin/(fWin+fLoss))*100).toFixed(1)}%` : '0%';
-            
-            document.getElementById('stat-delay').innerText = `${fDelay + fSuspend} 場`;
-            document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`;
-            document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
+            document.getElementById('stat-delay').innerText = `${fDelay + fSuspend} 場`; document.getElementById('stat-overtime').innerText = `${fOvertimeGames} 場`; document.getElementById('stat-points').innerText = `${fScored} / ${fAllowed}`;
         }
+
+        /* ==========================================
+           🩺 迷因：開立處方箋 JS 邏輯
+           ========================================== */
+        function openRxModal() {
+            const modal = document.getElementById('rx-modal');
+            const content = document.querySelector('.rx-modal-content');
+            document.getElementById('rx-input-area').style.display = 'block';
+            document.getElementById('rx-output-area').style.display = 'none';
+            document.getElementById('rx-patient-name').value = '';
+            document.getElementById('rx-symptom').value = '';
+            modal.style.display = 'flex'; void modal.offsetWidth; 
+            modal.style.opacity = '1'; content.style.transform = 'translateY(0)';
+        }
+
+        function closeRxModal(e) {
+            if(e.target.id === 'rx-modal' || e.target.className === 'close-lucky-btn') {
+                const modal = document.getElementById('rx-modal');
+                const content = document.querySelector('.rx-modal-content');
+                modal.style.opacity = '0'; content.style.transform = 'translateY(50px)';
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            }
+        }
+
+        function generateRx() {
+            const pName = document.getElementById('rx-patient-name').value.trim() || '無名鐵粉';
+            const symptom = document.getElementById('rx-symptom').value.trim() || '重度星期一症候群';
+            
+            // 抓當下日期
+            const today = new Date();
+            document.getElementById('rx-date').innerText = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+            
+            // 注入資料
+            document.getElementById('rx-display-name').innerText = pName;
+            document.getElementById('rx-display-symptom').innerText = symptom;
+            
+            const igAccount = currentGirlData.ig || currentGirlData.IG || currentGirlData['IG'];
+            document.getElementById('rx-ig-handle').innerText = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
+            document.getElementById('rx-girl-name').innerText = currentGirlData.name;
+            
+            // 根據球隊指派主場
+            let stadium = '球場';
+            const t = currentGirlData.team || '';
+            if(t.includes('樂天')) stadium = '樂天桃園棒球場';
+            else if(t.includes('兄弟')) stadium = '臺中洲際棒球場';
+            else if(t.includes('味全')) stadium = '天母棒球場';
+            else if(t.includes('統一')) stadium = '臺南市立棒球場';
+            else if(t.includes('富邦')) stadium = '新莊棒球場';
+            else if(t.includes('台鋼')) stadium = '澄清湖棒球場';
+            document.getElementById('rx-stadium').innerText = stadium;
+
+            // 切換畫面
+            document.getElementById('rx-input-area').style.display = 'none';
+            document.getElementById('rx-output-area').style.display = 'block';
+        }
+
+        function downloadRx() {
+            const captureArea = document.getElementById('receipt-capture');
+            // 使用 html2canvas 截圖並下載
+            html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `女神處方箋_${currentGirlData.name}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
         initDetail();
     </script>
 </body>
