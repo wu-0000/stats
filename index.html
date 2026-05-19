@@ -17,13 +17,9 @@
             letter-spacing: 2px;
         }
 
-        /* 📱 頂部導覽列：手機版防破版與不換行設定 */
-        .header-btns {
-            display: flex; gap: 10px; justify-content: center; flex-wrap: nowrap; 
-        }
-        .header-btns .btn {
-            white-space: nowrap; padding: 10px 18px;
-        }
+        /* 📱 頂部導覽列 */
+        .header-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: nowrap; }
+        .header-btns .btn { white-space: nowrap; padding: 10px 18px; }
 
         /* 💊 果凍感女團分類按鈕 */
         #team-tabs button {
@@ -34,12 +30,8 @@
             background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
             color: white; border-color: #ff758c; box-shadow: 0 6px 15px rgba(255, 117, 140, 0.4); transform: translateY(-3px);
         }
-        #team-tabs button.inactive-tab {
-            background: transparent; color: var(--text-muted); border-color: #ffccd5;
-        }
-        #team-tabs button.inactive-tab:hover {
-            background: rgba(255, 117, 140, 0.08); color: var(--theme-main); transform: translateY(-2px);
-        }
+        #team-tabs button.inactive-tab { background: transparent; color: var(--text-muted); border-color: #ffccd5; }
+        #team-tabs button.inactive-tab:hover { background: rgba(255, 117, 140, 0.08); color: var(--theme-main); transform: translateY(-2px); }
         [data-theme="dark"] #team-tabs button.inactive-tab { border-color: #555; color: #aaa; }
         [data-theme="dark"] #team-tabs button.inactive-tab:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 
@@ -53,7 +45,7 @@
         .search-input:focus { border-color: #ff758c; box-shadow: 0 8px 25px rgba(255, 117, 140, 0.2); transform: translateY(-2px); }
         [data-theme="dark"] .search-input { border-color: #444; }
 
-        /* ✨ 卡片懸浮光影特效 */
+        /* ✨ 卡片懸浮光影特效 (正式隊員預設) */
         .card {
             position: relative; border-radius: 24px; padding-top: 35px; padding-bottom: 25px;
             background: var(--card-bg, #fff); border: 1px solid rgba(255, 117, 140, 0.15);
@@ -62,6 +54,24 @@
         .card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(255, 117, 140, 0.2); border-color: #ff758c; }
         [data-theme="dark"] .card { border-color: #333; background: #2a2a2a; }
         [data-theme="dark"] .card:hover { border-color: #ff758c; box-shadow: 0 15px 35px rgba(255, 117, 140, 0.4); }
+
+        /* 🌱 練習生專屬卡片外框特效 */
+        .trainee-card {
+            border: 2px dashed rgba(46, 204, 113, 0.4) !important; /* 綠色虛線框 */
+            background: linear-gradient(to bottom, var(--card-bg, #fff), rgba(46, 204, 113, 0.05)); /* 微綠漸層底 */
+        }
+        .trainee-card:hover {
+            border-color: #2ecc71 !important; /* 滑過變實體綠色 */
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.25) !important; /* 翠綠色光暈 */
+        }
+        [data-theme="dark"] .trainee-card {
+            border-color: rgba(46, 204, 113, 0.3) !important;
+            background: linear-gradient(to bottom, #2a2a2a, rgba(46, 204, 113, 0.08));
+        }
+        [data-theme="dark"] .trainee-card:hover {
+            border-color: #2ecc71 !important;
+            box-shadow: 0 15px 35px rgba(46, 204, 113, 0.35) !important;
+        }
 
         /* 👑 卡片左上角背號 */
         .card-number {
@@ -85,34 +95,25 @@
             width: 110px; height: 110px; margin: 0 auto; padding: 4px;
             background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #ff7eb3 100%); border-radius: 50%; box-shadow: 0 5px 15px rgba(255, 117, 140, 0.2);
         }
+        /* 針對練習生的頭像框變色 */
+        .trainee-card .avatar-wrapper-custom {
+            background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.2);
+        }
         .avatar-wrapper-custom img, .avatar-fallback-custom {
             width: 100%; height: 100%; border: 4px solid var(--card-bg, #fff); border-radius: 50%; object-fit: cover;
         }
         .avatar-fallback-custom { display: flex; align-items: center; justify-content: center; font-size: 40px; background: #f8f9fa; }
         [data-theme="dark"] .avatar-wrapper-custom img, [data-theme="dark"] .avatar-fallback-custom { border-color: #2a2a2a; }
 
-        /* 🔥 女孩名字與練習生徽章排版區域 (上下分行) */
-        .card-name-wrapper {
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column; /* 讓名字和標籤上下排列 */
-            align-items: center;
-            gap: 6px; /* 名字跟標籤的間距 */
-        }
+        /* 🔥 女孩名字與練習生徽章排版區域 */
+        .card-name-wrapper { margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .card-name { font-size: 20px; font-weight: 900; color: var(--text-main); margin: 0; letter-spacing: 1px; }
         
-        .card-name { 
-            font-size: 20px; font-weight: 900; color: var(--text-main); 
-            margin: 0; letter-spacing: 1px; 
-        }
-        
-        /* 🌱 全新練習生徽章：空心虛線框 + 微透底色 */
+        /* 🌱 練習生徽章：空心虛線框 + 微透底色 */
         .trainee-badge-new {
-            background: rgba(46, 204, 113, 0.1); /* 淺綠微透底 */
-            color: #2ecc71; /* 翠綠字體 */
-            border: 1px dashed #2ecc71; /* 虛線邊框 */
-            font-size: 12px; font-weight: 900;
-            padding: 3px 12px; border-radius: 20px;
-            letter-spacing: 1px;
+            background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px dashed #2ecc71;
+            font-size: 12px; font-weight: 900; padding: 3px 12px; border-radius: 20px; letter-spacing: 1px;
         }
         [data-theme="dark"] .trainee-badge-new { background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; }
         
@@ -281,6 +282,13 @@
                 card.className = 'card';
                 card.style.cursor = 'pointer';
                 const realTeam = girl.team ? girl.team.trim() : contextName;
+                
+                // 🔥 如果是練習生，幫這張卡片加上專屬的 Class
+                const isTrainee = girl.team && girl.team.includes('練習生');
+                if (isTrainee) {
+                    card.classList.add('trainee-card');
+                }
+
                 card.onclick = () => window.location.href = `detail.html?name=${encodeURIComponent(girl.name)}&team=${encodeURIComponent(realTeam)}`;
                 
                 let igHtml = '';
@@ -297,15 +305,13 @@
                 let displayTeamName = realTeam;
                 Object.keys(teamNamesMap).forEach(key => { if (realTeam.includes(key)) displayTeamName = teamNamesMap[key]; });
                 
-                // 🔥 判斷如果有練習生字眼，就把專屬標籤加到下一行！
                 let traineeHtml = '';
-                if (girl.team && girl.team.includes('練習生')) {
+                if (isTrainee) {
                     traineeHtml = `<div class="trainee-badge-new">🌱 練習生</div>`;
                 }
 
                 const teamBadge = contextName === '搜尋結果' ? `<div class="team-badge-small">${displayTeamName}</div>` : '';
                 
-                // 🔥 智慧背號判斷：如果有背號才產生左上角的 No. 標籤
                 let gNumRaw = girl.number || girl.id || '';
                 let numberHtml = '';
                 if (gNumRaw && gNumRaw.toString().trim() !== '') {
