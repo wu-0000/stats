@@ -343,8 +343,65 @@
             });
         }
 
-        function drawLuckyGirl() { /* ... */ }
-        function closeLuckyModal(event) { /* ... */ }
+        function drawLuckyGirl() {
+            if(allGirlsData.length === 0) { alert("資料還在準備中，請稍後再抽喔！"); return; }
+            const randomGirl = allGirlsData[Math.floor(Math.random() * allGirlsData.length)];
+            const randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            
+            const photoUrl = randomGirl.photo || randomGirl['圖片'] || randomGirl['image'] || randomGirl.photo_url;
+            let avatarHtml = (photoUrl && photoUrl.trim() !== '') 
+                ? `<div class="avatar-wrapper-custom" style="width:140px; height:140px;"><img src="${photoUrl.trim()}" alt="${randomGirl.name}"></div>` 
+                : `<div class="avatar-wrapper-custom" style="width:140px; height:140px;"><div class="avatar-fallback-custom">👱‍♀️</div></div>`;
+            
+            let displayTeamName = randomGirl.team || "自由球員";
+            let teamColor = 'var(--theme-main)';
+            
+            // 處理抽到練習生的情況，把字眼修乾淨
+            let isTrainee = displayTeamName.includes('練習生');
+            let cleanTeamName = displayTeamName.replace('練習生', '').trim();
+
+            if (cleanTeamName.includes('樂天')) { displayTeamName = 'Rakuten Girls'; }
+            else if (cleanTeamName.includes('兄弟')) { displayTeamName = 'Passion Sisters'; teamColor = '#f1c40f'; }
+            else if (cleanTeamName.includes('味全')) { displayTeamName = 'Dragon Beauties'; teamColor = '#e74c3c'; }
+            else if (cleanTeamName.includes('統一')) { displayTeamName = 'Uni Girls'; teamColor = '#e67e22'; }
+            else if (cleanTeamName.includes('富邦')) { displayTeamName = 'Fubon Angels'; teamColor = '#3498db'; }
+            else if (cleanTeamName.includes('台鋼')) { displayTeamName = 'WING STARS'; teamColor = '#2ecc71'; }
+
+            // 如果是練習生，加上特別標籤
+            if (isTrainee) {
+                displayTeamName += ' (練習生)';
+            }
+
+            document.getElementById('lucky-avatar').innerHTML = avatarHtml;
+            document.getElementById('lucky-name').innerText = randomGirl.name;
+            const teamEl = document.getElementById('lucky-team');
+            teamEl.innerText = displayTeamName;
+            teamEl.style.background = teamColor;
+            document.getElementById('lucky-fortune').innerText = randomFortune;
+            
+            document.getElementById('lucky-profile-btn').onclick = () => {
+                window.location.href = `detail.html?name=${encodeURIComponent(randomGirl.name)}&team=${encodeURIComponent(randomGirl.team || '')}`;
+            };
+
+            const modal = document.getElementById('lucky-modal');
+            const card = document.getElementById('lucky-card-content');
+            modal.style.display = 'flex';
+            void modal.offsetWidth; // 觸發重繪
+            modal.style.opacity = '1';
+            card.style.transform = 'scale(1) translateY(0)';
+            card.style.opacity = '1';
+        }
+
+        function closeLuckyModal(event) {
+            if(event.target.id === 'lucky-modal' || event.target.className === 'close-lucky-btn') {
+                const modal = document.getElementById('lucky-modal');
+                const card = document.getElementById('lucky-card-content');
+                modal.style.opacity = '0';
+                card.style.transform = 'scale(0.5) translateY(100px)';
+                card.style.opacity = '0';
+                setTimeout(() => { modal.style.display = 'none'; }, 300);
+            }
+        }
 
         loadGirls();
     </script>
