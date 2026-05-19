@@ -19,30 +19,20 @@
 
         /* 📱 頂部導覽列：手機版防破版與不換行設定 */
         .header-btns {
-            display: flex; 
-            gap: 10px; 
-            justify-content: center; 
-            flex-wrap: nowrap; 
+            display: flex; gap: 10px; justify-content: center; flex-wrap: nowrap; 
         }
         .header-btns .btn {
-            white-space: nowrap; 
-            padding: 10px 18px;
+            white-space: nowrap; padding: 10px 18px;
         }
 
         /* 💊 果凍感女團分類按鈕 */
         #team-tabs button {
-            border-radius: 30px;
-            padding: 10px 22px;
-            font-size: 15px;
-            font-weight: 900;
-            border: 2px solid transparent;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            border-radius: 30px; padding: 10px 22px; font-size: 15px; font-weight: 900;
+            border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
         }
         #team-tabs button.active-tab {
             background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
-            color: white; border-color: #ff758c;
-            box-shadow: 0 6px 15px rgba(255, 117, 140, 0.4); transform: translateY(-3px);
+            color: white; border-color: #ff758c; box-shadow: 0 6px 15px rgba(255, 117, 140, 0.4); transform: translateY(-3px);
         }
         #team-tabs button.inactive-tab {
             background: transparent; color: var(--text-muted); border-color: #ffccd5;
@@ -73,7 +63,7 @@
         [data-theme="dark"] .card { border-color: #333; background: #2a2a2a; }
         [data-theme="dark"] .card:hover { border-color: #ff758c; box-shadow: 0 15px 35px rgba(255, 117, 140, 0.4); }
 
-        /* 👑 卡片標籤 */
+        /* 👑 卡片左上角背號 */
         .card-number {
             position: absolute; top: 15px; left: 15px; background: rgba(255, 117, 140, 0.1);
             color: var(--theme-main); padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 900; z-index: 10;
@@ -101,19 +91,30 @@
         .avatar-fallback-custom { display: flex; align-items: center; justify-content: center; font-size: 40px; background: #f8f9fa; }
         [data-theme="dark"] .avatar-wrapper-custom img, [data-theme="dark"] .avatar-fallback-custom { border-color: #2a2a2a; }
 
-        /* 🔥 女孩名字與練習生徽章：強制同一行且置中 */
+        /* 🔥 女孩名字與練習生徽章排版區域 (上下分行) */
+        .card-name-wrapper {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column; /* 讓名字和標籤上下排列 */
+            align-items: center;
+            gap: 6px; /* 名字跟標籤的間距 */
+        }
+        
         .card-name { 
             font-size: 20px; font-weight: 900; color: var(--text-main); 
-            margin-top: 15px; margin-bottom: 5px; letter-spacing: 1px; 
-            display: flex; justify-content: center; align-items: center; /* 讓內部元素水平對齊置中 */
+            margin: 0; letter-spacing: 1px; 
         }
-        .trainee-badge {
-            background: linear-gradient(135deg, #1abc9c 0%, #2ecc71 100%);
-            color: white; font-size: 11px; font-weight: bold;
-            padding: 3px 8px; border-radius: 10px; margin-left: 8px;
-            box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
-            white-space: nowrap; /* 強制標籤不換行 */
+        
+        /* 🌱 全新練習生徽章：空心虛線框 + 微透底色 */
+        .trainee-badge-new {
+            background: rgba(46, 204, 113, 0.1); /* 淺綠微透底 */
+            color: #2ecc71; /* 翠綠字體 */
+            border: 1px dashed #2ecc71; /* 虛線邊框 */
+            font-size: 12px; font-weight: 900;
+            padding: 3px 12px; border-radius: 20px;
+            letter-spacing: 1px;
         }
+        [data-theme="dark"] .trainee-badge-new { background: rgba(46, 204, 113, 0.15); border-color: #2ecc71; color: #2ecc71; }
         
         .team-badge-small { font-size: 12px; color: white; background: var(--theme-main); display: inline-block; padding: 4px 10px; border-radius: 12px; margin-top: 10px; font-weight: bold; }
 
@@ -287,7 +288,6 @@
                 if (igAccount.trim() !== '') {
                     let igStr = igAccount.trim();
                     let igLink = igStr.startsWith('http') ? igStr : `https://www.instagram.com/${igStr}/`;
-                    // 🔥 已經移除 title="前往 IG" 屬性，不再出現黑框提示
                     igHtml = `<a href="${igLink}" target="_blank" onclick="event.stopPropagation()" class="ig-btn-corner"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`;
                 }
 
@@ -297,15 +297,28 @@
                 let displayTeamName = realTeam;
                 Object.keys(teamNamesMap).forEach(key => { if (realTeam.includes(key)) displayTeamName = teamNamesMap[key]; });
                 
+                // 🔥 判斷如果有練習生字眼，就把專屬標籤加到下一行！
                 let traineeHtml = '';
                 if (girl.team && girl.team.includes('練習生')) {
-                    traineeHtml = `<span class="trainee-badge">🌱 練習生</span>`;
+                    traineeHtml = `<div class="trainee-badge-new">🌱 練習生</div>`;
                 }
 
                 const teamBadge = contextName === '搜尋結果' ? `<div class="team-badge-small">${displayTeamName}</div>` : '';
-                const gNum = girl.number || girl.id || "00";
+                
+                // 🔥 智慧背號判斷：如果有背號才產生左上角的 No. 標籤
+                let gNumRaw = girl.number || girl.id || '';
+                let numberHtml = '';
+                if (gNumRaw && gNumRaw.toString().trim() !== '') {
+                    numberHtml = `<div class="card-number">No.${gNumRaw}</div>`;
+                }
 
-                card.innerHTML = `<div class="card-number">No.${gNum}</div>${igHtml}${avatarHtml}<div class="card-name">${girl.name}${traineeHtml}</div>${teamBadge}`;
+                card.innerHTML = `${numberHtml}${igHtml}${avatarHtml}
+                    <div class="card-name-wrapper">
+                        <div class="card-name">${girl.name}</div>
+                        ${traineeHtml}
+                    </div>
+                    ${teamBadge}`;
+                    
                 listContainer.appendChild(card);
             });
         }
