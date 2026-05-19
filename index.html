@@ -108,7 +108,10 @@
             box-shadow: 0 5px 15px rgba(46, 204, 113, 0.2);
         }
         .avatar-wrapper-custom img, .avatar-fallback-custom {
-            width: 100%; height: 100%; border: 4px solid var(--card-bg, #fff); border-radius: 50%; object-fit: cover;
+            width: 100%; height: 100%; border: 4px solid var(--card-bg, #fff); border-radius: 50%; 
+            object-fit: cover;
+            /* 🔥 核心修復：強制讓圖片對齊頂部，不會因為全身照而切掉頭！ */
+            object-position: center 10%; 
         }
         .avatar-fallback-custom { display: flex; align-items: center; justify-content: center; font-size: 40px; background: #f8f9fa; }
         [data-theme="dark"] .avatar-wrapper-custom img, [data-theme="dark"] .avatar-fallback-custom { border-color: #2a2a2a; }
@@ -163,7 +166,7 @@
             .header-btns .btn { 
                 padding: 10px 10px; 
                 font-size: 14px; 
-                flex: 1 1 calc(50% - 10px); /* 讓按鈕佔據一半寬度，形成 2x2 陣列 */
+                flex: 1 1 calc(50% - 10px); 
             }
             .search-input { font-size: 14px; padding: 12px 20px; }
         }
