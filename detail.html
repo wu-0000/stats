@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* 💖 愛心雨掉落動畫 */
+@keyframes heartFall {
+    0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg) scale(0.5); opacity: 0; }
+}
+.floating-heart {
+    position: fixed;
+    top: -10vh;
+    z-index: 9999;
+    pointer-events: none; /* 避免擋住點擊 */
+    text-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
         /* 🏆 專業數據對齊防護罩與原本的版面設計 */
         * { box-sizing: border-box; }
         #history-table th, #history-table td { white-space: nowrap !important; text-align: center !important; vertical-align: middle !important; padding: 12px 10px; border-bottom: 1px solid rgba(255, 117, 140, 0.1); }
@@ -425,6 +437,72 @@
                 link.click();
             });
         }
+        let avatarClickCount = 0;
+let clickTimer = null;
+
+// 等待 DOM 載入後綁定點擊事件
+document.addEventListener("DOMContentLoaded", () => {
+    const avatarEl = document.getElementById('avatar-container');
+    if (avatarEl) {
+        avatarEl.style.cursor = 'pointer'; // 讓滑鼠變成手指，暗示可以點
+        avatarEl.addEventListener('click', () => {
+            avatarClickCount++;
+            clearTimeout(clickTimer);
+            
+            // 點擊滿 5 次觸發彩蛋
+            if (avatarClickCount >= 5) {
+                triggerEasterEgg();
+                avatarClickCount = 0; // 重置計數
+            }
+            
+            // 如果停下來超過 1 秒沒點，就歸零重新計算
+            clickTimer = setTimeout(() => {
+                avatarClickCount = 0;
+            }, 1000);
+        });
+    }
+});
+
+function triggerEasterEgg() {
+    // 根據目前的球隊抓取對應顏色 (引用你前面寫好的判斷)
+    const finalTeam = currentGirlData.team || currentGirlData['球隊'] || "";
+    let heartColor = '#ff758c'; // 預設粉紅
+    
+    if (finalTeam.includes('樂天')) heartColor = '#e74c3c'; // 樂天紅
+    else if (finalTeam.includes('兄弟')) heartColor = '#f1c40f'; // 兄弟黃
+    else if (finalTeam.includes('味全')) heartColor = '#c0392b'; // 味全深紅
+    else if (finalTeam.includes('統一')) heartColor = '#e67e22'; // 統一橘
+    else if (finalTeam.includes('富邦')) heartColor = '#3498db'; // 富邦藍
+    else if (finalTeam.includes('台鋼')) heartColor = '#2ecc71'; // 台鋼綠
+
+    // 產生 40 顆愛心
+    for (let i = 0; i < 40; i++) {
+        setTimeout(() => createHeart(heartColor), i * 50); // 錯開生成時間，更有層次感
+    }
+}
+
+function createHeart(color) {
+    const heart = document.createElement('div');
+    heart.innerHTML = '❤';
+    heart.className = 'floating-heart';
+    
+    // 隨機大小、位置、動畫持續時間
+    const size = Math.random() * 20 + 15; // 15px ~ 35px
+    const left = Math.random() * 100; // 0% ~ 100%
+    const duration = Math.random() * 2 + 2; // 2s ~ 4s
+    
+    heart.style.color = color;
+    heart.style.fontSize = `${size}px`;
+    heart.style.left = `${left}vw`;
+    heart.style.animation = `heartFall ${duration}s linear forwards`;
+    
+    document.body.appendChild(heart);
+    
+    // 動畫結束後自動清理 DOM 保持效能
+    setTimeout(() => {
+        heart.remove();
+    }, duration * 1000);
+}
 
         initDetail();
     </script>
