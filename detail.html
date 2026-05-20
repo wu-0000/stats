@@ -4,34 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>女神情報局</title>
+    
     <meta name="description" content="專屬你的啦啦隊女神出勤紀錄、勝敗戰績與獨家處方箋，快來查閱機密檔案！">
     <meta property="og:title" content="女神情報局｜全台最完整啦啦隊機密檔案">
     <meta property="og:description" content="專屬你的啦啦隊女神出勤紀錄、勝敗戰績與獨家處方箋，快來查閱機密檔案！">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://你的網站完整網址.com">
-    <meta property="og:image" content="https://你的網站完整網址.com/og-image.jpg">
-    
+    <meta property="og:url" content="[https://你的網站完整網址.com](https://你的網站完整網址.com)">
+    <meta property="og:image" content="[https://你的網站完整網址.com/og-image.jpg](https://你的網站完整網址.com/og-image.jpg)">
     <meta property="og:site_name" content="女神情報局">
     <meta name="twitter:card" content="summary_large_image">
-    ```
-*提示：記得把 `https://你的網站完整網址.com` 換成你實際的網址。圖片網址（og:image）非常重要，它是 LINE 和 Threads 顯示大圖的關鍵！*
----
-
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="[https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js](https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js)"></script>
     <style>
         /* 💖 愛心雨掉落動畫 */
-@keyframes heartFall {
-    0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(360deg) scale(0.5); opacity: 0; }
-}
-.floating-heart {
-    position: fixed;
-    top: -10vh;
-    z-index: 9999;
-    pointer-events: none; /* 避免擋住點擊 */
-    text-shadow: 0 0 5px rgba(0,0,0,0.2);
-}
+        @keyframes heartFall {
+            0% { transform: translateY(-10vh) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) scale(0.5); opacity: 0; }
+        }
+        .floating-heart {
+            position: fixed;
+            top: -10vh;
+            z-index: 9999;
+            pointer-events: none; /* 避免擋住點擊 */
+            text-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
         /* 🏆 專業數據對齊防護罩與原本的版面設計 */
         * { box-sizing: border-box; }
         #history-table th, #history-table td { white-space: nowrap !important; text-align: center !important; vertical-align: middle !important; padding: 12px 10px; border-bottom: 1px solid rgba(255, 117, 140, 0.1); }
@@ -239,6 +235,18 @@
                     </div>
                     
                     <div class="receipt-barcode-css"></div>
+                    
+                    <div style="text-align: center; margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 12px;">
+                        <div style="font-size: 11px; color: #555; font-weight: bold; margin-bottom: 5px;">
+                            掃描掛號 🩺 查閱專屬機密檔案
+                        </div>
+                        <img src="[https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://你的網站完整網址.com](https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://你的網站完整網址.com)" 
+                             style="width: 50px; height: 50px; display: block; margin: 0 auto; mix-blend-mode: multiply;" 
+                             alt="QR Code" crossorigin="anonymous">
+                        <div style="font-size: 10px; color: var(--theme-main); font-weight: 900; margin-top: 4px; letter-spacing: 1px;">
+                            YOUR-WEBSITE.COM
+                        </div>
+                    </div>
                     <div class="rx-stamp" id="rx-stamp-text">急件<br>藥到病除</div>
                 </div>
 
@@ -280,7 +288,6 @@
 
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
                 if (photoUrl && photoUrl.trim() !== '') { 
-                    // 🔥 在這裡加入了 object-position: center 10%; 確保情報局的大頭貼也不會切到頭！
                     document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;border-radius:50%;">`; 
                 }
                 const photoSource = girlInfo['照片出處'] || girlInfo['出處'] || girlInfo.photo_source || girlInfo.source || '';
@@ -291,9 +298,7 @@
 
                 const extraContainer = document.getElementById('extra-info-container'); const secretGrid = document.getElementById('secret-grid');
                 
-                // 🔥 新增「身高」屬性
                 const dict = { 'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' }, 'height': { label: '身高', icon: '📏' }, 'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' }, 'country': { label: '國籍', icon: '🇹🇼' } };
-                // 🔥 將 6 大屬性排序進去
                 const secretKeysOrder = ['生日', '星座', '身高', '興趣', '最愛食物', '最愛球員'];
                 const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'photo_url', 'ig', 'IG', 'year', 'id', 'number', 'photo_source', '照片出處', '出處', 'source'];
                 
@@ -373,10 +378,7 @@
             document.getElementById('rx-display-name').innerText = pName;
             document.getElementById('rx-display-symptom').innerText = symptom;
             
-            const igAccount = currentGirlData.ig || currentGirlData.IG || currentGirlData['IG'];
-            const igHandle = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
             const girlName = currentGirlData.name;
-            
             let stadium = '';
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
@@ -410,24 +412,14 @@
                 `確診為「${girlName} 依存症末期」，併發上班無力。`,
                 `患者出現「慢性 ${girlName} 視線渴望症」狀。`,
                 `「原發性 ${girlName} 暈船症候群」，並伴隨嚴重的錢包萎縮現象。`,
-                `「大腦海馬迴 ${girlName} 佔據現象」，導致暫時性忘記老闆交代的工作。`,
-                `「病理性快門強迫症」，只要 ${girlName} 出現，食指就會不受控瘋狂抽搐。`,
-                `「${girlName} 專屬視野鎖定障礙」，眼球無法對焦於該病原體以外之物體。`,
-                `經診斷為「幻聽型 ${girlName} 應援曲迴盪症」，手部會不自覺揮舞。`,
-                `「急性非排班日憂鬱症」，唯有看到 ${girlName} 的限時動態才能勉強維持生命。`,
-                `確診「${girlName} 甜度攝取不足併發低血糖」，急需高濃度笑容立即補充。`,
-                `「重度 ${girlName} 缺乏症」，導致患者靈魂暫時性抽離，呈現喪屍狀態。`
+                `「大腦海馬迴 ${girlName} 佔據現象」，導致暫時性忘記老闆交代的工作。`
             ];
             document.getElementById('rx-diagnosis').innerHTML = diagnoses[Math.floor(Math.random() * diagnoses.length)];
 
             const treatments = [
                 `Rx.<br>1. 立即送往 ${stadium} 熱區第一排急救<br>2. 接受 ${girlName} 專屬眼神光波照射至少 10 分鐘<br>3. 術後需購買最新周邊商品進行復健`,
                 `Rx.<br>1. 每日早中晚照三餐點閱 ${girlName} 限時動態<br>2. 於留言區靜脈注射「高濃度愛心 Emoji」500cc<br>3. 將手機桌布更換為 ${girlName} 以維持基本生命體徵`,
-                `Rx.<br>1. 立即前往 ${stadium} 實施高分貝大聲公嘶吼療法<br>2. 購買 ${girlName} 應援毛巾一條進行物理性擦汗<br>3. 療程期間嚴禁觀看別隊女孩，以免引發強烈排斥反應`,
-                `Rx.<br>1. 實施物理性信仰充值：清空購物車內相關周邊<br>2. 強制身邊至少 3 位朋友追蹤 ${girlName}<br>3. 若病情未見好轉，請立刻買票前往 ${stadium} 複診`,
-                `Rx.<br>1. 暫停一切工作，火速前往 ${stadium} 報到<br>2. 攝取 ${girlName} 專屬應援舞至少 3 個療程 (局)<br>3. 拍下神級美照發送限動，有助於加速病情痊癒`,
-                `Rx.<br>1. 處方箋開立「尊爵不凡季票」一張<br>2. 需在 ${stadium} 內吸收滿滿的球場紅土與香氣<br>3. 睡前需默念 ${girlName} 應援口號 10 遍以安神定魄`,
-                `Rx.<br>1. 啟動終極療程：參加 ${girlName} 的見面會或簽名會<br>2. 取得親筆簽名護身符一張<br>3. 注意：服用此療程後恐產生更嚴重的「暈船併發症」`
+                `Rx.<br>1. 立即前往 ${stadium} 實施高分貝大聲公嘶吼療法<br>2. 購買 ${girlName} 應援毛巾一條進行物理性擦汗<br>3. 療程期間嚴禁觀看別隊女孩，以免引發強烈排斥反應`
             ];
             document.getElementById('rx-treatment').innerHTML = treatments[Math.floor(Math.random() * treatments.length)];
 
@@ -441,81 +433,77 @@
             document.getElementById('rx-output-area').style.display = 'block';
         }
 
+        // 👇 這裡已經幫你加入 useCORS 和 allowTaint 設定 👇
         function downloadRx() {
             const captureArea = document.getElementById('receipt-capture');
-            html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2 }).then(canvas => {
+            html2canvas(captureArea, { backgroundColor: '#fffdf5', scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `女神處方箋_${currentGirlData.name}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
         }
+        // 👆 新增結束 👆
+
         let avatarClickCount = 0;
-let clickTimer = null;
+        let clickTimer = null;
 
-// 等待 DOM 載入後綁定點擊事件
-document.addEventListener("DOMContentLoaded", () => {
-    const avatarEl = document.getElementById('avatar-container');
-    if (avatarEl) {
-        avatarEl.style.cursor = 'pointer'; // 讓滑鼠變成手指，暗示可以點
-        avatarEl.addEventListener('click', () => {
-            avatarClickCount++;
-            clearTimeout(clickTimer);
-            
-            // 點擊滿 5 次觸發彩蛋
-            if (avatarClickCount >= 5) {
-                triggerEasterEgg();
-                avatarClickCount = 0; // 重置計數
+        document.addEventListener("DOMContentLoaded", () => {
+            const avatarEl = document.getElementById('avatar-container');
+            if (avatarEl) {
+                avatarEl.style.cursor = 'pointer'; 
+                avatarEl.addEventListener('click', () => {
+                    avatarClickCount++;
+                    clearTimeout(clickTimer);
+                    
+                    if (avatarClickCount >= 5) {
+                        triggerEasterEgg();
+                        avatarClickCount = 0; 
+                    }
+                    
+                    clickTimer = setTimeout(() => {
+                        avatarClickCount = 0;
+                    }, 1000);
+                });
             }
-            
-            // 如果停下來超過 1 秒沒點，就歸零重新計算
-            clickTimer = setTimeout(() => {
-                avatarClickCount = 0;
-            }, 1000);
         });
-    }
-});
 
-function triggerEasterEgg() {
-    // 根據目前的球隊抓取對應顏色 (引用你前面寫好的判斷)
-    const finalTeam = currentGirlData.team || currentGirlData['球隊'] || "";
-    let heartColor = '#ff758c'; // 預設粉紅
-    
-    if (finalTeam.includes('樂天')) heartColor = '#e74c3c'; // 樂天紅
-    else if (finalTeam.includes('兄弟')) heartColor = '#f1c40f'; // 兄弟黃
-    else if (finalTeam.includes('味全')) heartColor = '#c0392b'; // 味全深紅
-    else if (finalTeam.includes('統一')) heartColor = '#e67e22'; // 統一橘
-    else if (finalTeam.includes('富邦')) heartColor = '#3498db'; // 富邦藍
-    else if (finalTeam.includes('台鋼')) heartColor = '#2ecc71'; // 台鋼綠
+        function triggerEasterEgg() {
+            const finalTeam = currentGirlData.team || currentGirlData['球隊'] || "";
+            let heartColor = '#ff758c'; 
+            
+            if (finalTeam.includes('樂天')) heartColor = '#e74c3c'; 
+            else if (finalTeam.includes('兄弟')) heartColor = '#f1c40f'; 
+            else if (finalTeam.includes('味全')) heartColor = '#c0392b'; 
+            else if (finalTeam.includes('統一')) heartColor = '#e67e22'; 
+            else if (finalTeam.includes('富邦')) heartColor = '#3498db'; 
+            else if (finalTeam.includes('台鋼')) heartColor = '#2ecc71'; 
 
-    // 產生 40 顆愛心
-    for (let i = 0; i < 40; i++) {
-        setTimeout(() => createHeart(heartColor), i * 50); // 錯開生成時間，更有層次感
-    }
-}
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => createHeart(heartColor), i * 50); 
+            }
+        }
 
-function createHeart(color) {
-    const heart = document.createElement('div');
-    heart.innerHTML = '❤';
-    heart.className = 'floating-heart';
-    
-    // 隨機大小、位置、動畫持續時間
-    const size = Math.random() * 20 + 15; // 15px ~ 35px
-    const left = Math.random() * 100; // 0% ~ 100%
-    const duration = Math.random() * 2 + 2; // 2s ~ 4s
-    
-    heart.style.color = color;
-    heart.style.fontSize = `${size}px`;
-    heart.style.left = `${left}vw`;
-    heart.style.animation = `heartFall ${duration}s linear forwards`;
-    
-    document.body.appendChild(heart);
-    
-    // 動畫結束後自動清理 DOM 保持效能
-    setTimeout(() => {
-        heart.remove();
-    }, duration * 1000);
-}
+        function createHeart(color) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤';
+            heart.className = 'floating-heart';
+            
+            const size = Math.random() * 20 + 15; 
+            const left = Math.random() * 100; 
+            const duration = Math.random() * 2 + 2; 
+            
+            heart.style.color = color;
+            heart.style.fontSize = `${size}px`;
+            heart.style.left = `${left}vw`;
+            heart.style.animation = `heartFall ${duration}s linear forwards`;
+            
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, duration * 1000);
+        }
 
         initDetail();
     </script>
