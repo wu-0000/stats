@@ -14,24 +14,30 @@
         #history-table td { font-size: 15px !important; color: var(--text-main); }
         [data-theme="dark"] #history-table th { background-color: #252525; }
         [data-theme="dark"] #history-table td { border-bottom: 1px solid #333; }
+        
         .info-tag { display: inline-flex; align-items: center; background: transparent; border: 1px solid #ffccd5; border-radius: 20px; padding: 6px 14px; gap: 8px; white-space: nowrap; }
         .info-tag .label { font-size: 13px; color: var(--text-muted); font-weight: bold; }
         .info-tag .value { font-size: 15px; color: var(--theme-main); font-weight: 900; }
         [data-theme="dark"] .info-tag { border-color: #ff758c; }
+        
         .ig-btn-custom { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white !important; width: 32px; height: 32px; border-radius: 50%; text-decoration: none; box-shadow: 0 2px 8px rgba(220, 39, 67, 0.3); transition: transform 0.2s; flex-shrink: 0; }
         .ig-btn-custom:hover { transform: scale(1.1); }
+        
         .profile-layout { display: flex; align-items: center; gap: 30px; }
         .profile-left { flex: 0 0 auto; min-width: 320px; display: flex; align-items: center; }
         .profile-right { flex: 1; min-width: 0; border-left: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 30px; display: flex; flex-direction: column; justify-content: center; }
-        #secret-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; }
-        .secret-box { border: 1px solid #ffccd5; border-radius: 16px; padding: 5px; text-align: center; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05); aspect-ratio: 1 / 1; }
+        
+        /* 🔥 配合 6 大屬性，改為 3x2 的完美網格 */
+        #secret-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+        .secret-box { border: 1px solid #ffccd5; border-radius: 16px; padding: 8px 5px; text-align: center; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(255, 117, 140, 0.05); }
         .secret-box .icon { font-size: 24px; margin-bottom: 5px; }
         .secret-box .label { font-size: 12px; color: var(--text-muted); font-weight: bold; margin-bottom: 5px; }
         .secret-box .value { font-size: 14px; color: var(--text-main); font-weight: 900; line-height: 1.3; word-break: break-word; padding: 0 5px; }
         [data-theme="dark"] .secret-box { border-color: #444; background: #2a2a2a; }
+        
         @media (max-width: 1050px) { .profile-layout { flex-direction: column; align-items: stretch; gap: 20px; } .profile-left { flex: 1 1 auto; width: 100%; justify-content: center; min-width: auto; } .profile-right { border-left: none; border-top: 1px dashed rgba(255, 117, 140, 0.4); padding-left: 0; padding-top: 25px; } }
-        @media (max-width: 850px) { #secret-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 480px) { #secret-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { #secret-grid { grid-template-columns: repeat(2, 1fr); } } /* 手機變成 2 排 */
+        
         .dashboard-card { flex: 1; min-width: 90px; padding: 20px 5px; text-align: center; border-radius: 16px; }
         .dashboard-label { color: var(--text-muted); font-size: 14px; font-weight: bold; margin-bottom: 8px; }
         .dashboard-value { font-size: 20px; font-weight: 900; }
@@ -43,55 +49,42 @@
            🩺 迷因：醫療處方箋 
            ========================================== */
         .rx-btn {
-            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
-            color: white; font-size: 15px; font-weight: 900;
-            padding: 8px 18px; border: none; border-radius: 20px;
-            cursor: pointer; box-shadow: 0 4px 12px rgba(26, 188, 156, 0.4);
-            display: inline-flex; align-items: center; gap: 6px;
-            transition: transform 0.2s; margin-top: 10px; width: 100%; justify-content: center;
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); color: white; font-size: 15px; font-weight: 900;
+            padding: 8px 18px; border: none; border-radius: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(26, 188, 156, 0.4);
+            display: inline-flex; align-items: center; gap: 6px; transition: transform 0.2s; margin-top: 10px; width: 100%; justify-content: center;
         }
         .rx-btn:hover { transform: scale(1.05); }
 
         .rx-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: center;
-            z-index: 9999; opacity: 0; transition: opacity 0.3s;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.3s;
         }
 
         .rx-modal-content {
-            background: var(--bg-color); border-radius: 20px; padding: 25px;
-            width: 90%; max-width: 400px; text-align: center; position: relative;
+            background: var(--bg-color); border-radius: 20px; padding: 25px; width: 90%; max-width: 400px; text-align: center; position: relative;
             transform: translateY(50px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto;
         }
 
         .rx-input {
-            width: 100%; padding: 12px 15px; border: 2px solid #ffccd5;
-            border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
-            background-color: var(--card-bg); color: var(--text-main); 
-            outline: none; transition: border-color 0.3s;
+            width: 100%; padding: 12px 15px; border: 2px solid #ffccd5; border-radius: 10px; font-size: 16px; margin-bottom: 15px; font-weight: bold;
+            background-color: var(--card-bg); color: var(--text-main); outline: none; transition: border-color 0.3s;
         }
         .rx-input:focus { border-color: #ff758c; }
         [data-theme="dark"] .rx-input { background-color: #222; color: #fff; border-color: #555; }
         [data-theme="dark"] .rx-input::placeholder { color: #888; }
 
-        /* 超逼真熱感應紙設計 */
         .receipt-paper {
             background: #fffdf5; color: #222; font-family: 'Courier New', Courier, monospace; 
-            padding: 25px 20px; width: 100%; max-width: 320px; margin: 0 auto;
-            position: relative; text-align: left;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            border-top: 1px dashed #ddd; border-bottom: 1px dashed #ddd;
+            padding: 25px 20px; width: 100%; max-width: 320px; margin: 0 auto; position: relative; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); border-top: 1px dashed #ddd; border-bottom: 1px dashed #ddd;
         }
         .receipt-paper::before {
             content: ""; position: absolute; top: -5px; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(135deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent), linear-gradient(225deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent);
-            background-size: 10px 10px; background-position: -5px 0;
+            background: linear-gradient(135deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent), linear-gradient(225deg, transparent 25%, #fffdf5 25%, #fffdf5 75%, transparent 75%, transparent); background-size: 10px 10px; background-position: -5px 0;
         }
         .receipt-paper::after {
             content: ""; position: absolute; bottom: -5px; left: 0; width: 100%; height: 5px;
-            background: linear-gradient(135deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5), linear-gradient(225deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5);
-            background-size: 10px 10px; background-position: -5px 0;
+            background: linear-gradient(135deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5), linear-gradient(225deg, #fffdf5 25%, transparent 25%, transparent 75%, #fffdf5 75%, #fffdf5); background-size: 10px 10px; background-position: -5px 0;
         }
         
         .receipt-title { text-align: center; font-size: 20px; font-weight: 900; letter-spacing: 2px; }
@@ -100,27 +93,18 @@
         .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; font-weight: bold; }
         .receipt-text { font-size: 14px; line-height: 1.6; font-weight: bold; margin-bottom: 10px; }
         
-        /* 🔥 純 CSS 繪製的不破版條碼 */
         .receipt-barcode-css {
-            height: 40px; width: 90%; margin: 15px auto 0;
+            height: 40px; width: 90%; margin: 15px auto 0; opacity: 0.85;
             background: repeating-linear-gradient(
-                to right,
-                #222 0, #222 3px, transparent 3px, transparent 6px,
-                #222 6px, #222 8px, transparent 8px, transparent 11px,
-                #222 11px, #222 16px, transparent 16px, transparent 18px,
-                #222 18px, #222 20px, transparent 20px, transparent 24px
+                to right, #222 0, #222 3px, transparent 3px, transparent 6px, #222 6px, #222 8px, transparent 8px, transparent 11px,
+                #222 11px, #222 16px, transparent 16px, transparent 18px, #222 18px, #222 20px, transparent 20px, transparent 24px
             );
-            opacity: 0.85;
         }
 
         .rx-stamp {
-            position: absolute; right: 15px; bottom: 40px;
-            border: 3px solid #e74c3c; color: #e74c3c;
-            width: 70px; height: 70px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            font-weight: 900; font-size: 14px; line-height: 1.1;
-            transform: rotate(-15deg); opacity: 0.85; pointer-events: none;
-            box-shadow: inset 0 0 2px #e74c3c;
+            position: absolute; right: 15px; bottom: 40px; border: 3px solid #e74c3c; color: #e74c3c;
+            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center;
+            font-weight: 900; font-size: 14px; line-height: 1.1; transform: rotate(-15deg); opacity: 0.85; pointer-events: none; box-shadow: inset 0 0 2px #e74c3c;
         }
     </style>
 </head>
@@ -208,13 +192,11 @@
                     
                     <div class="receipt-line"></div>
                     <div style="font-weight:900; margin-bottom:5px;">【診斷結果】</div>
-                    <div class="receipt-text" style="color:#d35400;" id="rx-diagnosis">
-                        </div>
+                    <div class="receipt-text" style="color:#d35400;" id="rx-diagnosis"></div>
 
                     <div class="receipt-line"></div>
                     <div style="font-weight:900; margin-bottom:5px;">【處方醫囑】</div>
-                    <div class="receipt-text" id="rx-treatment">
-                        </div>
+                    <div class="receipt-text" id="rx-treatment"></div>
 
                     <div class="receipt-line"></div>
                     <div class="receipt-text" style="font-size:12px; color:#555;">
@@ -223,7 +205,6 @@
                     </div>
                     
                     <div class="receipt-barcode-css"></div>
-                    
                     <div class="rx-stamp" id="rx-stamp-text">急件<br>藥到病除</div>
                 </div>
 
@@ -264,7 +245,10 @@
                 const badge = document.getElementById('team-badge'); badge.innerText = displayTeam; badge.style.background = teamColor;
 
                 const photoUrl = girlInfo.photo || girlInfo['圖片'] || girlInfo['image'] || girlInfo.photo_url;
-                if (photoUrl && photoUrl.trim() !== '') { document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; }
+                if (photoUrl && photoUrl.trim() !== '') { 
+                    // 🔥 在這裡加入了 object-position: center 10%; 確保情報局的大頭貼也不會切到頭！
+                    document.getElementById('avatar-container').innerHTML = `<img src="${photoUrl.trim()}" alt="${targetName}" style="width:100%;height:100%;object-fit:cover;object-position:center 10%;border-radius:50%;">`; 
+                }
                 const photoSource = girlInfo['照片出處'] || girlInfo['出處'] || girlInfo.photo_source || girlInfo.source || '';
                 if (photoSource.trim() !== '') { const sourceEl = document.getElementById('photo-source'); sourceEl.innerHTML = `📸 ${photoSource.trim()}`; sourceEl.style.display = 'block'; }
 
@@ -272,8 +256,11 @@
                 if (igAccount.trim() !== '') { const igLink = igAccount.trim().startsWith('http') ? igAccount.trim() : `https://www.instagram.com/${igAccount.trim()}/`; document.getElementById('ig-container').innerHTML = `<a href="${igLink}" target="_blank" class="ig-btn-custom" title="前往 IG"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:currentColor;"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.07M12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>`; }
 
                 const extraContainer = document.getElementById('extra-info-container'); const secretGrid = document.getElementById('secret-grid');
-                const dict = { 'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' }, 'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' }, 'country': { label: '國籍', icon: '🇹🇼' } };
-                const secretKeysOrder = ['生日', '星座', '最愛食物', '最愛球員', '興趣'];
+                
+                // 🔥 新增「身高」屬性
+                const dict = { 'birthday': { label: '生日', icon: '🎂' }, 'zodiac': { label: '星座', icon: '✨' }, 'constellation': { label: '星座', icon: '✨' }, 'height': { label: '身高', icon: '📏' }, 'food': { label: '最愛食物', icon: '🍰' }, 'favorite_player': { label: '最愛球員', icon: '⚾' }, 'hobby': { label: '興趣', icon: '🎨' }, 'country': { label: '國籍', icon: '🇹🇼' } };
+                // 🔥 將 6 大屬性排序進去
+                const secretKeysOrder = ['生日', '星座', '身高', '興趣', '最愛食物', '最愛球員'];
                 const exclude = ['name', 'girl_name', '姓名', 'team', '球隊', 'photo', '圖片', 'image', 'photo_url', 'ig', 'IG', 'year', 'id', 'number', 'photo_source', '照片出處', '出處', 'source'];
                 
                 let mappedData = {};
@@ -344,9 +331,6 @@
             }
         }
 
-        /* ==========================================
-           🎉 隨機迷因處方箋生成器
-           ========================================== */
         function generateRx() {
             const pName = document.getElementById('rx-patient-name').value.trim() || '無名鐵粉';
             const symptom = document.getElementById('rx-symptom').value.trim() || '重度星期一症候群';
@@ -359,7 +343,6 @@
             const igHandle = igAccount ? `@${igAccount.trim()}` : currentGirlData.name;
             const girlName = currentGirlData.name;
             
-            // 🏟️ 球場判定
             let stadium = '';
             const selYear = document.getElementById('filter-year').value;
             const selMonth = document.getElementById('filter-month').value;
@@ -382,13 +365,11 @@
             }
             if (stadium && !stadium.includes('場')) stadium += '棒球場';
 
-            // 🩺 隨機生理數值
             const heartRates = ["180 BPM (極度興奮)", "心律不整 (被電到)", "飆升至危險邊緣", "撲通撲通狂跳中"];
             const bps = ["看到女神就飆高", "血壓異常 (過度熱情)", "無法測量 (過嗨)"];
             document.getElementById('rx-vitals-hr').innerText = heartRates[Math.floor(Math.random() * heartRates.length)];
             document.getElementById('rx-vitals-bp').innerText = bps[Math.floor(Math.random() * bps.length)];
 
-            // 🩺 隨機診斷 (重度暈船迷因升級版)
             const diagnoses = [
                 `經診斷患有「重度缺乏 ${girlName} 笑容能量症候群」。`,
                 `經診斷為「急性 ${girlName} 應援戒斷發作」。`,
@@ -404,30 +385,21 @@
                 `「重度 ${girlName} 缺乏症」，導致患者靈魂暫時性抽離，呈現喪屍狀態。`
             ];
             document.getElementById('rx-diagnosis').innerHTML = diagnoses[Math.floor(Math.random() * diagnoses.length)];
-            
-            // 💊 隨機處方 (全中文名字正名版)
+
             const treatments = [
                 `Rx.<br>1. 立即送往 ${stadium} 熱區第一排急救<br>2. 接受 ${girlName} 專屬眼神光波照射至少 10 分鐘<br>3. 術後需購買最新周邊商品進行復健`,
-                
                 `Rx.<br>1. 每日早中晚照三餐點閱 ${girlName} 限時動態<br>2. 於留言區靜脈注射「高濃度愛心 Emoji」500cc<br>3. 將手機桌布更換為 ${girlName} 以維持基本生命體徵`,
-                
                 `Rx.<br>1. 立即前往 ${stadium} 實施高分貝大聲公嘶吼療法<br>2. 購買 ${girlName} 應援毛巾一條進行物理性擦汗<br>3. 療程期間嚴禁觀看別隊女孩，以免引發強烈排斥反應`,
-                
                 `Rx.<br>1. 實施物理性信仰充值：清空購物車內相關周邊<br>2. 強制身邊至少 3 位朋友追蹤 ${girlName}<br>3. 若病情未見好轉，請立刻買票前往 ${stadium} 複診`,
-                
                 `Rx.<br>1. 暫停一切工作，火速前往 ${stadium} 報到<br>2. 攝取 ${girlName} 專屬應援舞至少 3 個療程 (局)<br>3. 拍下神級美照發送限動，有助於加速病情痊癒`,
-                
                 `Rx.<br>1. 處方箋開立「尊爵不凡季票」一張<br>2. 需在 ${stadium} 內吸收滿滿的球場紅土與香氣<br>3. 睡前需默念 ${girlName} 應援口號 10 遍以安神定魄`,
-                
                 `Rx.<br>1. 啟動終極療程：參加 ${girlName} 的見面會或簽名會<br>2. 取得親筆簽名護身符一張<br>3. 注意：服用此療程後恐產生更嚴重的「暈船併發症」`
             ];
             document.getElementById('rx-treatment').innerHTML = treatments[Math.floor(Math.random() * treatments.length)];
 
-            // 👨‍⚕️ 隨機醫師備註
             const doctorNotes = ["此為急症，請勿拖延", "建議攜帶大砲鏡頭協助治療", "毛巾與應援棒為必備處方藥"];
             document.getElementById('rx-doctor-note').innerText = doctorNotes[Math.floor(Math.random() * doctorNotes.length)];
 
-            // 🔴 隨機印章
             const stamps = ["急件<br>藥到病除", "絕症<br>沒救了", "快去<br>球場", "鐵粉<br>認證"];
             document.getElementById('rx-stamp-text').innerHTML = stamps[Math.floor(Math.random() * stamps.length)];
 
